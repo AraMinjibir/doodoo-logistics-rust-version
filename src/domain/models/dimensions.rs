@@ -33,4 +33,16 @@ impl Dimensions {
             height_in_centimeters: height,
         })
     }
+
+    pub fn width(&self) -> f64 {
+        self.width()
+    }
+
+    pub fn length(&self) -> f64 {
+        self.length()
+    }
+
+    pub fn height(&self) -> f64 {
+        self.height()
+    }
 }

@@ -1,3 +1,5 @@
+use crate::domain::models::address::Address;
+
 #[derive(Debug, Clone)]
 pub struct Recipient {
     name: String,
@@ -30,5 +32,17 @@ impl Recipient {
             contact,
             address,
         })
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn contact(&self) -> &str {
+        &self.contact
+    }
+
+    pub fn address(&self) -> &Address {
+        &self.address
     }
 }

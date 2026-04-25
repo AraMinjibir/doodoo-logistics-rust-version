@@ -1,19 +1,23 @@
-use axum::{routing::get, Router};
+use actix_web::{get, App, HttpServer, Responder};
 
-#[tokio::main]
-async fn main() {
-    let app = Router::new()
-        .route("/health", get(health));
+mod domain;
+mod repositories;
+mod infrastructure;
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
-        .await
-        .unwrap();
-
-    println!("Server running on http://localhost:8080");
-
-    axum::serve(listener, app).await.unwrap();
+#[get("/health")]
+async fn health() -> impl Responder {
+    "DooDoo Logistics (Actix) is alive"
 }
 
-async fn health() -> &'static str {
-    "DooDoo Logistics Rust API is alive"
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    println!("Server running on http://localhost:8080");
+
+    HttpServer::new(|| {
+        App::new()
+            .service(health)
+    })
+    .bind(("0.0.0.0", 8080))?
+    .run()
+    .await
 }

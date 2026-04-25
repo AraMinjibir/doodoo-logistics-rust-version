@@ -1,6 +1,6 @@
 # DooDoo Logistics (Rust Version)
 
-**Rust • Axum • Tokio • PostgreSQL • REST • WebSockets**
+**Rust • Actix Web • Tokio • PostgreSQL • REST • WebSockets**
 
 DooDoo Logistics (Rust Version) is a production-oriented logistics and delivery management backend inspired by industrial-grade systems such as DHL, Bolt Logistics, and FedEx. This implementation rewrites the original Scala/Play system in Rust while preserving its domain-driven architecture, strict state transitions, and asynchronous event-driven design.
 
@@ -42,16 +42,12 @@ Ensures stakeholders receive updates asynchronously without blocking core API op
 
 The system enforces the **Principle of Least Privilege (PoLP)** across four distinct roles.
 
----
-
 ## Customer / Sender
 
 * Create shipments with full validation
 * Receive unique tracking numbers
 * Track shipment lifecycle
 * View complete shipment history
-
----
 
 ## Recipient (Consignee)
 
@@ -60,8 +56,6 @@ The system enforces the **Principle of Least Privilege (PoLP)** across four dist
 * Provide Proof of Delivery (PoD)
 * Receive shipment notifications
 
----
-
 ## Service Provider (Courier)
 
 * Accept shipments
@@ -69,8 +63,6 @@ The system enforces the **Principle of Least Privilege (PoLP)** across four dist
 * Mark shipments as Delivered
 * Provide delivery metadata
 * Submit delivery notes
-
----
 
 ## Support Agent
 
@@ -144,8 +136,6 @@ Administrators can:
 
 Ensures secure access control and operational integrity.
 
----
-
 ## Shipment Monitoring
 
 Administrators can:
@@ -162,20 +152,26 @@ Administrators can:
 Implemented using in-memory domain events:
 
 * Decoupled business logic from notification handling
+
 * Centralized EventBus abstraction
+
 * Triggered on domain events:
 
   * Shipment created
   * Status updated
   * Payment processed
   * User updated
-* Async processing using Tokio tasks
+
+* Async processing powered by Tokio runtime (via Actix)
+
 * Extensible to support:
 
   * Email
   * Push notifications
   * SMS
+
 * Designed for future message broker integration
+
 * Dedicated NotificationService layer
 
 ---
@@ -199,7 +195,7 @@ API Clients (Web / Mobile / Admin)
                 |
              REST / WS
                 |
-          Axum HTTP Layer
+       Actix Web HTTP Layer
                 |
          Application Services
                 |
@@ -217,8 +213,7 @@ API Clients (Web / Mobile / Admin)
 Backend:
 
 * Rust
-* Axum (HTTP API framework)
-* Tokio (Async runtime)
+* Actix Web (HTTP API framework)
 
 Persistence:
 
@@ -232,7 +227,7 @@ Security:
 
 Async Processing:
 
-* Tokio tasks
+* Tokio runtime (used internally by Actix)
 * In-memory event bus
 
 Real-time:

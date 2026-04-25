@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
+use crate::domain::errors::domain_error::DomainError;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)] 
 pub struct ProofOfDelivery {
     image: Option<String>,
     note: String,
@@ -29,7 +31,7 @@ impl ProofOfDelivery {
         }
 
         if cleaned_submitter.is_empty() {
-            errors.push(DomainError::SubmittedByEmpty);
+            errors.push(DomainError::SubmittedByEmptyError);
         }
 
         if !errors.is_empty() {
