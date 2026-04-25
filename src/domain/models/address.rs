@@ -49,4 +49,24 @@ impl Address {
             postal_code,
         })
     }
+
+    pub fn street(&self) -> &str {
+        &self.street
+    }
+
+    pub fn city(&self) -> &str {
+        &self.city
+    }
+
+    pub fn state(&self) -> &str {
+        &self.state
+    }
+
+    pub fn country(&self) -> &str {
+        &self.country
+    }
+
+    pub fn postal_code(&self) -> &str {
+        &self.postal_code
+    }
 }

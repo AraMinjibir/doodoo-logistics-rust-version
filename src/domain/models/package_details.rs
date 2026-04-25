@@ -38,4 +38,12 @@ impl PackageDetails {
     pub fn weight(&self) -> f64 {
         self.weight_in_kilograms
     }
+
+    pub fn dimensions(&self) -> &Dimensions {
+        &self.dimensions
+    }
+
+    pub fn contents(&self) -> &str {
+        &self.contents
+    }
 }

@@ -1,7 +1,8 @@
 use chrono::{DateTime, Utc};
 use crate::domain::errors::domain_error::DomainError;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)] 
 pub struct ProofOfDelivery {
     image: Option<String>,
     note: String,
