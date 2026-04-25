@@ -2,6 +2,7 @@ use actix_web::{get, App, HttpServer, Responder};
 
 mod domain;
 mod repositories;
+mod infrastructure;
 
 #[get("/health")]
 async fn health() -> impl Responder {
