@@ -1,12 +1,10 @@
 
-use uuid::uuid;
+use uuid::Uuid;
 use chrono::{DateTime, Utc, Duration};
 
 use crate::domain::models::{
     recipient::Recipient,
     package_details::PackageDetails,
-    dimensions::Dimensions,
-    address::Address,
     proof_of_delivery::ProofOfDelivery,
     shipment_status::ShipmentStatus
 };
@@ -16,7 +14,7 @@ pub struct Shipment{
     sender_name: String,
     recipient: Recipient,
     package_details: PackageDetails,
-    id: uuid,
+    id: Uuid,
     tracking_number:  Option<String>,
     status: ShipmentStatus,
     created_at: DateTime<Utc>,

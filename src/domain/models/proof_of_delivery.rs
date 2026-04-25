@@ -1,4 +1,5 @@
 use chrono::{DateTime, Utc};
+use crate::domain::errors::domain_error::DomainError;
 
 #[derive(Debug, Clone)]
 pub struct ProofOfDelivery {
@@ -29,7 +30,7 @@ impl ProofOfDelivery {
         }
 
         if cleaned_submitter.is_empty() {
-            errors.push(DomainError::SubmittedByEmpty);
+            errors.push(DomainError::SubmittedByEmptyError);
         }
 
         if !errors.is_empty() {

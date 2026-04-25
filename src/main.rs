@@ -1,5 +1,8 @@
 use actix_web::{get, App, HttpServer, Responder};
 
+mod domain;
+mod repositories;
+
 #[get("/health")]
 async fn health() -> impl Responder {
     "DooDoo Logistics (Actix) is alive"

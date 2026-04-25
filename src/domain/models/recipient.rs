@@ -1,3 +1,5 @@
+use crate::domain::models::address::Address;
+
 #[derive(Debug, Clone)]
 pub struct Recipient {
     name: String,
