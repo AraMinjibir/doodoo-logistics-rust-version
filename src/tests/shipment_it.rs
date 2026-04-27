@@ -1,11 +1,6 @@
-use sqlx::PgPool;
-use uuid::Uuid;
 
-use crate::repositories::shipment_repository::ShipmentRepository;
 use crate::repositories::sqlx_shipment_repository::SqlxShipmentRepository;
 use crate::tests::common::db::TestDb;
-use crate::tests::common::fixtures::test_shipment;
-use crate::domain::models::shipment_status::ShipmentStatus;
 
 
 pub struct TestContext {
