@@ -12,6 +12,10 @@ pub struct ProofOfDelivery {
 
 
 impl ProofOfDelivery {
+    pub fn image_url(&self) -> Option<&str> {
+        self.image.as_deref()
+    }
+
     pub fn create(
         image: Option<String>,
         note: String,
