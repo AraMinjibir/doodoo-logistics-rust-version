@@ -1,9 +1,9 @@
-use sqlx::{PgPool, Postgres, Transaction};
+use sqlx::PgPool;
 use uuid::Uuid;
 use async_trait::async_trait;
 
 use crate::repositories::shipment_repository::ShipmentRepository;
-use crate::infrastructure::mappers::shipment_mapper::ShipmentMapper;
+use crate::infrastructure::mappers::shipment_mapper:: ShipmentMapper;
 use crate::domain::models::shipment::Shipment;
 use crate::domain::errors::repository_error::RepositoryError;
 use crate::infrastructure::mappers::shipment_mapper::map_sqlx_error;
@@ -27,7 +27,7 @@ impl SqlxShipmentRepository {
 impl ShipmentRepository for SqlxShipmentRepository {
     
     async fn create(&self, shipment: &Shipment) -> Result<(), RepositoryError> {
-        let row = ShipmentMapper::from_domain(shipment.clone());
+        let row = ShipmentMapper::to_row(shipment.clone());
     
         sqlx::query!(
             r#"INSERT INTO shipments (
@@ -77,7 +77,7 @@ impl ShipmentRepository for SqlxShipmentRepository {
         Ok(())
     }
     async fn update(&self, shipment: &Shipment) -> Result<(), RepositoryError> {
-        let row = ShipmentMapper::from_domain(shipment.clone());
+        let row = ShipmentMapper::to_row(shipment.clone());
     
         sqlx::query!(
             r#"UPDATE shipments SET
@@ -150,8 +150,9 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .await
         .map_err(map_sqlx_error)?;
     
-        Ok(row.map(ShipmentMapper::to_domain))
+        Ok(row.map(ShipmentMapper::from_row))
     }
+
     async fn get_by_status(&self, status: &str) -> Result<Vec<Shipment>, RepositoryError> {
         let rows = sqlx::query_as!(
             ShipmentRow,
@@ -162,7 +163,13 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .await
         .map_err(map_sqlx_error)?;
     
-        Ok(ShipmentMapper::to_domain_list(rows))    }
+        let shipments = rows
+    .into_iter()
+    .map(ShipmentMapper::from_row)
+    .collect();
+
+    Ok(shipments)
+    }
     async fn find_by_tracking_number(
         &self,
         tracking: &str,
@@ -176,8 +183,9 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .await
         .map_err(map_sqlx_error)?;
     
-        Ok(row.map(Shipment::from))
-    }
+        Ok(row.map(ShipmentMapper::from_row))
+    
+  }
 
     async fn list_all(&self, offset: i64, limit: i64) -> Result<Vec<Shipment>, RepositoryError> {
         let rows = sqlx::query_as!(
@@ -190,8 +198,13 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .await
         .map_err(map_sqlx_error)?;
     
-        Ok(ShipmentMapper::to_domain_list(rows))
-    }
+        let shipments = rows
+        .into_iter()
+        .map(ShipmentMapper::from_row)
+        .collect();
+    
+        Ok(shipments)   
+     }
 
     async fn upload_proof_of_delivery(
         &self,
@@ -245,6 +258,6 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .await
         .map_err(map_sqlx_error)?;
     
-        Ok(rows.into_iter().map(Shipment::from).collect())
+        Ok(rows.into_iter().map(ShipmentMapper::from_row).collect())
     }
 }
