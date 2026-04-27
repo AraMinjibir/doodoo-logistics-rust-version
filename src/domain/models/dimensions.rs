@@ -35,14 +35,14 @@ impl Dimensions {
     }
 
     pub fn width(&self) -> f64 {
-        self.width()
+        self.width_in_centimeters
     }
-
+    
     pub fn length(&self) -> f64 {
-        self.length()
+        self.length_in_centimeters
     }
-
+    
     pub fn height(&self) -> f64 {
-        self.height()
+        self.height_in_centimeters
     }
 }
