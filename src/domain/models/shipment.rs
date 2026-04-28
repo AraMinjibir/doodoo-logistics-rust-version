@@ -1,6 +1,7 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc, Duration};
 
+use crate::domain::errors::domain_error::DomainError;
 use crate::domain::models::{
     recipient::Recipient,
     package_details::PackageDetails,
@@ -43,6 +44,8 @@ impl Shipment {
             proof_of_delivery: vec![],
             service_provider_id,
         }
+
+    
     }
 
     pub fn reconstitute(
@@ -71,7 +74,23 @@ impl Shipment {
         }
     }
 
+  
+    pub fn updated_shipment(
+        &self,
+        sender_name: String,
+        recipient: Recipient,
+        package_details: PackageDetails,
+    ) -> Self {
+        Self {
+            sender_name,
+            recipient,
+            package_details,
+            updated_at: Utc::now(),
+            ..self.clone()
+        }
+    }
     // Getters
+
 
     pub fn id(&self) -> Uuid {
         self.id
@@ -104,7 +123,7 @@ impl Shipment {
         self.updated_at = Utc::now();
     }
 
-    pub fn proof_of_delivery(&self) -> &Vec<ProofOfDelivery> {
+    pub fn proof_of_delivery(&self) -> &[ProofOfDelivery] {
         &self.proof_of_delivery
     }
 
@@ -143,4 +162,51 @@ impl Shipment {
     pub fn tracking_number(&self) -> &str {
         &self.tracking_number
     }
+
+        pub fn update_status(
+            &self,
+            next: ShipmentStatus,
+        ) -> Result<Self, DomainError> {
+            let now = Utc::now();
+
+            ShipmentStatus::validate_transition(&self.status, &next)?;
+    
+            Ok(Self {
+                status: next,
+                updated_at: now,
+                ..self.clone()
+            })
+        }
+
+
+   pub fn attach_proof_of_delivery(
+        &self,
+        proof: ProofOfDelivery,
+    ) -> Result<Self, DomainError> {
+        // 1. Must be delivered
+        if self.status != ShipmentStatus::Delivered {
+            return Err(DomainError::ShipmentNotDelivered);
+        }
+
+        // 2. Prevent duplicate submitter
+        if self
+            .proof_of_delivery
+            .iter()
+            .any(|p| p.submitted_by() == proof.submitted_by())
+        {
+            return Err(DomainError::DuplicateProofOfDelivery);
+        }
+
+        // 3. Return updated immutable copy
+        Ok(Self {
+            proof_of_delivery: {
+                let mut proofs = self.proof_of_delivery.clone();
+                proofs.push(proof);
+                proofs
+            },
+            updated_at: Utc::now(),
+            ..self.clone()
+        })
+    } 
 }
+

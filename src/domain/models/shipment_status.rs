@@ -3,6 +3,8 @@ use std::fmt;
 use std::str::FromStr;
 use once_cell::sync::Lazy;
 
+use crate::domain::errors::domain_error::DomainError;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ShipmentStatus {
     Created,
@@ -40,18 +42,18 @@ impl ShipmentStatus {
     pub fn validate_transition(
         current: &ShipmentStatus,
         next: &ShipmentStatus,
-    ) -> Result<(), String> {
+    ) -> Result<(), DomainError> {
         let allowed = ALLOWED_TRANSITIONS
             .get(current)
             .unwrap_or(&EMPTY_SET);
-
+    
         if !allowed.contains(next) {
-            return Err(format!(
-                "Invalid transition from {} to {}",
-                current, next
-            ));
+            return Err(DomainError::InvalidShipmentStatusTransition {
+                from: current.clone(),
+                to: next.clone(),
+            });
         }
-
+    
         Ok(())
     }
 }

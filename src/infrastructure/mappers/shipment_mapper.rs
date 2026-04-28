@@ -6,7 +6,6 @@ use crate::domain::models::recipient::Recipient;
 use crate::domain::models::address::Address;
 use crate::domain::models::package_details::PackageDetails;
 use crate::domain::models::dimensions::Dimensions;
-use crate::domain::errors::repository_error::RepositoryError;
 use crate::domain::models::proof_of_delivery::ProofOfDelivery;
 
 pub struct ShipmentMapper;
@@ -110,6 +109,4 @@ impl PackageDetailsMapper {
     }
 }
 
-pub fn map_sqlx_error(_: sqlx::Error) -> RepositoryError {
-    RepositoryError::DatabaseError
-}
+

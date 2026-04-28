@@ -49,4 +49,16 @@ impl ProofOfDelivery {
             submitted_at: Utc::now(),
         })
     }
+    pub fn image(&self) -> Option<String> {
+        self.image.clone()
+    }
+
+    pub fn  note(&self) -> String {
+        self.note.clone()
+    }
+    
+    pub fn  submitted_by(&self) -> String {
+        self.submitted_by.clone()
+    }
+    
 }

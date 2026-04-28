@@ -6,8 +6,8 @@ use crate::repositories::shipment_repository::ShipmentRepository;
 use crate::infrastructure::mappers::shipment_mapper:: ShipmentMapper;
 use crate::domain::models::shipment::Shipment;
 use crate::domain::errors::repository_error::RepositoryError;
-use crate::infrastructure::mappers::shipment_mapper::map_sqlx_error;
 use crate::infrastructure::shipment_row::ShipmentRow;
+use crate::domain::errors::repository_error::map_sqlx_error;
 
 pub struct SqlxShipmentRepository {
     pool: PgPool,
