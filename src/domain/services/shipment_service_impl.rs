@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use crate::domain::models::shipment::Shipment;
+use crate::domain::models::shipment::{self, Shipment};
 use crate::domain::services::shipment_service::ShipmentService;
 use crate::repositories::shipment_repository::ShipmentRepository;
 use crate::domain::errors::domain_error::DomainError;
@@ -122,20 +122,22 @@ where
         &self,
         tracking: &str,
     ) -> Result<Option<Shipment>, DomainError> {
-        self.repo
+        let shipments = self.repo
             .find_by_tracking_number(tracking)
-            .await
-            .map_err(|e| e.into())
-    }
+            .await?;
+          Ok(shipments)
+          }
 
     async fn get_by_id(
         &self,
         id: Uuid,
-    ) -> Result<Option<Shipment>, DomainError> {
-        self.repo
+    ) -> Result<Shipment, DomainError> {
+        let shipment = self.repo
             .get_by_id(id)
-            .await
-            .map_err(|e| e.into())
+            .await?
+            .ok_or(DomainError::ShipmentNotFoundById { id })?;
+    
+        Ok(shipment)
     }
 
 async fn update_shipment(
@@ -169,18 +171,20 @@ async fn list_shipments(
     offset: i64,
     limit: i64,
 ) -> Result<Vec<Shipment>, DomainError> {
-    self.repo
+    let shipments = self.repo
         .list_all(offset, limit)
-        .await
-        .map_err(|e| e.into())
+        .await?;
+
+    Ok(shipments)
 }
 async fn get_by_status(
     &self,
     status: ShipmentStatus,
 ) -> Result<Vec<Shipment>, DomainError> {
-    self.repo
+  let shipments =  self.repo
         .get_by_status(&status.to_string()) 
-        .await
-        .map_err(|e| e.into())
+        .await?;
+    
+    Ok(shipments)
 }
 }
