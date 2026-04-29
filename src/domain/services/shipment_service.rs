@@ -17,7 +17,7 @@ pub trait ShipmentService {
     async fn get_by_tracking_number(
         &self,
         tracking: &str,
-    ) -> Result<Option<Shipment>, DomainError>;
+    ) -> Result<Shipment, DomainError>;
 
     async fn get_by_id(
         &self,

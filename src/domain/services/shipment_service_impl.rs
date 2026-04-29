@@ -121,10 +121,12 @@ where
     async fn get_by_tracking_number(
         &self,
         tracking: &str,
-    ) -> Result<Option<Shipment>, DomainError> {
+    ) -> Result<Shipment, DomainError> {
         let shipments = self.repo
             .find_by_tracking_number(tracking)
-            .await?;
+            .await?
+            .ok_or(DomainError::ShipmentNotFound{tracking_number: tracking.to_string()})?;
+
           Ok(shipments)
           }
 
