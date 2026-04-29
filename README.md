@@ -22,18 +22,6 @@ This system solves:
 
 Prevents illegal state transitions (e.g., Created → Delivered without InTransit).
 
-#2. Project Purpose
-
-This project demonstrates:
-
-Real-world Rust backend architecture
-Domain-Driven Design (DDD) in production systems
-State machine modeling for logistics workflows
-Async, non-blocking system design (Tokio + Actix)
-Clean modular monolith architecture
-Migration of enterprise system from Scala → Rust
-
-
 ### Role-Based Access Control (RBAC)
 
 Enforces Principle of Least Privilege:
@@ -323,7 +311,7 @@ cargo run
 # 12. Status Lifecycle
 
 ```
-Created → Accepted → InTransit → Delivered
+Created → Assigned → InTransit → Delivered
 ```
 
 Invalid transitions are rejected at compile-time and runtime.
@@ -348,12 +336,12 @@ Invalid transitions are rejected at compile-time and runtime.
 
 This project demonstrates:
 
-* Real-world Rust backend architecture
-* Async application design
-* Domain-driven development
-* State machine modeling
-* Clean modular monolith structure
-* Production-oriented system design
+Real-world Rust backend architecture
+Domain-Driven Design (DDD) in production systems
+State machine modeling for logistics workflows
+Async, non-blocking system design (Tokio + Actix)
+Clean modular monolith architecture
+Migration of enterprise system from Scala → Rust
 
 ---
 
