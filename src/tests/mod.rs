@@ -1,2 +1,3 @@
 pub mod common;
-pub mod shipment_it;
+pub mod integration_tests;
+pub mod unit_tests;
