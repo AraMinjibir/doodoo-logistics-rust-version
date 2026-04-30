@@ -12,5 +12,6 @@ sqlx = { version = "0.7", features = ["postgres", "runtime-tokio", "macros", "uu
 uuid = { version = "1", features = ["v4", "serde"] }
 async-trait = "0.1"
 serde = { version = "1", features = ["derive"] }
-tokio = { version = "1", features = ["macros"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 dotenvy = "0.15"
+mockall = "0.12"
