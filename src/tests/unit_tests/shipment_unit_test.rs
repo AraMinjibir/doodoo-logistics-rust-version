@@ -9,7 +9,7 @@ use crate::domain::services::shipment_service_impl::ShipmentServiceImpl;
 use crate::domain::services::shipment_service::ShipmentService;
 use crate::domain::errors::domain_error::DomainError;
 use crate::domain::models::shipment_status::ShipmentStatus;
-use crate::tests::common::mock_repo::MockRepo;
+use crate::tests::common::mock_repo::MockShipmentRepo;
 
 
 
@@ -17,7 +17,7 @@ use crate::tests::common::mock_repo::MockRepo;
 
 #[tokio::test]
 async fn create_shipment_success() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
     let shipment = test_shipment();
 
     let expected_id = shipment.id();
@@ -39,7 +39,7 @@ async fn create_shipment_success() {
 
 #[tokio::test]
 async fn create_shipment_repo_error() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     repo.expect_create()
         .returning(|_| Err(RepositoryError::DatabaseError("fail".into())));
@@ -53,7 +53,7 @@ async fn create_shipment_repo_error() {
 
 #[tokio::test]
 async fn get_by_tracking_success() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
     let shipment = test_shipment();
 
     repo.expect_find_by_tracking_number()
@@ -68,7 +68,7 @@ async fn get_by_tracking_success() {
 
 #[tokio::test]
 async fn get_by_tracking_not_found() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     repo.expect_find_by_tracking_number()
         .returning(|_| Ok(None));
@@ -82,7 +82,7 @@ async fn get_by_tracking_not_found() {
 
 #[tokio::test]
 async fn get_by_id_success() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
     let shipment = test_shipment();
     let id = shipment.id();
 
@@ -98,7 +98,7 @@ async fn get_by_id_success() {
 
 #[tokio::test]
 async fn get_by_id_not_found() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     repo.expect_get_by_id()
         .returning(|_| Ok(None));
@@ -112,7 +112,7 @@ async fn get_by_id_not_found() {
 
 #[tokio::test]
 async fn get_by_status_success() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     repo.expect_get_by_status()
         .returning(|_| Ok(vec![test_shipment()]));
@@ -127,7 +127,7 @@ async fn get_by_status_success() {
 
 #[tokio::test]
 async fn update_status_success() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     let mut shipment = test_shipment();
     shipment.set_status(ShipmentStatus::InTransit); 
@@ -158,7 +158,7 @@ async fn update_status_success() {
 
 #[tokio::test]
 async fn update_status_not_found() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     repo.expect_find_by_tracking_number()
         .returning(|_| Ok(None));
@@ -174,7 +174,7 @@ async fn update_status_not_found() {
 
 #[tokio::test]
 async fn update_shipment_success() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     let shipment = test_shipment();
     let shipment_id = shipment.id();
@@ -200,7 +200,7 @@ async fn update_shipment_success() {
 
 #[tokio::test]
 async fn list_shipments_success() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     repo.expect_list_all()
         .returning(|_, _| Ok(vec![test_shipment()]));
@@ -215,7 +215,7 @@ async fn list_shipments_success() {
 
 #[tokio::test]
 async fn delete_success() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     repo.expect_delete()
         .returning(|_| Ok(1));
@@ -229,7 +229,7 @@ async fn delete_success() {
 
 #[tokio::test]
 async fn delete_not_found() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     repo.expect_delete()
         .returning(|_| Ok(0));
@@ -243,7 +243,7 @@ async fn delete_not_found() {
 
 #[tokio::test]
 async fn upload_proof_success() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     let mut shipment = test_shipment();
     shipment.set_status(ShipmentStatus::Delivered);
@@ -274,7 +274,7 @@ async fn upload_proof_success() {
 
 #[tokio::test]
 async fn upload_proof_not_found() {
-    let mut repo = MockRepo::new();
+    let mut repo = MockShipmentRepo::new();
 
     repo.expect_find_by_tracking_number()
         .returning(|_| Ok(None));

@@ -8,10 +8,10 @@ use crate::domain::errors::repository_error::RepositoryError;
 use crate::repositories::shipment_repository::ShipmentRepository;
 
 mock! {
-    pub Repo {}
+    pub ShipmentRepo {}
 
     #[async_trait]
-    impl ShipmentRepository for Repo {
+    impl ShipmentRepository for ShipmentRepo {
         async fn create(&self, shipment: &Shipment) -> Result<(), RepositoryError>;
         async fn update(&self, shipment: &Shipment) -> Result<(), RepositoryError>;
         async fn delete(&self, id: Uuid) -> Result<u64, RepositoryError>;
