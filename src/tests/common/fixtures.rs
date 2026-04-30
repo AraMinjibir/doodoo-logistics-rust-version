@@ -1,6 +1,7 @@
 
 use crate::domain::models::address::Address;
 use crate::domain::models::dimensions::Dimensions;
+use crate::domain::models::proof_of_delivery::ProofOfDelivery;
 use crate::domain::models::recipient::Recipient;
 use crate::domain::models::shipment::Shipment;
 use crate::domain::models::package_details:: PackageDetails;
@@ -27,6 +28,13 @@ fn test_package() -> PackageDetails{
         .unwrap()
 }
 
+pub fn test_proof() -> ProofOfDelivery{
+    ProofOfDelivery::create(
+    Some("image".to_string()),
+       "note".to_string(), 
+       "submitted_by".to_string()
+    ).unwrap()
+}
 fn test_recipient() -> Recipient{
     let addres = Address::create("street".to_string(),
      "city".to_string(),
