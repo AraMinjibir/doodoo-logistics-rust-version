@@ -2,56 +2,40 @@ stages:
   - build
   - test
 
-# 1. BUILD STAGE
+variables:
+  SQLX_OFFLINE: "true" # Forces macros to use sqlx-data.json
 
-build:
-  image: rust:1.95
-  stage: build
-  script:
-    - cargo build --verbose
-
-
-# 2. UNIT TESTS (BUSINESS LOGIC)
-
-unit_tests:
-  image: rust:1.95
-  stage: test
-  script:
-    - cargo test --verbose
-
-
-
-# 3. INTEGRATION TESTS (REAL DB)
-
-integration_tests:
-  image: rust:1.95
-  stage: test
-
+# Reusable Postgres config
+.postgres_service: &postgres_config
   services:
     - name: postgres:16
       alias: postgres
-
   variables:
     POSTGRES_DB: doodoo_test
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
     DATABASE_URL: postgres://postgres:postgres@postgres:5432/doodoo_test
 
+build:
+  stage: build
+  image: rust:1.95
   script:
-    - echo "Waiting for Postgres..."
+    - cargo build --verbose
 
-    #  wait for DB readiness
+unit_tests:
+  stage: test
+  image: rust:1.95
+  script:
+    - cargo test --verbose 
+
+integration_tests:
+  <<: *postgres_config # Inject the service and DB variables
+  stage: test
+  image: rust:1.95
+  variables:
+    # Overwrite offline mode just for this job if you want fresh validation
+    SQLX_OFFLINE: "false" 
+  script:
     - apt-get update && apt-get install -y netcat-openbsd
     - until nc -z postgres 5432; do echo "waiting for db..."; sleep 1; done
-
-    - echo "DB is ready"
-    - echo "DATABASE_URL=$DATABASE_URL"
     - cargo test --test '*' --verbose
-
-
-  #  for debugging CI failures
-  artifacts:
-    when: always
-    reports:
-      junit: target/junit.xml
-      
