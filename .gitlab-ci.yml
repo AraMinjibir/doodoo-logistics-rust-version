@@ -5,7 +5,7 @@ stages:
 # 1. BUILD STAGE
 
 build:
-  image: rust:1.82
+  image: rust:1.95
   stage: build
   script:
     - cargo build --verbose
