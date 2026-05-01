@@ -13,3 +13,6 @@ test:
   stage: test
   script:
     - cargo test --verbose
+
+variables:
+  SQLX_OFFLINE: "true"    
