@@ -1,7 +1,10 @@
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use crate::domain::models::shipment::Shipment;
+use crate::domain::models::{
+    shipment::Shipment,
+    shipment::UpdateShipment
+};
 use crate::domain::models::shipment_status::ShipmentStatus;
 use crate::domain::models::proof_of_delivery::ProofOfDelivery;
 use crate::domain::errors::domain_error::DomainError;
@@ -39,7 +42,7 @@ pub trait ShipmentService {
     async fn update_shipment(
         &self,
         id: Uuid,
-        shipment: Shipment,
+        dto: UpdateShipment,
     ) -> Result<Shipment, DomainError>;
 
     async fn list_shipments(
