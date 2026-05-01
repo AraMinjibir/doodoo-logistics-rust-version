@@ -40,4 +40,4 @@ integration_tests:
     - until nc -z postgres 5432; do echo "waiting for db..."; sleep 1; done
     - echo "Database is UP"
     # Execute integration tests only
-    - cargo test --test '*' --verbose -- --test-threads=1
+    - cargo test tests::integration_tests --verbose -- --test-threads=1
