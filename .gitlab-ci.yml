@@ -38,6 +38,13 @@ integration_tests:
     DATABASE_URL: postgres://postgres:postgres@postgres:5432/doodoo_test
 
   script:
+    - echo "Waiting for Postgres..."
+
+    #  wait for DB readiness
+    - apt-get update && apt-get install -y netcat-openbsd
+    - until nc -z postgres 5432; do echo "waiting for db..."; sleep 1; done
+
+    - echo "DB is ready"
     - echo "DATABASE_URL=$DATABASE_URL"
     - cargo test --test '*' --verbose
 
