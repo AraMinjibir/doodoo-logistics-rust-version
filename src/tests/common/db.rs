@@ -6,29 +6,31 @@ pub struct TestDb {
     pub pool: PgPool,
 }
 
+
 impl TestDb {
+
     pub async fn new() -> Self {
         dotenv().ok();
-        // 1. Load test DB URL
-        let database_url =
-            env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-
+        
+        // Look for DATABASE_URL, but provide a default for CI if it's missing
+        let database_url = env::var("DATABASE_URL")
+            .unwrap_or_else(|_| "postgres://postgres:postgres@postgres:5432/doodoo_test".to_string());
+    
         let pool = PgPool::connect(&database_url)
             .await
-            .expect("Failed to connect to DB");
-
-        // 2. Run migrations automatically
+            .unwrap_or_else(|e| panic!("Failed to connect to DB at {}: {}", database_url, e));
+    
+    // Run migrations automatically
         sqlx::migrate!()
             .run(&pool)
             .await
             .expect("Failed to run migrations");
-
-        // 3. Clean database BEFORE each test
+    
+    // Clean database BEFORE each test
         Self::clean(&pool).await;
-
+    
         Self { pool }
     }
-
     async fn clean(pool: &PgPool) {
         // ⚠️ order matters if you have FK constraints
         pool.execute("TRUNCATE TABLE shipments RESTART IDENTITY CASCADE")

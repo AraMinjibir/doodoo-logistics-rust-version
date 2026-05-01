@@ -3,7 +3,10 @@ stages:
   - test
 
 variables:
-  FF_NETWORK_PER_BUILD: "true" # Essential for service-to-job communication
+  # Essential for GitLab SaaS runners to link the Rust container and Postgres container
+  FF_NETWORK_PER_BUILD: "true"
+  # Default Database URL for CI
+  DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
   SQLX_OFFLINE: "true"
 
 build:
@@ -16,7 +19,7 @@ unit_tests:
   stage: test
   image: rust:1.95
   script:
-    # Runs tests defined inside your src/ files (main.rs, modules)
+    # Runs unit tests (ignoring the /tests folder)
     - cargo test --bins --verbose
 
 integration_tests:
@@ -26,16 +29,15 @@ integration_tests:
     - name: postgres:16
       alias: postgres
   variables:
-    # Ensure the DB driver inside Rust sees this exact host
     POSTGRES_DB: doodoo_test
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
-    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
     SQLX_OFFLINE: "false"
   script:
     - apt-get update && apt-get install -y netcat-openbsd
-    - echo "Waiting for database at postgres:5432..."
-    - until nc -z postgres 5432; do echo "Waiting for db..."; sleep 1; done
-    - echo "Database is UP - Running integration tests"
-    # --test '*' targets files in your /tests directory
+    # Verification of network resolution
+    - echo "Waiting for database at host 'postgres'..."
+    - until nc -z postgres 5432; do echo "waiting for db..."; sleep 1; done
+    - echo "Database is UP"
+    # Execute integration tests only
     - cargo test --test '*' --verbose -- --test-threads=1
