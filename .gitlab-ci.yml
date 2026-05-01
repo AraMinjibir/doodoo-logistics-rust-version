@@ -35,14 +35,14 @@ integration_tests:
     POSTGRES_DB: doodoo_test
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
-    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
 
   script:
-    - apt-get update && apt-get install -y postgresql-client
-    - cargo test --test integration --verbose
+    -  echo "DATABASE_URL=$DATABASE_URL"
+    - cargo test test  --verbose
 
   #  for debugging CI failures
   artifacts:
     when: always
     reports:
       junit: target/junit.xml
+      
