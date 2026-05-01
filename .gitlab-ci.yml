@@ -3,20 +3,8 @@ stages:
   - test
 
 variables:
-  # This is the "magic" fix for service connectivity issues in GitLab CI
-  FF_NETWORK_PER_BUILD: "true"
+  FF_NETWORK_PER_BUILD: "true" # Essential for service-to-job communication
   SQLX_OFFLINE: "true"
-
-# Reusable Postgres config
-.postgres_service: &postgres_config
-  services:
-    - name: postgres:16
-      alias: postgres
-  variables:
-    POSTGRES_DB: doodoo_test
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-    DATABASE_URL: postgres://postgres:postgres@postgres:5432/doodoo_test
 
 build:
   stage: build
@@ -28,19 +16,26 @@ unit_tests:
   stage: test
   image: rust:1.95
   script:
-    # Run only unit tests (fast, no DB)
+    # Runs tests defined inside your src/ files (main.rs, modules)
     - cargo test --bins --verbose
 
 integration_tests:
-  <<: *postgres_config
   stage: test
   image: rust:1.95
+  services:
+    - name: postgres:16
+      alias: postgres
   variables:
+    # Ensure the DB driver inside Rust sees this exact host
+    POSTGRES_DB: doodoo_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
     SQLX_OFFLINE: "false"
   script:
     - apt-get update && apt-get install -y netcat-openbsd
     - echo "Waiting for database at postgres:5432..."
-    - until nc -z postgres 5432; do echo "waiting for db..."; sleep 1; done
-    - echo "Database is UP"
-    # Run only integration tests with a single thread to prevent connection race conditions
+    - until nc -z postgres 5432; do echo "Waiting for db..."; sleep 1; done
+    - echo "Database is UP - Running integration tests"
+    # --test '*' targets files in your /tests directory
     - cargo test --test '*' --verbose -- --test-threads=1
