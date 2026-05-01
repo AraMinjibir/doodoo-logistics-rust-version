@@ -3,9 +3,9 @@ stages:
   - test
 
 variables:
-  # CRITICAL: This flag allows the Runner container and Service container to talk to each other.
-  FF_NETWORK_PER_BUILD: "true" 
-  SQLX_OFFLINE: "true" # Default to offline for build and unit tests
+  # This is the "magic" fix for service connectivity issues in GitLab CI
+  FF_NETWORK_PER_BUILD: "true"
+  SQLX_OFFLINE: "true"
 
 # Reusable Postgres config
 .postgres_service: &postgres_config
@@ -28,20 +28,19 @@ unit_tests:
   stage: test
   image: rust:1.95
   script:
-    # We run only library unit tests here to avoid hitting DB-dependent integration tests
-    - cargo test --lib --verbose 
+    # Run only unit tests (fast, no DB)
+    - cargo test --lib --verbose
 
 integration_tests:
   <<: *postgres_config
   stage: test
   image: rust:1.95
   variables:
-    SQLX_OFFLINE: "false" # We want live validation for integration tests
+    SQLX_OFFLINE: "false"
   script:
-    - echo "Waiting for Postgres to accept connections at postgres:5432..."
     - apt-get update && apt-get install -y netcat-openbsd
-    # This loop should now succeed quickly with the FF_NETWORK_PER_BUILD flag enabled
+    - echo "Waiting for database at postgres:5432..."
     - until nc -z postgres 5432; do echo "waiting for db..."; sleep 1; done
-    - echo "DB is ready!"
-    # Run only the integration tests
-    - cargo test --test '*' --verbose
+    - echo "Database is UP"
+    # Run only integration tests with a single thread to prevent connection race conditions
+    - cargo test --test '*' --verbose -- --test-threads=1
