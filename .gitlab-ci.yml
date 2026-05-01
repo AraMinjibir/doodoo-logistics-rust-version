@@ -3,8 +3,8 @@ stages:
   - test
 
 build:
-image: rust:latest  
-stage: build
+  image: rust:latest
+  stage: build
   script:
     - cargo build --verbose
 
