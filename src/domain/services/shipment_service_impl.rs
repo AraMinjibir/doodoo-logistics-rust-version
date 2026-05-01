@@ -1,12 +1,13 @@
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use crate::domain::models::shipment::{self, Shipment};
+use crate::domain::models::shipment::{self, Shipment, UpdateShipment};
 use crate::domain::services::shipment_service::ShipmentService;
 use crate::repositories::shipment_repository::ShipmentRepository;
 use crate::domain::errors::domain_error::DomainError;
 use crate::domain::models::shipment_status::ShipmentStatus;
 use crate::domain::models::proof_of_delivery::ProofOfDelivery;
+
 
 
 pub struct ShipmentServiceImpl<R>
@@ -142,32 +143,28 @@ where
         Ok(shipment)
     }
 
-async fn update_shipment(
-    &self,
-    id: Uuid,
-    shipment: Shipment,
-) -> Result<Shipment, DomainError> {
-
-    let existing = self.repo
-        .get_by_id(id)
-        .await?
-        .ok_or(DomainError::ShipmentNotFoundById { id })?;
-
-    let updated = existing.updated_shipment(
-        shipment.sender_name().to_string(),
-        shipment.recipient().clone(),
-        shipment.package_details().clone(),
-
-    );
-
-    self.repo
-        .update(&updated)
-        .await
-?;
-
-    Ok(updated)
-}
-
+    async fn update_shipment(
+        &self,
+        id: Uuid,
+        dto: UpdateShipment,
+    ) -> Result<Shipment, DomainError> {
+    
+        let existing = self.repo
+            .get_by_id(id)
+            .await?
+            .ok_or(DomainError::ShipmentNotFoundById { id })?;
+    
+        let updated = existing.updated_shipment(
+            dto.sender_name.unwrap_or_else(|| existing.sender_name().to_string()),
+            dto.recipient.unwrap_or_else(|| existing.recipient().clone()),
+            dto.package_details.unwrap_or_else(|| existing.package_details().clone()),
+        );
+    
+        self.repo.update(&updated).await?;
+    
+        Ok(updated)
+    }
+    
 async fn list_shipments(
     &self,
     offset: i64,

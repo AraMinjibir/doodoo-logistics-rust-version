@@ -4,7 +4,7 @@ use uuid::Uuid;
 use crate::domain::errors::repository_error::RepositoryError;
 use crate::repositories::shipment_repository::ShipmentRepository;
 use crate::domain::models::shipment::Shipment;
-use crate::tests::common::fixtures::{test_shipment, test_proof};
+use crate::tests::common::fixtures::{test_shipment, test_proof, updated_shipment};
 use crate::domain::services::shipment_service_impl::ShipmentServiceImpl;
 use crate::domain::services::shipment_service::ShipmentService;
 use crate::domain::errors::domain_error::DomainError;
@@ -180,7 +180,7 @@ async fn update_shipment_success() {
     let shipment_id = shipment.id();
 
     let existing = shipment.clone();
-    let updated = shipment.clone();
+    let updated = updated_shipment();
 
     repo.expect_get_by_id()
         .withf(move |id| *id == shipment_id)

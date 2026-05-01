@@ -210,3 +210,8 @@ impl Shipment {
     } 
 }
 
+pub struct UpdateShipment {
+    pub sender_name: Option<String>,
+    pub recipient: Option<Recipient>,
+    pub package_details: Option<PackageDetails>,
+}
