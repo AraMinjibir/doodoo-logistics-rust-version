@@ -29,7 +29,7 @@ unit_tests:
   image: rust:1.95
   script:
     # Run only unit tests (fast, no DB)
-    - cargo test --lib --verbose
+    - cargo test --bins --verbose
 
 integration_tests:
   <<: *postgres_config
