@@ -1,0 +1,148 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM shipments WHERE tracking_number = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "tracking_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "sender_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "recipient_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "recipient_street",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "recipient_city",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "recipient_state",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "recipient_country",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "recipient_postal_code",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "recipient_contact",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 10,
+        "name": "weight",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 11,
+        "name": "length",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 12,
+        "name": "width",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 13,
+        "name": "height",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 14,
+        "name": "contents",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 15,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 16,
+        "name": "estimated_delivery_date",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 17,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 18,
+        "name": "updated_at",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 19,
+        "name": "cost",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 20,
+        "name": "proof_of_delivery",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 21,
+        "name": "service_provider_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "6443285bfe20c9a5a286e3d4d9999e146bf8f0c23343a0b3e95882275f303fe0"
+}
