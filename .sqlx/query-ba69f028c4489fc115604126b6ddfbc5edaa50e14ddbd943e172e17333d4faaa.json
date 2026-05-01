@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE shipments SET\n                tracking_number = $1,\n                sender_name = $2,\n                recipient_name = $3,\n                recipient_street = $4,\n                recipient_city = $5,\n                recipient_state = $6,\n                recipient_country = $7,\n                recipient_postal_code = $8,\n                recipient_contact = $9,\n                weight = $10,\n                length = $11,\n                width = $12,\n                height = $13,\n                contents = $14,\n                status = $15,\n                updated_at = $16,\n                cost = $17,\n                proof_of_delivery = $18,\n                service_provider_id = $19\n            WHERE id = $20",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Float8",
+        "Float8",
+        "Float8",
+        "Float8",
+        "Text",
+        "Text",
+        "Timestamp",
+        "Float8",
+        "Jsonb",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ba69f028c4489fc115604126b6ddfbc5edaa50e14ddbd943e172e17333d4faaa"
+}

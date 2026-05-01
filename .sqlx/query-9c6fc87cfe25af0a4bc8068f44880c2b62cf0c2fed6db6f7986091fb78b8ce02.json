@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO shipments (\n                id, tracking_number, sender_name,\n                recipient_name, recipient_street, recipient_city,\n                recipient_state, recipient_country, recipient_postal_code,\n                recipient_contact,\n                weight, length, width, height,\n                contents, status,\n                estimated_delivery_date,\n                created_at, updated_at,\n                cost,\n                proof_of_delivery,\n                service_provider_id\n            ) VALUES (\n                $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,\n                $11,$12,$13,$14,$15,$16,\n                $17,$18,$19,$20,$21,$22\n            )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Text",
+        "Float8",
+        "Float8",
+        "Float8",
+        "Float8",
+        "Text",
+        "Text",
+        "Timestamp",
+        "Timestamp",
+        "Timestamp",
+        "Float8",
+        "Jsonb",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9c6fc87cfe25af0a4bc8068f44880c2b62cf0c2fed6db6f7986091fb78b8ce02"
+}
