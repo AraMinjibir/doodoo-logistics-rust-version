@@ -17,7 +17,7 @@ unit_tests:
   image: rust:1.95
   stage: test
   script:
-    - cargo test --lib --verbose
+    - cargo test --verbose
 
 
 
@@ -34,7 +34,7 @@ integration_tests:
   variables:
     POSTGRES_DB: doodoo_test
     POSTGRES_USER: postgres
-    POSTGRES_PA.SSWORD: postgres
+    POSTGRES_PASSWORD: postgres
     DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
 
   script:
