@@ -2,17 +2,47 @@ stages:
   - build
   - test
 
+# 1. BUILD STAGE
+
 build:
-  image: rust:1.95
+  image: rust:1.82
   stage: build
   script:
     - cargo build --verbose
 
-test:
-  image: rust:1.95
+
+# 2. UNIT TESTS (BUSINESS LOGIC)
+
+unit_tests:
+  image: rust:1.82
   stage: test
   script:
-    - cargo test --verbose
+    - cargo test --lib --verbose
 
-variables:
-  SQLX_OFFLINE: "true"    
+
+
+# 3. INTEGRATION TESTS (REAL DB)
+
+integration_tests:
+  image: rust:1.82
+  stage: test
+
+  services:
+    - name: postgres:16
+      alias: postgres
+
+  variables:
+    POSTGRES_DB: doodoo_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
+
+  script:
+    - apt-get update && apt-get install -y postgresql-client
+    - cargo test --test integration --verbose
+
+  #  for debugging CI failures
+  artifacts:
+    when: always
+    reports:
+      junit: target/junit.xml
