@@ -3,7 +3,6 @@ stages:
   - test
 
 variables:
-  FF_NETWORK_PER_BUILD: "true"
   SQLX_OFFLINE: "true"
   RUST_BACKTRACE: "1"
 
