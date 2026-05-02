@@ -3,39 +3,79 @@ stages:
   - test
 
 variables:
-  FF_NETWORK_PER_BUILD: "true" # Essential for service-to-job communication
+  FF_NETWORK_PER_BUILD: "true"
   SQLX_OFFLINE: "true"
+  RUST_BACKTRACE: "1"
 
+# -------------------------
+# BUILD
+# -------------------------
 build:
   stage: build
   image: rust:1.95
   script:
     - cargo build --verbose
 
+# -------------------------
+# UNIT TESTS
+# -------------------------
 unit_tests:
   stage: test
   image: rust:1.95
   script:
-    # Runs tests defined inside your src/ files (main.rs, modules)
     - cargo test --bins --verbose
 
+# -------------------------
+# INTEGRATION TESTS
+# -------------------------
 integration_tests:
   stage: test
   image: rust:1.95
+
   services:
     - name: postgres:16
       alias: postgres
+
   variables:
-    # Ensure the DB driver inside Rust sees this exact host
     POSTGRES_DB: doodoo_test
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
     DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
     SQLX_OFFLINE: "false"
+    RUST_BACKTRACE: "1"
+
   script:
-    - apt-get update && apt-get install -y netcat-openbsd
+    - apt-get update && apt-get install -y postgresql-client dnsutils
+
+    # -------------------------
+    # 🔍 DNS DEBUG (IMPORTANT)
+    # -------------------------
+    - echo "HOSTS FILE:"
+    - cat /etc/hosts
+
+    - echo "DNS CHECK:"
+    - getent hosts postgres || echo "POSTGRES NOT RESOLVABLE"
+
+    # -------------------------
+    # DB READINESS CHECK
+    # -------------------------
     - echo "Waiting for database at postgres:5432..."
-    - until nc -z postgres 5432; do echo "Waiting for db..."; sleep 1; done
-    - echo "Database is UP - Running integration tests"
-    # --test '*' targets files in your /tests directory
+    - until pg_isready -h postgres -U postgres; do
+        echo "Waiting for db...";
+        sleep 1;
+      done
+
+    - echo "Database is UP"
+
+    # -------------------------
+    # 🔥 MIGRATIONS (CRITICAL FIX)
+    # -------------------------
+    - echo "Running migrations..."
+    - cargo install sqlx-cli --no-default-features --features postgres
+    - sqlx migrate run
+
+    # -------------------------
+    # TESTS
+    # -------------------------
+    - echo "Running integration tests..."
     - cargo test --test '*' --verbose -- --test-threads=1
