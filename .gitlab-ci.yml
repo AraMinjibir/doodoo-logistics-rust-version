@@ -3,41 +3,62 @@ stages:
   - test
 
 variables:
-  # Essential for GitLab SaaS runners to link the Rust container and Postgres container
-  FF_NETWORK_PER_BUILD: "true"
   # Default Database URL for CI
   DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
+
+  # Keep SQLx offline for build safety; override only in integration tests
   SQLX_OFFLINE: "true"
 
+# -------------------------
+# BUILD STAGE
+# -------------------------
 build:
   stage: build
   image: rust:1.95
   script:
     - cargo build --verbose
 
+# -------------------------
+# UNIT TESTS (NO DB)
+# -------------------------
 unit_tests:
   stage: test
   image: rust:1.95
   script:
-    # Runs unit tests (ignoring the /tests folder)
     - cargo test --bins --verbose
 
+# -------------------------
+# INTEGRATION TESTS (WITH POSTGRES)
+# -------------------------
 integration_tests:
   stage: test
   image: rust:1.95
+
   services:
     - name: postgres:16
       alias: postgres
+
   variables:
     POSTGRES_DB: doodoo_test
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
     SQLX_OFFLINE: "false"
+
   script:
-    - apt-get update && apt-get install -y netcat-openbsd
-    # Verification of network resolution
-    - echo "Waiting for database at host 'postgres'..."
-    - until nc -z postgres 5432; do echo "waiting for db..."; sleep 1; done
+    - apt-get update
+    - apt-get install -y postgresql-client
+
+    # Wait for Postgres to be fully ready (reliable vs nc)
+    - echo "Waiting for Postgres..."
+    - until pg_isready -h postgres -U postgres; do
+        echo "waiting for db...";
+        sleep 1;
+      done
     - echo "Database is UP"
-    # Execute integration tests only
+
+    # IMPORTANT: run migrations (fixes "relation does not exist")
+    - cargo install sqlx-cli --no-default-features --features postgres
+    - sqlx migrate run
+
+    # Run integration tests safely
     - cargo test tests::integration_tests --verbose -- --test-threads=1
