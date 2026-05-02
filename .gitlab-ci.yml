@@ -3,33 +3,24 @@ stages:
   - test
 
 variables:
-  # Default Database URL for CI
-  DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
-
-  # Keep SQLx offline for build safety; override only in integration tests
   SQLX_OFFLINE: "true"
+  RUST_BACKTRACE: "1"
 
-# -------------------------
-# BUILD STAGE
-# -------------------------
+# BUILD
 build:
   stage: build
   image: rust:1.95
   script:
     - cargo build --verbose
 
-# -------------------------
-# UNIT TESTS (NO DB)
-# -------------------------
+# UNIT TESTS
 unit_tests:
   stage: test
   image: rust:1.95
   script:
     - cargo test --bins --verbose
 
-# -------------------------
-# INTEGRATION TESTS (WITH POSTGRES)
-# -------------------------
+# INTEGRATION TESTS
 integration_tests:
   stage: test
   image: rust:1.95
@@ -42,23 +33,42 @@ integration_tests:
     POSTGRES_DB: doodoo_test
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
+    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
     SQLX_OFFLINE: "false"
+    RUST_BACKTRACE: "1"
 
   script:
-    - apt-get update
-    - apt-get install -y postgresql-client
+    - apt-get update && apt-get install -y postgresql-client dnsutils
 
-    # Wait for Postgres to be fully ready (reliable vs nc)
-    - echo "Waiting for Postgres..."
+  
+    # 🔍 DNS DEBUG (IMPORTANT)
+  
+    - echo "HOSTS FILE:"
+    - cat /etc/hosts
+
+    - echo "DNS CHECK:"
+    - getent hosts postgres || echo "POSTGRES NOT RESOLVABLE"
+
+  
+    # DB READINESS CHECK
+  
+    - echo "Waiting for database at postgres:5432..."
     - until pg_isready -h postgres -U postgres; do
-        echo "waiting for db...";
+        echo "Waiting for db...";
         sleep 1;
       done
+
     - echo "Database is UP"
 
-    # IMPORTANT: run migrations (fixes "relation does not exist")
+  
+    # 🔥 MIGRATIONS (CRITICAL FIX)
+  
+    - echo "Running migrations..."
     - cargo install sqlx-cli --no-default-features --features postgres
     - sqlx migrate run
 
-    # Run integration tests safely
-    - cargo test tests::integration_tests --verbose -- --test-threads=1
+  
+    # TESTS
+  
+    - echo "Running integration tests..."
+    - cargo test --bins
