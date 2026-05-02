@@ -78,4 +78,4 @@ integration_tests:
     # TESTS
     # -------------------------
     - echo "Running integration tests..."
-    - cargo test --test '*' --verbose -- --test-threads=1
+    - cargo test --bins
