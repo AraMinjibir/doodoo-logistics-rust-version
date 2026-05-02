@@ -1,6 +1,7 @@
-use sqlx::{PgPool, Executor};
+use sqlx::{PgPool, Executor, postgres::PgPoolOptions};
 use std::env;
 use dotenvy::dotenv;
+use std::time::Duration;
 
 pub struct TestDb {
     pub pool: PgPool,
@@ -16,10 +17,19 @@ impl TestDb {
         let database_url = env::var("DATABASE_URL")
             .unwrap_or_else(|_| "postgres://postgres:postgres@postgres:5432/doodoo_test".to_string());
     
-        let pool = PgPool::connect(&database_url)
-            .await
-            .unwrap_or_else(|e| panic!("Failed to connect to DB at {}: {}", database_url, e));
-    
+        let pool = loop {
+            match PgPoolOptions::new()
+                .max_connections(5)
+                .connect(&database_url)
+                .await
+            {
+                Ok(pool) => break pool,
+                Err(e) => {
+                    eprintln!("Retrying DB connection: {}", e);
+                    tokio::time::sleep(Duration::from_secs(2)).await;
+                }
+            }
+        };
     // Run migrations automatically
         sqlx::migrate!()
             .run(&pool)
