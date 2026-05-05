@@ -74,12 +74,14 @@ pub async fn list_shipments(
     state: web::Data<AppState>,
     query: web::Query<PaginationQuery>,
 ) -> impl Responder {
-    let page_size = query.page_size.min(100);
-    let offset = (page_size - 1) * query.page_size;
+    let page = query.page.max(1);
+    let page_size = query.page_size.clamp(1, 100);
+
+    let offset = (page - 1) * page_size;
 
     match state
         .shipment_service
-        .list_shipments(offset as i64, query.page_size as i64)
+        .list_shipments(offset as i64, page_size as i64)
         .await
     {
         Ok(shipments) => {
