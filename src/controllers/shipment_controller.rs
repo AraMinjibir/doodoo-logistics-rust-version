@@ -9,7 +9,8 @@ use crate::controllers::dto::{
     ShipmentResponseDto,
     PaginationQuery, 
     ProofOfDeliveryDto, 
-    UpdateShipmentDto};
+    UpdateShipmentDto,
+    UpdateStatusDto};
 use crate::domain::models::{
     shipment_status::ShipmentStatus,
     shipment::UpdateShipment,
@@ -48,10 +49,6 @@ pub async fn get_by_tracking(
     }
 }
 
-#[derive(Deserialize)]
-pub struct UpdateStatusDto {
-    pub status: String,
-}
 
 pub async fn update_status(
     state: web::Data<AppState>,

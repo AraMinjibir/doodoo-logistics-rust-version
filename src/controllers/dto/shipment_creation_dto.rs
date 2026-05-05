@@ -272,6 +272,11 @@ impl IntoDomain<Shipment> for CreateShipmentDto {
     }
 }
 
+#[derive(Deserialize)]
+pub struct UpdateStatusDto {
+    pub status: String,
+}
+
 
 
 
