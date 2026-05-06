@@ -1,3 +1,6 @@
+#![allow(dead_code)] // This tells Rust to only look at this folder during 'cargo test'
+
+use serde_json::{json, Value};
 
 use crate::domain::models::address::Address;
 use crate::domain::models::dimensions::Dimensions;
@@ -6,6 +9,7 @@ use crate::domain::models::recipient::Recipient;
 use crate::domain::models::shipment::{Shipment, UpdateShipment};
 use crate::domain::models::package_details:: PackageDetails;
 
+#[allow(dead_code)]
 
 pub fn test_shipment() -> Shipment {
     Shipment::create(
@@ -16,6 +20,24 @@ pub fn test_shipment() -> Shipment {
     )
     
 }
+pub fn create_shipment_payload() -> Value {
+    json!({
+        "sender_name": "Ara",
+            "recipient_name": "DooDoo",
+            "street": "Zoo Road",
+            "city": "Kano",
+            "state": "Kano",
+            "country": "Nigeria",
+            "postal_code": "700001",
+            "contact": "+2347012345678",
+            "weight": 2.5,
+            "length": 10.0,
+            "width": 5.0,
+            "height": 3.0,
+            "contents": "Books"
+    })
+}
+
 pub fn updated_shipment() -> UpdateShipment {
     let address = Address::create(
         "123 Street".to_string(),
@@ -75,3 +97,6 @@ fn test_recipient() -> Recipient{
    "0700200202020".to_string(),
     addres).unwrap()
 }
+
+
+

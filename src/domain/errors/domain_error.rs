@@ -5,6 +5,7 @@ use crate::domain::models::shipment_status::ShipmentStatus;
 use crate::domain::errors::repository_error::RepositoryError;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum DomainError {
 
     ShipmentNotFound {

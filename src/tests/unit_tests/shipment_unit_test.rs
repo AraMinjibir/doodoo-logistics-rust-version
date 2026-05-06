@@ -1,9 +1,6 @@
-use super::*;
 use uuid::Uuid;
 
 use crate::domain::errors::repository_error::RepositoryError;
-use crate::repositories::shipment_repository::ShipmentRepository;
-use crate::domain::models::shipment::Shipment;
 use crate::tests::common::fixtures::{test_shipment, test_proof, updated_shipment};
 use crate::domain::services::shipment_service_impl::ShipmentServiceImpl;
 use crate::domain::services::shipment_service::ShipmentService;

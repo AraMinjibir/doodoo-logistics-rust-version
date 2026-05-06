@@ -15,6 +15,7 @@ pub enum ShipmentStatus {
     Cancelled,
 }
 
+#[allow(dead_code)]
 impl ShipmentStatus {
     pub fn values() -> &'static [ShipmentStatus] {
         &[

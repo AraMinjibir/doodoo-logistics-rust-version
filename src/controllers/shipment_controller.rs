@@ -1,5 +1,4 @@
 use actix_web::{web, HttpResponse, Responder};
-use serde::Deserialize;
 use uuid::Uuid;
 
 
@@ -9,11 +8,8 @@ use crate::controllers::dto::{
     ShipmentResponseDto,
     PaginationQuery, 
     ProofOfDeliveryDto, 
-    UpdateShipmentDto};
-use crate::domain::models::{
-    shipment_status::ShipmentStatus,
-    shipment::UpdateShipment,
-};
+    UpdateShipmentDto,
+    UpdateStatusDto};
 use crate::controllers::helpers::shipment_helper::
 {map_domain_error, extract_or_bad_request,parse_dto, parse_status, log_and_map};
 
@@ -48,9 +44,58 @@ pub async fn get_by_tracking(
     }
 }
 
-#[derive(Deserialize)]
-pub struct UpdateStatusDto {
-    pub status: String,
+pub async fn get_by_id(
+    state: web::Data<AppState>,
+    id: web::Path<Uuid>,
+) -> impl Responder {
+    match state.shipment_service.get_by_id(id.into_inner()).await {
+        Ok(shipment) => HttpResponse::Ok().json(ShipmentResponseDto::from(shipment)),
+        Err(e) => log_and_map(e)
+    }
+}
+
+pub async fn get_by_status(
+    state: web::Data<AppState>,
+    status: web::Path<String>,
+) -> impl Responder {
+    let status = match parse_status(status.into_inner()) {
+        Ok(s) => s,
+        Err(resp) => return resp,
+    };
+
+    match state.shipment_service.get_by_status(status).await {
+        Ok(list) => {
+            let response: Vec<ShipmentResponseDto> =
+                list.into_iter().map(ShipmentResponseDto::from).collect();
+
+            HttpResponse::Ok().json(response)
+        }
+        Err(e) => log_and_map(e)
+    }
+}
+
+pub async fn list_shipments(
+    state: web::Data<AppState>,
+    query: web::Query<PaginationQuery>,
+) -> impl Responder {
+    let page = query.page.max(1);
+    let page_size = query.page_size.clamp(1, 100);
+
+    let offset = (page - 1) * page_size;
+
+    match state
+        .shipment_service
+        .list_shipments(offset as i64, page_size as i64)
+        .await
+    {
+        Ok(shipments) => {
+            let response: Vec<ShipmentResponseDto> =
+                shipments.into_iter().map(ShipmentResponseDto::from).collect();
+
+            HttpResponse::Ok().json(response)
+        }
+        Err(e) => log_and_map(e)
+    }
 }
 
 pub async fn update_status(
@@ -73,39 +118,6 @@ pub async fn update_status(
     }
 }
 
-pub async fn list_shipments(
-    state: web::Data<AppState>,
-    query: web::Query<PaginationQuery>,
-) -> impl Responder {
-    let page_size = query.page_size.min(100);
-    let offset = (page_size - 1) * query.page_size;
-
-    match state
-        .shipment_service
-        .list_shipments(offset as i64, query.page_size as i64)
-        .await
-    {
-        Ok(shipments) => {
-            let response: Vec<ShipmentResponseDto> =
-                shipments.into_iter().map(ShipmentResponseDto::from).collect();
-
-            HttpResponse::Ok().json(response)
-        }
-        Err(e) => log_and_map(e)
-    }
-}
-
-pub async fn get_by_id(
-    state: web::Data<AppState>,
-    id: web::Path<Uuid>,
-) -> impl Responder {
-    match state.shipment_service.get_by_id(id.into_inner()).await {
-        Ok(shipment) => HttpResponse::Ok().json(ShipmentResponseDto::from(shipment)),
-        Err(e) => log_and_map(e)
-    }
-}
-
-
 pub async fn update_shipment(
     state: web::Data<AppState>,
     id: web::Path<Uuid>,
@@ -124,16 +136,6 @@ pub async fn update_shipment(
     {
         Ok(updated) => HttpResponse::Ok().json(ShipmentResponseDto::from(updated)),
         Err(e) => log_and_map(e),
-    }
-}
-
-pub async fn delete_shipment(
-    state: web::Data<AppState>,
-    id: web::Path<Uuid>,
-) -> impl Responder {
-    match state.shipment_service.delete_shipment(id.into_inner()).await {
-        Ok(_) => HttpResponse::NoContent().finish(),
-        Err(e) => log_and_map(e)
     }
 }
 
@@ -160,22 +162,15 @@ pub async fn upload_proof(
     }
 }
 
-pub async fn get_by_status(
+pub async fn delete_shipment(
     state: web::Data<AppState>,
-    status: web::Path<String>,
+    id: web::Path<Uuid>,
 ) -> impl Responder {
-    let status = match parse_status(status.into_inner()) {
-        Ok(s) => s,
-        Err(resp) => return resp,
-    };
-
-    match state.shipment_service.get_by_status(status).await {
-        Ok(list) => {
-            let response: Vec<ShipmentResponseDto> =
-                list.into_iter().map(ShipmentResponseDto::from).collect();
-
-            HttpResponse::Ok().json(response)
-        }
+    match state.shipment_service.delete_shipment(id.into_inner()).await {
+        Ok(_) => HttpResponse::NoContent().finish(),
         Err(e) => log_and_map(e)
     }
 }
+
+
+
