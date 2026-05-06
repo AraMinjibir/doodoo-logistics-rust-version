@@ -23,6 +23,7 @@ pub struct Shipment {
     service_provider_id: Option<Uuid>,
 }
 
+#[allow(dead_code)]
 impl Shipment {
     pub fn create(
         sender_name: String,
