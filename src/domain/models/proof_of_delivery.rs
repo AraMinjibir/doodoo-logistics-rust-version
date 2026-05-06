@@ -10,7 +10,7 @@ pub struct ProofOfDelivery {
     submitted_at: DateTime<Utc>,
 }
 
-
+#[allow(dead_code)]
 impl ProofOfDelivery {
     pub fn image_url(&self) -> Option<&str> {
         self.image.as_deref()
