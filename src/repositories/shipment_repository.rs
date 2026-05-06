@@ -4,6 +4,7 @@ use crate::domain::models::shipment::Shipment;
 use crate::domain::errors::repository_error::RepositoryError;
 
 #[async_trait::async_trait]
+#[allow(dead_code)]
 pub trait ShipmentRepository: Send + Sync{
 
     async fn create(&self, shipment: &Shipment) -> Result<(), RepositoryError>;
