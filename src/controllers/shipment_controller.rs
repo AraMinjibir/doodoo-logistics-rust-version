@@ -1,5 +1,4 @@
 use actix_web::{web, HttpResponse, Responder};
-use serde::Deserialize;
 use uuid::Uuid;
 
 
@@ -11,10 +10,6 @@ use crate::controllers::dto::{
     ProofOfDeliveryDto, 
     UpdateShipmentDto,
     UpdateStatusDto};
-use crate::domain::models::{
-    shipment_status::ShipmentStatus,
-    shipment::UpdateShipment,
-};
 use crate::controllers::helpers::shipment_helper::
 {map_domain_error, extract_or_bad_request,parse_dto, parse_status, log_and_map};
 
@@ -49,23 +44,32 @@ pub async fn get_by_tracking(
     }
 }
 
-
-pub async fn update_status(
+pub async fn get_by_id(
     state: web::Data<AppState>,
-    tracking: web::Path<String>,
-    payload: web::Json<UpdateStatusDto>,
+    id: web::Path<Uuid>,
 ) -> impl Responder {
-    let status = match parse_status(payload.into_inner().status) {
+    match state.shipment_service.get_by_id(id.into_inner()).await {
+        Ok(shipment) => HttpResponse::Ok().json(ShipmentResponseDto::from(shipment)),
+        Err(e) => log_and_map(e)
+    }
+}
+
+pub async fn get_by_status(
+    state: web::Data<AppState>,
+    status: web::Path<String>,
+) -> impl Responder {
+    let status = match parse_status(status.into_inner()) {
         Ok(s) => s,
         Err(resp) => return resp,
     };
 
-    match state
-        .shipment_service
-        .update_status(&tracking, status, None)
-        .await
-    {
-        Ok(updated) => HttpResponse::Ok().json(ShipmentResponseDto::from(updated)),
+    match state.shipment_service.get_by_status(status).await {
+        Ok(list) => {
+            let response: Vec<ShipmentResponseDto> =
+                list.into_iter().map(ShipmentResponseDto::from).collect();
+
+            HttpResponse::Ok().json(response)
+        }
         Err(e) => log_and_map(e)
     }
 }
@@ -94,16 +98,25 @@ pub async fn list_shipments(
     }
 }
 
-pub async fn get_by_id(
+pub async fn update_status(
     state: web::Data<AppState>,
-    id: web::Path<Uuid>,
+    tracking: web::Path<String>,
+    payload: web::Json<UpdateStatusDto>,
 ) -> impl Responder {
-    match state.shipment_service.get_by_id(id.into_inner()).await {
-        Ok(shipment) => HttpResponse::Ok().json(ShipmentResponseDto::from(shipment)),
+    let status = match parse_status(payload.into_inner().status) {
+        Ok(s) => s,
+        Err(resp) => return resp,
+    };
+
+    match state
+        .shipment_service
+        .update_status(&tracking, status, None)
+        .await
+    {
+        Ok(updated) => HttpResponse::Ok().json(ShipmentResponseDto::from(updated)),
         Err(e) => log_and_map(e)
     }
 }
-
 
 pub async fn update_shipment(
     state: web::Data<AppState>,
@@ -123,16 +136,6 @@ pub async fn update_shipment(
     {
         Ok(updated) => HttpResponse::Ok().json(ShipmentResponseDto::from(updated)),
         Err(e) => log_and_map(e),
-    }
-}
-
-pub async fn delete_shipment(
-    state: web::Data<AppState>,
-    id: web::Path<Uuid>,
-) -> impl Responder {
-    match state.shipment_service.delete_shipment(id.into_inner()).await {
-        Ok(_) => HttpResponse::NoContent().finish(),
-        Err(e) => log_and_map(e)
     }
 }
 
@@ -159,22 +162,15 @@ pub async fn upload_proof(
     }
 }
 
-pub async fn get_by_status(
+pub async fn delete_shipment(
     state: web::Data<AppState>,
-    status: web::Path<String>,
+    id: web::Path<Uuid>,
 ) -> impl Responder {
-    let status = match parse_status(status.into_inner()) {
-        Ok(s) => s,
-        Err(resp) => return resp,
-    };
-
-    match state.shipment_service.get_by_status(status).await {
-        Ok(list) => {
-            let response: Vec<ShipmentResponseDto> =
-                list.into_iter().map(ShipmentResponseDto::from).collect();
-
-            HttpResponse::Ok().json(response)
-        }
+    match state.shipment_service.delete_shipment(id.into_inner()).await {
+        Ok(_) => HttpResponse::NoContent().finish(),
         Err(e) => log_and_map(e)
     }
 }
+
+
+

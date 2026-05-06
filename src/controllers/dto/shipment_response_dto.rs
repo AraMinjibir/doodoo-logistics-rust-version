@@ -1,15 +1,12 @@
-use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc, Duration};
+use serde::Serialize;
+use chrono::{DateTime, Utc};
 
 
 use crate::domain::models::{
      shipment::Shipment,
-    recipient::Recipient,
-    proof_of_delivery::ProofOfDelivery,
-    dimensions::Dimensions
+    proof_of_delivery::ProofOfDelivery
 };
 use crate::controllers::dto::shipment_creation_dto::{
-    DimensionsDto,
     PackageDetailsDto,
     RecipientDto,
     AddressDto

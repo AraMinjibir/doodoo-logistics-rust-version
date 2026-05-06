@@ -30,6 +30,7 @@ pub(crate) struct CreateShipmentDto {
     pub contents: String,
 }
 
+#[allow(dead_code)]
 impl CreateShipmentDto {
     pub fn to_domain(self) -> Result<Shipment, DomainError> {
         let address = Address::create(
