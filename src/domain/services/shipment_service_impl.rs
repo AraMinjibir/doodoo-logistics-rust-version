@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use crate::domain::models::shipment::{self, Shipment, UpdateShipment};
+use crate::domain::models::shipment::{Shipment, UpdateShipment};
 use crate::domain::services::shipment_service::ShipmentService;
 use crate::repositories::shipment_repository::ShipmentRepository;
 use crate::domain::errors::domain_error::DomainError;
