@@ -43,7 +43,7 @@ pub enum DomainError {
     DeadlockDetected,
     TransactionTimeout,
     SerializationFailure,
-
+    Internal(String),
     DatabaseError(String),
 }
 
@@ -135,6 +135,9 @@ impl fmt::Display for DomainError {
                 DomainError::DatabaseError(msg) => {
                     write!(f, "Database error: {}", msg)
                 }    
+                DomainError::Internal(msg) => {
+                    write!(f, "Internal system error: {}", msg)
+                }
  
         }
     }
