@@ -66,4 +66,11 @@ impl Payment {
         let id = Uuid::new_v4().to_string().replace("-", "");
         format!("RF-DODO-{}", &id[..10].to_uppercase())
     }
+
+
+    // Getters
+
+    pub fn reference_number(&self) -> String {
+        self.reference_number.clone()
+    }
 }
