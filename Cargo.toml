@@ -21,3 +21,4 @@ tracing-subscriber = "0.3"
 testcontainers = "0.15"
 testcontainers-modules = { version = "0.3", features = ["postgres"] }
 actix-http = "3.12.1"
+rust_decimal = "1.42.0"
