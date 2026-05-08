@@ -5,11 +5,12 @@ use std::{
     collections::HashSet,
 };
 use once_cell::sync::Lazy;
+use serde::{Serialize, Deserialize};
 
 
 use crate::domain::errors::domain_error::DomainError;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PaymentStatus {
     Pending,
     Successful,

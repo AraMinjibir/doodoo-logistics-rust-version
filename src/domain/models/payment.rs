@@ -2,10 +2,11 @@
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
+use serde::{Serialize, Deserialize};
 
 use crate::domain::models::payment_status::PaymentStatus;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PaymentMethod { Card, MobileMoney, BankTransfer }
 
 
