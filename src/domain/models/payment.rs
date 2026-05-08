@@ -3,11 +3,45 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use serde::{Serialize, Deserialize};
+use std::fmt;
 
 use crate::domain::models::payment_status::PaymentStatus;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PaymentMethod { Card, MobileMoney, BankTransfer }
+
+impl PaymentMethod {
+    pub fn methods() -> &'static [PaymentMethod] {
+
+        &[
+            Self::Card,
+            Self::MobileMoney,
+            Self::BankTransfer,
+            
+        ]
+     }
+
+     pub fn from_string(value: &str) -> Option<Self> {
+        match value {
+            "Card" => Some(Self::Card),
+            "MobileMoney" => Some(Self::MobileMoney),
+            "BankTransfer" => Some(Self::BankTransfer),
+            _ => None
+            
+        }
+     }
+    
+}
+impl fmt::Display for PaymentMethod {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let value = match self {
+            Self::Card => "Card",
+            Self::MobileMoney => "MobileMoney",
+            Self::BankTransfer => "BankTransfer",
+        };
+        write!(f, "{}", value)
+    }
+}
 
 
 #[derive(Debug, Clone)]
@@ -73,5 +107,56 @@ impl Payment {
 
     pub fn reference_number(&self) -> String {
         self.reference_number.clone()
+    }
+    pub fn customer_id(&self) -> Uuid{
+        self.customer_id
+    }
+    pub fn shipment_id(&self) -> Uuid{
+        self.shipment_id
+    }
+
+    pub fn amount(&self) -> Decimal {
+        self.amount
+    }
+
+    pub fn status(&self) -> PaymentStatus{
+        self.status.clone()
+    }
+
+    pub fn payment_method(&self) -> PaymentMethod {
+        self.payment_method.clone()
+    }
+
+    pub fn paid_at(&self) -> DateTime<Utc> {
+        self.paid_at
+    }
+
+    pub fn   gateway_transaction_id(&self) -> Option<String> {
+        self.gateway_transaction_id.clone()
+    }
+
+    pub fn failure_reason(&self) -> Option<String>{
+        self.failure_reason.clone()
+    }
+
+    pub fn reconstitute(
+        customer_id: Uuid,
+    shipment_id: Uuid,
+    amount: Decimal, 
+    status: PaymentStatus,
+    paid_at: DateTime<Utc>,
+    payment_method: PaymentMethod,
+    reference_number: String,
+    gateway_transaction_id: Option<String>,
+    failure_reason: Option<String>
+    ) -> Self {
+        Self { 
+            customer_id,
+            shipment_id,
+            amount, status,
+            paid_at, payment_method, 
+            reference_number, 
+            gateway_transaction_id, 
+            failure_reason }
     }
 }
