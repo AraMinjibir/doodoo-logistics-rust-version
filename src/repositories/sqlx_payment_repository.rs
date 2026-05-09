@@ -5,7 +5,7 @@ use uuid::Uuid;
 use rust_decimal::Decimal;
 
 use crate::domain::{models::payment::Payment,
-    errors::{repository_error::RepositoryError},
+    errors::{repository_error::RepositoryError, repository_error::map_sqlx_error},
     models::{payment_status::PaymentStatus}
 };
 
@@ -49,19 +49,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| {
-            // Handle unique constraint or foreign key violations specifically
-            if let Some(db_err) = e.as_database_error() {
-                if db_err.is_unique_violation() {
-                    return RepositoryError::DuplicateEntity;
-                }
-                if db_err.is_foreign_key_violation() {
-                    return RepositoryError::ForeignKeyViolation;
-                }
-            }
-            RepositoryError::DatabaseError(e.to_string())
-        })?;
-
+        .map_err(map_sqlx_error)?;
         Ok(())
     }
 
@@ -81,7 +69,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         )
         .fetch_optional(&self.pool)
         .await
-        .map_err(|e| RepositoryError::DatabaseError(e.to_string()))?;
+        .map_err(map_sqlx_error)?;
 
         // 2. Map the Infrastructure Row back to the Domain Model
         Ok(row.map(|r| r.into_domain()))
@@ -100,7 +88,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         )
         .fetch_all(&self.pool)
         .await
-        .map_err(|e| RepositoryError::DatabaseError(e.to_string()))?;
+        .map_err(map_sqlx_error)?;
 
         Ok(rows.into_iter().map(|r| r.into_domain()).collect())
     }
@@ -115,7 +103,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         )
         .fetch_optional(&self.pool)
         .await
-        .map_err(|e| RepositoryError::DatabaseError(e.to_string()))?;
+        .map_err(map_sqlx_error)?;
 
         Ok(row.map(|r| r.into_domain()))
     }
@@ -129,7 +117,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         )
         .fetch_all(&self.pool)
         .await
-        .map_err(|e| RepositoryError::DatabaseError(e.to_string()))?;
+        .map_err(map_sqlx_error)?;
 
         Ok(rows.into_iter().map(|r| r.into_domain()).collect())
     }
@@ -152,10 +140,10 @@ impl PaymentRepository for SqlxPaymentRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| RepositoryError::DatabaseError(e.to_string()))?;
+        .map_err(map_sqlx_error)?;
 
         if result.rows_affected() == 0 {
-            // Optional: You could return a specific 'NotFound' error here
+            // Return a specific 'NotFound' error here
             return Err(RepositoryError::DatabaseError("No payment found to update".into()));
         }
 
@@ -172,7 +160,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| RepositoryError::DatabaseError(e.to_string()))?;
+        .map_err(map_sqlx_error)?;
 
         Ok(())
     }
@@ -188,7 +176,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         )
         .fetch_one(&self.pool)
         .await
-        .map_err(|e| RepositoryError::DatabaseError(e.to_string()))?;
+        .map_err(map_sqlx_error)?;
 
         Ok(total)
     }
@@ -206,7 +194,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         )
         .fetch_one(&self.pool)
         .await
-        .map_err(|e| RepositoryError::DatabaseError(e.to_string()))?;
+        .map_err(map_sqlx_error)?;
 
         Ok(total)
     }
@@ -225,7 +213,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         )
         .fetch_one(&self.pool)
         .await
-        .map_err(|e| RepositoryError::DatabaseError(e.to_string()))?;
+        .map_err(map_sqlx_error)?;
 
         Ok(total)
     }
