@@ -30,10 +30,24 @@ impl Shipment {
         recipient: Recipient,
         package_details: PackageDetails,
         service_provider_id: Option<Uuid>,
-    ) -> Self {
-        let now = Utc::now();
+    ) -> Result<Self, DomainError> {
 
-        Self {
+        let mut errors = Vec::new();
+
+        if sender_name.trim().is_empty() {
+            errors.push("Sender name must not be empty".to_string());
+        }
+        
+        if !errors.is_empty() {
+            return Err(DomainError::ValidationError(errors));
+        }
+        if service_provider_id.is_none(){
+            return Err(DomainError::ValidationError(errors));
+        }
+
+
+        let now = Utc::now();
+       Ok(Self {
             id: Uuid::new_v4(),
             sender_name,
             recipient,
@@ -44,7 +58,7 @@ impl Shipment {
             updated_at: now,
             proof_of_delivery: vec![],
             service_provider_id,
-        }
+        })
 
     
     }
