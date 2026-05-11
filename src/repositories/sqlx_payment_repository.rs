@@ -75,16 +75,14 @@ impl PaymentRepository for SqlxPaymentRepository {
         Ok(row.map(|r| r.into_domain()))
     }
 
-    async fn get_payment_by_status(&self, status: PaymentStatus) -> Result<Vec<Payment>, RepositoryError> {
-        // Convert enum to string for the query
-        let status_str = status.to_string();
+    async fn get_payment_by_status(&self, status: &str) -> Result<Vec<Payment>, RepositoryError> {
 
         let rows: Vec<PaymentRow> = sqlx::query_as!(
             PaymentRow,
             r#"
             SELECT * FROM payments WHERE status = $1
             "#,
-            status_str
+            status
         )
         .fetch_all(&self.pool)
         .await
