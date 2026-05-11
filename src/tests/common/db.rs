@@ -54,8 +54,13 @@ impl TestDb {
         Self { pool }
     }
     async fn clean(pool: &PgPool) {
-        // Order matters if there is FK constraints
-        pool.execute("TRUNCATE TABLE shipments RESTART IDENTITY CASCADE")
+        pool.execute(r#"
+        TRUNCATE TABLE
+            payments,
+            shipments,
+            users
+        RESTART IDENTITY CASCADE
+        "#)
             .await
             .unwrap();
     }
