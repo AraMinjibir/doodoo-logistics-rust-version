@@ -37,11 +37,12 @@ impl Shipment {
         if sender_name.trim().is_empty() {
             errors.push("Sender name must not be empty".to_string());
         }
-        
-        if !errors.is_empty() {
-            return Err(DomainError::ValidationError(errors));
+    
+        if service_provider_id.is_none() {
+            errors.push("Service provider must be specified".to_string());
         }
-        if service_provider_id.is_none(){
+    
+        if !errors.is_empty() {
             return Err(DomainError::ValidationError(errors));
         }
 

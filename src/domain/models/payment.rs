@@ -69,16 +69,15 @@ impl Payment {
 
         // 1. Validation Logic (The "Sad Path")
         if customer_id.is_nil() {
-            return Err(DomainError::ValidationError(errors));
+          errors.push("Customer id must not be empty".to_string());
         }
         
         if shipment_id.is_nil() {
-            return Err(DomainError::ValidationError(errors));
+          errors.push("Shipment id  must not be empty".to_string());
         }
         if amount <= Decimal::ZERO {
             errors.push(format!("Amount must be a positive value: {}", amount));
         }
-
         if !errors.is_empty() {
             return Err(DomainError::ValidationError(errors));
         }
