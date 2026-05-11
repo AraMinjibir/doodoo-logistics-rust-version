@@ -103,7 +103,7 @@ impl Payment {
     }
 
 
-    // Getters
+    // Getters and Setters
 
     pub fn reference_number(&self) -> String {
         self.reference_number.clone()
@@ -137,6 +137,10 @@ impl Payment {
 
     pub fn failure_reason(&self) -> Option<String>{
         self.failure_reason.clone()
+    }
+
+    pub fn set_status(&mut self,status:PaymentStatus){
+        self.status = status;
     }
 
     pub fn reconstitute(
