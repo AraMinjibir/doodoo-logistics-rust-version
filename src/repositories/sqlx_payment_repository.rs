@@ -23,7 +23,7 @@ impl SqlxPaymentRepository {
 
 #[async_trait]
 impl PaymentRepository for SqlxPaymentRepository {
-    async fn persist_payment(&self, payment: Payment) -> Result<(), RepositoryError> {
+    async fn persist_payment(&self, payment: &Payment) -> Result<(), RepositoryError> {
         // 1. Transform Domain Model to Infrastructure Row
         let row = PaymentRow::from_domain(payment);
 
@@ -122,7 +122,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         Ok(rows.into_iter().map(|r| r.into_domain()).collect())
     }
 
-    async fn update_payment(&self, payment: Payment) -> Result<(), RepositoryError> {
+    async fn update_payment(&self, payment: &Payment) -> Result<(), RepositoryError> {
         let row = PaymentRow::from_domain(payment);
 
         let result = sqlx::query!(
