@@ -5,7 +5,7 @@ use rust_decimal::Decimal;
 use serde::{Serialize, Deserialize};
 use std::fmt;
 
-use crate::domain::models::payment_status::PaymentStatus;
+use crate::domain::{errors::domain_error::DomainError, models::payment_status::PaymentStatus};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PaymentMethod { Card, MobileMoney, BankTransfer }
@@ -64,22 +64,23 @@ impl Payment {
         shipment_id: Uuid,
         amount: Decimal,
         payment_method: PaymentMethod,
-    ) -> Result<Self, Vec<String>> {
+    ) -> Result<Self, DomainError> {
         let mut errors = Vec::new();
 
         // 1. Validation Logic (The "Sad Path")
         if customer_id.is_nil() {
-            errors.push(format!("CustomerId must be provided: {}", customer_id));
+            return Err(DomainError::ValidationError(errors));
         }
+        
         if shipment_id.is_nil() {
-            errors.push(format!("Shipment id must be provided: {}", shipment_id));
+            return Err(DomainError::ValidationError(errors));
         }
         if amount <= Decimal::ZERO {
-            errors.push(format!("Amount must be positive: {}", amount));
+            errors.push(format!("Amount must be a positive value: {}", amount));
         }
 
         if !errors.is_empty() {
-            return Err(errors);
+            return Err(DomainError::ValidationError(errors));
         }
 
         // 2. The "Happy Path"
