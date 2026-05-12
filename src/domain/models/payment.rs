@@ -151,6 +151,9 @@ impl Payment {
         self.gateway_transaction_id = id;
     }
 
+    pub fn set_paid_at(&mut self, paid: DateTime<Utc>){
+        self.paid_at = paid;
+    }
     pub fn reconstitute(
         customer_id: Uuid,
     shipment_id: Uuid,
