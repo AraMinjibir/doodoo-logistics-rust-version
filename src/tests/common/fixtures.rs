@@ -3,14 +3,15 @@
 use serde_json::{json, Value};
 use uuid::Uuid;
 use rust_decimal::Decimal;
+use chrono::{DateTime, Utc};
 
 use crate::domain::models::{
     address::Address, dimensions::Dimensions,
     payment::Payment, proof_of_delivery::ProofOfDelivery,
     recipient::Recipient,shipment::{Shipment, UpdateShipment},
-    package_details:: PackageDetails,payment::PaymentMethod
+    package_details:: PackageDetails,payment::PaymentMethod,
+    payment_status::PaymentStatus
 };
-
 
 
 #[allow(dead_code)]
@@ -37,6 +38,27 @@ pub fn test_payment(shipment_id:Uuid) -> Payment {
     .expect("Test payment should be valid")
 
 }
+pub fn test_success_payment(
+    shipment_id: Uuid,
+    amount: Decimal,
+    paid_at: DateTime<Utc>,
+) -> Payment {
+    let customer_id = Uuid::parse_str("11111111-1111-1111-1111-111111111111").unwrap();
+
+    let mut payment = Payment::generate_payment(
+        customer_id,
+        shipment_id,
+        amount,
+        PaymentMethod::Card,
+    )
+    .expect("Test payment should be valid");
+
+    payment.set_status(PaymentStatus::Successful); 
+    payment.set_paid_at(paid_at);
+
+    payment
+}
+
 pub fn create_shipment_payload() -> Value {
     json!({
         "sender_name": "Ara",
