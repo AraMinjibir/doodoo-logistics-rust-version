@@ -11,6 +11,9 @@ use testcontainers_modules::postgres::Postgres;
 use tokio::time::sleep;
 use std::sync::OnceLock;
 static DOCKER: OnceLock<Cli> = OnceLock::new();
+use tokio::sync::OnceCell;
+use std::sync::LazyLock;
+
 
 use crate::tests::common::test_app::setup_app_with_pool;
 
@@ -18,48 +21,49 @@ use crate::tests::common::test_app::setup_app_with_pool;
 pub struct TestDb {
     pub pool: PgPool,
 }
-
+static INIT: LazyLock<OnceCell<()>> = LazyLock::new(|| OnceCell::const_new());
 
 impl TestDb {
-
     pub async fn new() -> Self {
-        dotenv().ok();
-        
-        // Look for DATABASE_URL, but provide a default for CI if it's missing
+        dotenvy::dotenv().ok();
+
         let database_url = env::var("DATABASE_URL")
-            .unwrap_or_else(|_| "postgres://postgres:postgres@postgres:5432/doodoo_test".to_string());
-    
-        let pool = loop {
-            match PgPoolOptions::new()
-                .max_connections(5)
-                .connect(&database_url)
-                .await
-            {
-                Ok(pool) => break pool,
-                Err(e) => {
-                    eprintln!("Retrying DB connection: {}", e);
-                    tokio::time::sleep(Duration::from_secs(2)).await;
-                }
-            }
-        };
-    // Run migrations automatically
-        sqlx::migrate!()
-            .run(&pool)
+            .unwrap_or_else(|_| {
+                "postgres://postgres:postgres@postgres:5432/doodoo_test".to_string()
+            });
+
+        let pool = PgPoolOptions::new()
+            .max_connections(5)
+            .connect(&database_url)
             .await
-            .expect("Failed to run migrations");
-    
-    // Clean database BEFORE each test
-        Self::clean(&pool).await;
-    
+            .expect("Failed to connect DB");
+
         Self { pool }
     }
-    async fn clean(pool: &PgPool) {
-        // ⚠️ order matters if you have FK constraints
-        pool.execute("TRUNCATE TABLE shipments RESTART IDENTITY CASCADE")
-            .await
-            .unwrap();
+
+    pub async fn init(pool: &PgPool) {
+        INIT.get_or_init(|| async {
+            sqlx::migrate!()
+                .run(pool)
+                .await
+                .expect("Failed to run migrations");
+        })
+        .await;
+    }
+
+    pub async fn clean(&self) {
+        sqlx::query(
+            r#"
+            TRUNCATE TABLE payments, shipments
+            RESTART IDENTITY CASCADE
+            "#
+        )
+        .execute(&self.pool)
+        .await
+        .unwrap();
     }
 }
+
 
 pub struct TestContainerDb<'a> {
     pub container: Container<'a, Postgres>,

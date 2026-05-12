@@ -68,7 +68,7 @@ impl CreateShipmentDto {
             recipient,
             package_details,
             None,
-        ))
+        )?)
     }
 }
 #[derive(Debug, Deserialize)]
@@ -269,7 +269,7 @@ impl IntoDomain<Shipment> for CreateShipmentDto {
             recipient,
             package_details,
             None,
-        ))
+        )?)
     }
 }
 

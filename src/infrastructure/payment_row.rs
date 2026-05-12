@@ -47,7 +47,7 @@ impl PaymentRow {
    
 
    // Convert Domain Model to DB Row
-   pub fn from_domain(payment: Payment) -> Self {
+   pub fn from_domain(payment: &Payment) -> Self {
        Self {
            reference_number: payment.reference_number(),
            customer_id: payment.customer_id(),

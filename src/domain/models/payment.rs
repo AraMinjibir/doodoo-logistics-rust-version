@@ -5,7 +5,7 @@ use rust_decimal::Decimal;
 use serde::{Serialize, Deserialize};
 use std::fmt;
 
-use crate::domain::models::payment_status::PaymentStatus;
+use crate::domain::{errors::domain_error::DomainError, models::payment_status::PaymentStatus};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum PaymentMethod { Card, MobileMoney, BankTransfer }
@@ -57,29 +57,29 @@ pub struct Payment {
     failure_reason: Option<String>,
 }
 
-
+#[allow(dead_code)]
 impl Payment {
     pub fn generate_payment(
         customer_id: Uuid,
         shipment_id: Uuid,
         amount: Decimal,
         payment_method: PaymentMethod,
-    ) -> Result<Self, Vec<String>> {
+    ) -> Result<Self, DomainError> {
         let mut errors = Vec::new();
 
         // 1. Validation Logic (The "Sad Path")
         if customer_id.is_nil() {
-            errors.push(format!("CustomerId must be provided: {}", customer_id));
+          errors.push("Customer id must not be empty".to_string());
         }
+        
         if shipment_id.is_nil() {
-            errors.push(format!("Shipment id must be provided: {}", shipment_id));
+          errors.push("Shipment id  must not be empty".to_string());
         }
         if amount <= Decimal::ZERO {
-            errors.push(format!("Amount must be positive: {}", amount));
+            errors.push(format!("Amount must be a positive value: {}", amount));
         }
-
         if !errors.is_empty() {
-            return Err(errors);
+            return Err(DomainError::ValidationError(errors));
         }
 
         // 2. The "Happy Path"
@@ -103,7 +103,7 @@ impl Payment {
     }
 
 
-    // Getters
+    // Getters and Setters
 
     pub fn reference_number(&self) -> String {
         self.reference_number.clone()
@@ -139,6 +139,21 @@ impl Payment {
         self.failure_reason.clone()
     }
 
+    pub fn set_status(&mut self,status:PaymentStatus){
+        self.status = status;
+    }
+
+    pub fn set_failure_reason(&mut self, reason: Option<String>) {
+        self.failure_reason = reason;
+    }
+    
+    pub fn set_gateway_transaction_id(&mut self, id: Option<String>) {
+        self.gateway_transaction_id = id;
+    }
+
+    pub fn set_paid_at(&mut self, paid: DateTime<Utc>){
+        self.paid_at = paid;
+    }
     pub fn reconstitute(
         customer_id: Uuid,
     shipment_id: Uuid,

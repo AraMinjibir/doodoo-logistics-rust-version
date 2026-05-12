@@ -30,21 +30,33 @@ impl Shipment {
         recipient: Recipient,
         package_details: PackageDetails,
         service_provider_id: Option<Uuid>,
-    ) -> Self {
-        let now = Utc::now();
+    ) -> Result<Self, DomainError> {
 
-        Self {
+        let mut errors = Vec::new();
+
+        if sender_name.trim().is_empty() {
+            errors.push("Sender name must not be empty".to_string());
+        }
+    
+    
+        if !errors.is_empty() {
+            return Err(DomainError::ValidationError(errors));
+        }
+
+
+        let now = Utc::now();
+       Ok(Self {
             id: Uuid::new_v4(),
             sender_name,
             recipient,
             package_details,
             tracking_number: Self::generate_tracking_number(),
-            status: ShipmentStatus::Created,
+            status: ShipmentStatus::Created,             
             created_at: now,
             updated_at: now,
             proof_of_delivery: vec![],
             service_provider_id,
-        }
+        })
 
     
     }

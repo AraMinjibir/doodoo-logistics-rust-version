@@ -23,7 +23,7 @@ impl SqlxPaymentRepository {
 
 #[async_trait]
 impl PaymentRepository for SqlxPaymentRepository {
-    async fn persist_payment(&self, payment: Payment) -> Result<(), RepositoryError> {
+    async fn persist_payment(&self, payment: &Payment) -> Result<(), RepositoryError> {
         // 1. Transform Domain Model to Infrastructure Row
         let row = PaymentRow::from_domain(payment);
 
@@ -75,16 +75,14 @@ impl PaymentRepository for SqlxPaymentRepository {
         Ok(row.map(|r| r.into_domain()))
     }
 
-    async fn get_payment_by_status(&self, status: PaymentStatus) -> Result<Vec<Payment>, RepositoryError> {
-        // Convert enum to string for the query
-        let status_str = status.to_string();
+    async fn get_payment_by_status(&self, status: &str) -> Result<Vec<Payment>, RepositoryError> {
 
         let rows: Vec<PaymentRow> = sqlx::query_as!(
             PaymentRow,
             r#"
             SELECT * FROM payments WHERE status = $1
             "#,
-            status_str
+            status
         )
         .fetch_all(&self.pool)
         .await
@@ -122,7 +120,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         Ok(rows.into_iter().map(|r| r.into_domain()).collect())
     }
 
-    async fn update_payment(&self, payment: Payment) -> Result<(), RepositoryError> {
+    async fn update_payment(&self, payment: &Payment) -> Result<(), RepositoryError> {
         let row = PaymentRow::from_domain(payment);
 
         let result = sqlx::query!(
@@ -165,56 +163,70 @@ impl PaymentRepository for SqlxPaymentRepository {
         Ok(())
     }
 
-    async fn get_daily_revenue(&self, date: NaiveDate) -> Result<Option<Decimal>, RepositoryError> {
+    async fn get_daily_revenue(
+        &self,
+        date: NaiveDate,
+    ) -> Result<Option<Decimal>, RepositoryError> {
         let total = sqlx::query_scalar!(
             r#"
-            SELECT SUM(amount) as "total?" 
-            FROM payments 
-            WHERE status = 'success' AND paid_at::date = $1
+            SELECT COALESCE(SUM(amount), 0) as "total!"
+            FROM payments
+            WHERE status = $1
+              AND paid_at::date = $2
             "#,
+            PaymentStatus::Successful.to_string(),
             date
         )
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-
-        Ok(total)
+    
+        Ok(Some(total))
     }
 
-    async fn get_weekly_revenue(&self, date: NaiveDate) -> Result<Option<Decimal>, RepositoryError> {
+    async fn get_weekly_revenue(
+        &self,
+        date: NaiveDate,
+    ) -> Result<Option<Decimal>, RepositoryError> {
         let total = sqlx::query_scalar!(
             r#"
-            SELECT SUM(amount) as "total?" 
-            FROM payments 
-            WHERE status = 'success' 
-              AND paid_at >= date_trunc('week', $1::timestamp)
-              AND paid_at < date_trunc('week', $1::timestamp) + interval '1 week'
+            SELECT COALESCE(SUM(amount), 0) as "total!"
+            FROM payments
+            WHERE status = $1
+              AND paid_at >= date_trunc('week', $2::timestamp)
+              AND paid_at < date_trunc('week', $2::timestamp) + interval '1 week'
             "#,
-            date.and_hms_opt(0, 0, 0)
+            PaymentStatus::Successful.to_string(),
+            date.and_hms_opt(0,0,0)
         )
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-
-        Ok(total)
+    
+        Ok(Some(total))
     }
 
-    async fn get_monthly_revenue(&self, year: u32, month: u32) -> Result<Option<Decimal>, RepositoryError> {
+    async fn get_monthly_revenue(
+        &self,
+        year: u32,
+        month: u32,
+    ) -> Result<Option<Decimal>, RepositoryError> {
         let total = sqlx::query_scalar!(
             r#"
-            SELECT SUM(amount) as "total?" 
-            FROM payments 
-            WHERE status = 'success' 
-              AND EXTRACT(YEAR FROM paid_at) = $1 
-              AND EXTRACT(MONTH FROM paid_at) = $2
+            SELECT COALESCE(SUM(amount), 0) as "total!"
+            FROM payments
+            WHERE status = $1
+              AND EXTRACT(YEAR FROM paid_at)::int = $2
+              AND EXTRACT(MONTH FROM paid_at)::int = $3
             "#,
-            year as f64, // PostgreSQL EXTRACT returns double precision
-            month as f64
+            PaymentStatus::Successful.to_string(),
+            year as i32,
+            month as i32
         )
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-
-        Ok(total)
+    
+        Ok(Some(total))
     }
 }
