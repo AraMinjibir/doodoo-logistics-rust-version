@@ -1,24 +1,41 @@
 #![allow(dead_code)] // This tells Rust to only look at this folder during 'cargo test'
 
 use serde_json::{json, Value};
+use uuid::Uuid;
+use rust_decimal::Decimal;
 
-use crate::domain::models::address::Address;
-use crate::domain::models::dimensions::Dimensions;
-use crate::domain::models::proof_of_delivery::ProofOfDelivery;
-use crate::domain::models::recipient::Recipient;
-use crate::domain::models::shipment::{Shipment, UpdateShipment};
-use crate::domain::models::package_details:: PackageDetails;
+use crate::domain::models::{
+    address::Address, dimensions::Dimensions,
+    payment::Payment, proof_of_delivery::ProofOfDelivery,
+    recipient::Recipient,shipment::{Shipment, UpdateShipment},
+    package_details:: PackageDetails,payment::PaymentMethod
+};
+
+
 
 #[allow(dead_code)]
 
 pub fn test_shipment() -> Shipment {
+    let service_provider_id =  Uuid::parse_str("22222222-2222-2222-2222-222222222222").unwrap();
     Shipment::create(
         "Ara".to_string(),
         test_recipient(),
         test_package(),
-        None,
-    )
+        Some(service_provider_id),    
+    ).expect("Test shipment should be valid")
     
+}
+
+pub fn test_payment(shipment_id:Uuid) -> Payment {
+    let customer_id = Uuid::parse_str("11111111-1111-1111-1111-111111111111").unwrap();
+    Payment::generate_payment(
+        customer_id,
+        shipment_id,
+        Decimal::new(1000, 0),
+        PaymentMethod::Card,
+    )
+    .expect("Test payment should be valid")
+
 }
 pub fn create_shipment_payload() -> Value {
     json!({
@@ -34,7 +51,8 @@ pub fn create_shipment_payload() -> Value {
             "length": 10.0,
             "width": 5.0,
             "height": 3.0,
-            "contents": "Books"
+            "contents": "Books",
+            "service_provider_id": "22222222-2222-2222-2222-222222222222"
     })
 }
 
