@@ -57,7 +57,7 @@ pub struct Payment {
     failure_reason: Option<String>,
 }
 
-
+#[allow(dead_code)]
 impl Payment {
     pub fn generate_payment(
         customer_id: Uuid,
@@ -141,6 +141,14 @@ impl Payment {
 
     pub fn set_status(&mut self,status:PaymentStatus){
         self.status = status;
+    }
+
+    pub fn set_failure_reason(&mut self, reason: Option<String>) {
+        self.failure_reason = reason;
+    }
+    
+    pub fn set_gateway_transaction_id(&mut self, id: Option<String>) {
+        self.gateway_transaction_id = id;
     }
 
     pub fn reconstitute(
