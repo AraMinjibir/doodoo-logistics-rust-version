@@ -163,56 +163,69 @@ impl PaymentRepository for SqlxPaymentRepository {
         Ok(())
     }
 
-    async fn get_daily_revenue(&self, date: NaiveDate) -> Result<Option<Decimal>, RepositoryError> {
+    async fn get_daily_revenue(
+        &self,
+        date: NaiveDate,
+    ) -> Result<Option<Decimal>, RepositoryError> {
         let total = sqlx::query_scalar!(
             r#"
-            SELECT SUM(amount) as "total?" 
-            FROM payments 
-            WHERE status = 'success' AND paid_at::date = $1
+            SELECT COALESCE(SUM(amount), 0) as "total!"
+            FROM payments
+            WHERE status = 'success'
+              AND paid_at::date = $1
             "#,
             date
         )
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-
-        Ok(total)
+    
+        Ok(Some(total))
     }
 
-    async fn get_weekly_revenue(&self, date: NaiveDate) -> Result<Option<Decimal>, RepositoryError> {
+    async fn get_weekly_revenue(
+        &self,
+        date: NaiveDate,
+    ) -> Result<Option<Decimal>, RepositoryError> {
+        let start = date.and_hms_opt(0, 0, 0).unwrap();
+    
         let total = sqlx::query_scalar!(
             r#"
-            SELECT SUM(amount) as "total?" 
-            FROM payments 
-            WHERE status = 'success' 
+            SELECT COALESCE(SUM(amount), 0) as "total!"
+            FROM payments
+            WHERE status = 'success'
               AND paid_at >= date_trunc('week', $1::timestamp)
-              AND paid_at < date_trunc('week', $1::timestamp) + interval '1 week'
+              AND paid_at < (date_trunc('week', $1::timestamp) + interval '1 week')
             "#,
-            date.and_hms_opt(0, 0, 0)
+            start
         )
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-
-        Ok(total)
+    
+        Ok(Some(total))
     }
-
-    async fn get_monthly_revenue(&self, year: u32, month: u32) -> Result<Option<Decimal>, RepositoryError> {
+    
+    async fn get_monthly_revenue(
+        &self,
+        year: u32,
+        month: u32,
+    ) -> Result<Option<Decimal>, RepositoryError> {
         let total = sqlx::query_scalar!(
             r#"
-            SELECT SUM(amount) as "total?" 
-            FROM payments 
-            WHERE status = 'success' 
-              AND EXTRACT(YEAR FROM paid_at) = $1 
-              AND EXTRACT(MONTH FROM paid_at) = $2
+            SELECT COALESCE(SUM(amount), 0) as "total!"
+            FROM payments
+            WHERE status = 'success'
+              AND EXTRACT(YEAR FROM paid_at)::int = $1
+              AND EXTRACT(MONTH FROM paid_at)::int = $2
             "#,
-            year as f64, // PostgreSQL EXTRACT returns double precision
-            month as f64
+            year as i32,
+            month as i32
         )
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-
-        Ok(total)
+    
+        Ok(Some(total))
     }
 }
