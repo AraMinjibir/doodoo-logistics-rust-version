@@ -171,9 +171,10 @@ impl PaymentRepository for SqlxPaymentRepository {
             r#"
             SELECT COALESCE(SUM(amount), 0) as "total!"
             FROM payments
-            WHERE status = 'success'
-              AND paid_at::date = $1
+            WHERE status = $1
+              AND paid_at::date = $2
             "#,
+            PaymentStatus::Successful.to_string(),
             date
         )
         .fetch_one(&self.pool)
@@ -187,17 +188,16 @@ impl PaymentRepository for SqlxPaymentRepository {
         &self,
         date: NaiveDate,
     ) -> Result<Option<Decimal>, RepositoryError> {
-        let start = date.and_hms_opt(0, 0, 0).unwrap();
-    
         let total = sqlx::query_scalar!(
             r#"
             SELECT COALESCE(SUM(amount), 0) as "total!"
             FROM payments
-            WHERE status = 'success'
-              AND paid_at >= date_trunc('week', $1::timestamp)
-              AND paid_at < (date_trunc('week', $1::timestamp) + interval '1 week')
+            WHERE status = $1
+              AND paid_at >= date_trunc('week', $2::timestamp)
+              AND paid_at < date_trunc('week', $2::timestamp) + interval '1 week'
             "#,
-            start
+            PaymentStatus::Successful.to_string(),
+            date.and_hms_opt(0,0,0)
         )
         .fetch_one(&self.pool)
         .await
@@ -205,7 +205,7 @@ impl PaymentRepository for SqlxPaymentRepository {
     
         Ok(Some(total))
     }
-    
+
     async fn get_monthly_revenue(
         &self,
         year: u32,
@@ -215,10 +215,11 @@ impl PaymentRepository for SqlxPaymentRepository {
             r#"
             SELECT COALESCE(SUM(amount), 0) as "total!"
             FROM payments
-            WHERE status = 'success'
-              AND EXTRACT(YEAR FROM paid_at)::int = $1
-              AND EXTRACT(MONTH FROM paid_at)::int = $2
+            WHERE status = $1
+              AND EXTRACT(YEAR FROM paid_at)::int = $2
+              AND EXTRACT(MONTH FROM paid_at)::int = $3
             "#,
+            PaymentStatus::Successful.to_string(),
             year as i32,
             month as i32
         )
