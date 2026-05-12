@@ -38,9 +38,6 @@ impl Shipment {
             errors.push("Sender name must not be empty".to_string());
         }
     
-        if service_provider_id.is_none() {
-            errors.push("Service provider must be specified".to_string());
-        }
     
         if !errors.is_empty() {
             return Err(DomainError::ValidationError(errors));
@@ -54,7 +51,7 @@ impl Shipment {
             recipient,
             package_details,
             tracking_number: Self::generate_tracking_number(),
-            status: ShipmentStatus::Created,
+            status: ShipmentStatus::Created,             
             created_at: now,
             updated_at: now,
             proof_of_delivery: vec![],
