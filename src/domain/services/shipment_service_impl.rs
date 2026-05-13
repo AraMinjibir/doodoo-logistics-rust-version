@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use uuid::Uuid;
 
-use crate::domain::models::shipment::{Shipment, UpdateShipment};
+use crate::domain::models::shipment::{self, Shipment, UpdateShipment};
 use crate::domain::services::shipment_service::ShipmentService;
 use crate::repositories::shipment_repository::ShipmentRepository;
 use crate::domain::errors::domain_error::DomainError;
@@ -134,13 +134,10 @@ where
     async fn get_by_id(
         &self,
         id: Uuid,
-    ) -> Result<Shipment, DomainError> {
-        let shipment = self.repo
-            .get_by_id(id)
-            .await?
-            .ok_or(DomainError::ShipmentNotFoundById { id })?;
-    
-        Ok(shipment)
+    ) -> Result<Option<Shipment>, DomainError> {
+       let shipment_opt = self.repo.get_by_id(id).await?;
+         
+         Ok(shipment_opt)
     }
 
     async fn update_shipment(
