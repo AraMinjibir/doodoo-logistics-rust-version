@@ -13,8 +13,8 @@ pub struct MockPaymentGateway;
 impl PaymentGateway for MockPaymentGateway {
     async fn initiate_payment(
         &self,
-        payment: Payment,
-        _callback_url: String, 
+        payment: &Payment,
+        _callback_url: &str, 
     ) -> Result<PaymentGatewayResponse, DomainError> {
         
         let fake_url = format!("https://mock-payments.local/pay/{}", payment.reference_number());
@@ -26,7 +26,7 @@ impl PaymentGateway for MockPaymentGateway {
         })
     }
 
-    fn verify_webhook(
+  async  fn verify_webhook(
         &self,
         payload: &str,
         _signature: &str,
