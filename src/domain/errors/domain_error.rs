@@ -1,4 +1,4 @@
-use std::fmt::{self, write};
+use std::fmt::{self};
 use uuid::Uuid;
 use chrono::NaiveDate;
 
