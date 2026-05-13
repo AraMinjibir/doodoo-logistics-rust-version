@@ -134,13 +134,10 @@ where
     async fn get_by_id(
         &self,
         id: Uuid,
-    ) -> Result<Shipment, DomainError> {
-        let shipment = self.repo
-            .get_by_id(id)
-            .await?
-            .ok_or(DomainError::ShipmentNotFoundById { id })?;
-    
-        Ok(shipment)
+    ) -> Result<Option<Shipment>, DomainError> {
+       let shipment_opt = self.repo.get_by_id(id).await?;
+         
+         Ok(shipment_opt)
     }
 
     async fn update_shipment(

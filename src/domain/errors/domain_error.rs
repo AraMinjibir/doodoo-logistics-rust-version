@@ -1,5 +1,6 @@
-use std::fmt;
+use std::fmt::{self};
 use uuid::Uuid;
+use chrono::NaiveDate;
 
 use crate::domain::models::shipment_status::ShipmentStatus;
 use crate::domain::errors::repository_error::RepositoryError;
@@ -26,7 +27,21 @@ pub enum DomainError {
         from: PaymentStatus,
         to: PaymentStatus,
     },
-
+    PaymentExistsForThisShipment {
+        id: Uuid,
+    },
+    PaymentNotFound {
+        reference: String,
+    },
+    PaymentWithShipmentIdNotFound {
+        shipment_id: Uuid,
+    },
+    RevenueNotFoundWithDate {
+        date:NaiveDate
+    },
+    RevenueNotFound{
+        month:u32
+    },
     ProofMustContainImageOrNote,
     DuplicateProofOfDelivery,
     UpdateProofOfDeliveryError(String),
@@ -95,7 +110,22 @@ impl fmt::Display for DomainError {
                 DomainError::DuplicateEntity => {
                     write!(f, "Duplicate entity")
                 }
-            
+                
+                DomainError::PaymentExistsForThisShipment { id } => {
+                    write!(f, "Payment for shipment with id: {} already made", id)
+                },
+                DomainError::PaymentNotFound { reference } => {
+                    write!(f, "Payment {} not found", reference)
+                }
+                 DomainError::PaymentWithShipmentIdNotFound { shipment_id } => {
+                    write!(f, "Payment with shipment id {} not found",shipment_id)
+                }
+                DomainError::RevenueNotFoundWithDate { date } => {
+                    write!(f, "Revenue {} not found", date)
+                }
+                DomainError:: RevenueNotFound{month} => {
+                    write!(f, "Revenue {} not found", month)
+                }
                 DomainError::ForeignKeyViolation => {
                     write!(f, "Foreign key violation")
                 }

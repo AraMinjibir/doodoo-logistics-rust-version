@@ -102,7 +102,23 @@ impl Payment {
         format!("RF-DODO-{}", &id[..10].to_uppercase())
     }
 
+    pub fn attach_gateway_response(
+        mut self,
+        reference_number: String,
+    ) -> Self {
+        self.reference_number = reference_number;
+        self.status = PaymentStatus::Pending;
+        self
+    }
 
+    pub fn update_status(
+        mut self,
+        status: PaymentStatus,
+    ) -> Self {
+
+        self.status = status;
+        self
+    }
     // Getters and Setters
 
     pub fn reference_number(&self) -> String {

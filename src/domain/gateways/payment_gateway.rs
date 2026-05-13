@@ -6,11 +6,11 @@ use crate::domain::errors::domain_error::DomainError;
 pub trait PaymentGateway: Send + Sync {
     async fn initiate_payment(
         &self,
-        payment: Payment,
-        callback_url: String,
+        payment: &Payment,
+        callback_url: &str,
     ) -> Result<PaymentGatewayResponse, DomainError>;
 
-    fn verify_webhook(
+    async fn verify_webhook(
         &self,
         payload: &str,
         signature: &str,
