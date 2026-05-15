@@ -11,7 +11,7 @@ use crate::{domain::{errors::domain_error::DomainError,
 
      
 
-struct PaymentServiceImpl<R, S, G>
+pub struct PaymentServiceImpl<R, S, G>
     where R:PaymentRepository {
         repo:R,
         shipment_repo: S,
@@ -39,7 +39,7 @@ where
     async fn generate_payment(
         &self, 
         callback_url:String, 
-        payment: Payment
+        payment: &Payment
     ) -> Result<Payment, DomainError> {
             
             // Ensure shipment exists first
@@ -171,7 +171,7 @@ where
     async fn delete_payment(&self, reference: &str) -> Result<(), DomainError> {
 
         // 1. Verify existence first
-    let existing = self.repo
+    self.repo
     .get_payment_by_ref(reference)
     .await
     .map_err(DomainError::from)?

@@ -8,7 +8,7 @@ use crate::domain::{errors::domain_error::DomainError, models::payment::Payment}
 #[async_trait]
 pub trait PaymentService{
 
-    async fn generate_payment( &self,callback_url:String, payment: Payment) -> Result<Payment, DomainError>;
+    async fn generate_payment( &self,callback_url:String, payment: &Payment) -> Result<Payment, DomainError>;
 
     async fn get_payment_by_ref(&self, reference:&str)-> Result<Option<Payment>, DomainError>;
     async fn get_payment_by_status(&self, status:&str) -> Result<Vec<Payment>, DomainError>;

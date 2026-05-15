@@ -42,6 +42,10 @@ pub enum DomainError {
     RevenueNotFound{
         month:u32
     },
+    PaymentGatewayError{
+        signature: String
+    },
+    
     ProofMustContainImageOrNote,
     DuplicateProofOfDelivery,
     UpdateProofOfDeliveryError(String),
@@ -119,6 +123,9 @@ impl fmt::Display for DomainError {
                 }
                  DomainError::PaymentWithShipmentIdNotFound { shipment_id } => {
                     write!(f, "Payment with shipment id {} not found",shipment_id)
+                }
+                DomainError:: PaymentGatewayError { signature } => {
+                    write!(f, "Invalid signature {} ", signature)
                 }
                 DomainError::RevenueNotFoundWithDate { date } => {
                     write!(f, "Revenue {} not found", date)
