@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use uuid::Uuid;
+use std::sync::Arc;
 
 use crate::domain::models::shipment::{Shipment, UpdateShipment};
 use crate::domain::services::shipment_service::ShipmentService;
@@ -10,27 +11,20 @@ use crate::domain::models::proof_of_delivery::ProofOfDelivery;
 
 
 
-pub struct ShipmentServiceImpl<R>
-where
-    R: ShipmentRepository,
+pub struct ShipmentServiceImpl
 {
-    repo: R,
+    repo: Arc<dyn ShipmentRepository + Send + Sync>,
     
 }
-impl<R> ShipmentServiceImpl<R>
-where
-    R: ShipmentRepository,
-{
-    pub fn new(repo: R) -> Self {
+impl ShipmentServiceImpl {
+    pub fn new(repo: Arc<dyn ShipmentRepository + Send + Sync>) -> Self {
         Self { repo }
     }
 }
 
 #[async_trait]
-impl<R> ShipmentService for ShipmentServiceImpl<R>
-where
-    R: ShipmentRepository + Send + Sync
-{
+impl ShipmentService for ShipmentServiceImpl {
+
     async fn create_shipment(
         &self,
         shipment: Shipment,
