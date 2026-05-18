@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use uuid::Uuid;
 use rust_decimal::Decimal;
 use chrono::NaiveDate;
@@ -11,30 +13,31 @@ use crate::{domain::{errors::domain_error::DomainError,
 
      
 
-pub struct PaymentServiceImpl<R, S, G>
-    where R:PaymentRepository {
-        repo:R,
-        shipment_repo: S,
-        gateway: G,
-}
+     pub struct PaymentServiceImpl {
+        payment_repo: Arc<dyn PaymentRepository + Send + Sync>,
+        shipment_repo: Arc<dyn ShipmentRepository + Send + Sync>,
+        gateway: Arc<dyn PaymentGateway + Send + Sync>,
+    }
 
-impl <R, S, G>  PaymentServiceImpl<R, S, G>
-where R: PaymentRepository,
-        S: ShipmentRepository,
-        G: PaymentGateway {
+    impl PaymentServiceImpl {
 
-    pub fn new(repo:R, shipment_repo: S, gateway: G) -> Self{
-        Self { repo, shipment_repo, gateway }
+        pub fn new(
+            payment_repo: Arc<dyn PaymentRepository + Send + Sync>,
+            shipment_repo: Arc<dyn ShipmentRepository + Send + Sync>,
+            gateway: Arc<dyn PaymentGateway + Send + Sync>,
+        ) -> Self {
+            Self {
+                payment_repo,
+                shipment_repo,
+                gateway,
+            }
+        }
     }
     
-}
 
 #[async_trait::async_trait]
-impl<R, S, G > PaymentService for PaymentServiceImpl<R, S, G >
-where
-    R: PaymentRepository,
-    S: ShipmentRepository,
-    G: PaymentGateway, {
+impl PaymentService for PaymentServiceImpl
+    {
 
     async fn generate_payment(
         &self, 
@@ -48,7 +51,7 @@ where
                 id: payment.shipment_id(),
             })?;
             // prevent duplicate payment
-            if self.repo
+            if self.payment_repo
             .get_payment_by_shipment_id(payment.shipment_id())
             .await?
             .is_some()
@@ -76,7 +79,7 @@ where
         );
 
         // 5. Save payment
-        self.repo.persist_payment(&payment_to_save).await?;
+        self.payment_repo.persist_payment(&payment_to_save).await?;
 
         Ok(payment_to_save)
 
@@ -84,41 +87,41 @@ where
      }
 
      async fn get_payment_by_ref(&self, reference:&str)-> Result<Option<Payment>, DomainError> {
-         let fetched_payment = self.repo.get_payment_by_ref(reference).await?;
+         let fetched_payment = self.payment_repo.get_payment_by_ref(reference).await?;
          
         Ok(fetched_payment)
         }
 
     async fn get_payment_by_status(&self, status:&str) -> Result<Vec<Payment>, DomainError> {
-        self.repo.get_payment_by_status(status).await
+        self.payment_repo.get_payment_by_status(status).await
         .map_err(|e|DomainError::from(e))
     }
 
     async fn get_payment_by_shipment_id(&self, shipment_id:Uuid) -> Result<Option<Payment>, DomainError> {
-       let paid_shipment =  self.repo.get_payment_by_shipment_id(shipment_id).await?;
+       let paid_shipment =  self.payment_repo.get_payment_by_shipment_id(shipment_id).await?;
 
        Ok(paid_shipment)
     }
 
     async fn get_all_payments(&self)-> Result<Vec<Payment>, DomainError> {
-        self.repo.get_all_payments().await
+        self.payment_repo.get_all_payments().await
         .map_err(|e| DomainError::from(e))
 
     }
 
     async fn get_daily_revenue(&self, date:NaiveDate) -> Result<Option<Decimal>, DomainError>{
-        let daily_revenue = self.repo.get_daily_revenue(date).await?;
+        let daily_revenue = self.payment_repo.get_daily_revenue(date).await?;
 
         Ok(daily_revenue)
         
     }
     async fn get_weekly_revenue(&self, date:NaiveDate) -> Result<Option<Decimal>, DomainError> {
-       let weekly_revenue =  self.repo.get_weekly_revenue(date).await?;
+       let weekly_revenue =  self.payment_repo.get_weekly_revenue(date).await?;
 
        Ok(weekly_revenue)
     }
     async fn get_monthly_revenue(&self, year:u32, month: u32) -> Result<Option<Decimal>, DomainError> {
-       let yearly =  self.repo.get_monthly_revenue(year, month).await?;
+       let yearly =  self.payment_repo.get_monthly_revenue(year, month).await?;
 
        Ok(yearly)
         
@@ -136,7 +139,7 @@ where
         .await?;
     
         // 2. fetch payment
-        let payment = self.repo
+        let payment = self.payment_repo
             .get_payment_by_ref(&event.reference)
             .await
             .map_err(DomainError::from)?
@@ -161,7 +164,7 @@ where
         let updated_payment = payment.update_status(new_status);
     
         // 6. persist
-        self.repo
+        self.payment_repo
             .update_payment(&updated_payment)
             .await
             .map_err(DomainError::from)?;
@@ -171,7 +174,7 @@ where
     async fn delete_payment(&self, reference: &str) -> Result<(), DomainError> {
 
         // 1. Verify existence first
-    self.repo
+    self.payment_repo
     .get_payment_by_ref(reference)
     .await
     .map_err(DomainError::from)?
@@ -180,7 +183,7 @@ where
     })?;
 
     // 2. Perform delete
-    self.repo
+    self.payment_repo
         .delete_payment(reference)
         .await
         .map_err(DomainError::from)?;
