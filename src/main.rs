@@ -10,10 +10,13 @@ mod tests;
 mod controllers;
 mod config;
 
+use crate::domain::services::payment_service_impl::PaymentServiceImpl;
 use crate::domain::services::shipment_service_impl::ShipmentServiceImpl;
+use crate::repositories::sqlx_payment_repository::SqlxPaymentRepository;
 use crate::repositories::sqlx_shipment_repository::SqlxShipmentRepository;
 use crate::config::app_state::AppState;
 use crate::config::routes::configure_routes;
+use crate::domain::gateways::{payment_gateway::PaymentGateway, mock_payment::MockPaymentGateway};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -29,15 +32,34 @@ async fn main() -> std::io::Result<()> {
         .await
         .expect("Failed to connect to DB");
 
-    // 2. Repository
-    let repo = SqlxShipmentRepository::new(pool);
+    // 2. Repositories
+    let shipment_repo = Arc::new(
+        SqlxShipmentRepository::new(pool.clone())
+    );
+    
+    let payment_repo = Arc::new(
+        SqlxPaymentRepository::new(pool.clone())
+    );
+    let gateway: Arc<dyn PaymentGateway + Send + Sync> =
+    Arc::new(MockPaymentGateway::new());
 
-    // 3. Service
-    let service = ShipmentServiceImpl::new(repo);
+    // 3. Services
+    let shipment_service =
+    ShipmentServiceImpl::new(
+        shipment_repo.clone()
+    );
 
+   let payment_service =
+    PaymentServiceImpl::new(
+        payment_repo.clone(),
+        shipment_repo.clone(),
+        Arc::clone(&gateway)
+    );
     // 4. App State
     let state = web::Data::new(AppState {
-        shipment_service: Arc::new(service),
+        shipment_service: Arc::new(shipment_service),
+        payment_service:Arc::new(payment_service)
+        
     });
 
     println!("🚀 Server running at http://127.0.0.1:8080");
