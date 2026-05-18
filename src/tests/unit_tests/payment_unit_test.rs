@@ -2,6 +2,7 @@ use chrono::{NaiveDate, Datelike};
 use rust_decimal::Decimal;
 use chrono::Utc;
 use uuid::Uuid;
+use std::sync::Arc;
 
 use crate::domain::models::payment_status::PaymentStatus;
 use crate::domain::services::payment_service::PaymentService;
@@ -42,6 +43,10 @@ async fn generate_payment_sucess(){
     .withf(move|payment| payment.reference_number() == expected_reference)
     .times(1)
     .returning(|_| Ok(()));
+
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
 
     let service =  
     PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
@@ -93,6 +98,10 @@ async fn generate_paymnent_failure(){
     repo.expect_persist_payment()
     .returning(|_| Err(RepositoryError::DatabaseError("Fail to persist payment".to_string())));
 
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
+
     let service =  
     PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
 
@@ -120,6 +129,10 @@ async fn get_payment_by_ref_success(){
     repo.expect_get_payment_by_ref()
     .returning(move|_| Ok(Some(payment.clone())));
 
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
+
     let service = PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
 
     let fetched_payment = service.get_payment_by_ref("REF-DOODOO-123").await;
@@ -140,6 +153,10 @@ async fn get_payment_by_shipment_id(){
 
     repo.expect_get_payment_by_shipment_id()
     .returning(move|_| Ok(Some(payment.clone())));
+
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
 
     let service = PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
 
@@ -163,6 +180,10 @@ async fn get_payment_by_ref_not_found(){
     repo.expect_get_payment_by_ref()
     .returning(move|_| Ok(None));
 
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
+
     let service = PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
 
     let fetched_payment = service.get_payment_by_ref(&reference_number).await;
@@ -183,6 +204,10 @@ async fn get_payment_by_status(){
 
     repo.expect_get_payment_by_status()
     .returning(move|_| Ok(vec![payment.clone()]));
+
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
 
     let service = PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
 
@@ -206,6 +231,10 @@ async fn get_all_payments(){
     repo.expect_get_all_payments()
     .returning(move|| Ok(vec![payment.clone()]));
 
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
+
     let service = PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
 
     let fetched_payments = service.get_all_payments().await;
@@ -226,6 +255,10 @@ async fn get_daily_revenue(){
     repo.expect_get_daily_revenue()
     .returning(|_| Ok(Some(Decimal::new(100, 2))));
 
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
+
     let service = PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
 
     let daily_revenue = service.get_daily_revenue(date).await;
@@ -244,6 +277,10 @@ async fn get_weekly_revenue(){
 
     repo.expect_get_weekly_revenue()
     .returning(|_| Ok(Some(Decimal::new(100, 2))));
+
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
 
     let service = PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
 
@@ -265,6 +302,10 @@ async fn get_monthly_revenue(){
 
     repo.expect_get_monthly_revenue()
     .returning(|_,_| Ok(Some(Decimal::new(100, 2))));
+
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
 
     let service = PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
 
@@ -304,6 +345,10 @@ async fn handle_webhook_success() {
     .times(1)
     .returning(|_| Ok(()));
 
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let gateway = Arc::new(gateway);
+
     let service = PaymentServiceImpl::new(repo, shipment_repo, gateway);
 
     let result = service
@@ -334,6 +379,10 @@ async fn handle_webhook_invalid_signature() {
                 signature: "Invalid signature".to_string(),
             })
         });
+
+        let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let gateway = Arc::new(gateway);
 
     let service = PaymentServiceImpl::new(
         repo,
@@ -369,6 +418,10 @@ async fn handle_webhook_payment_not_found() {
     repo.expect_get_payment_by_ref()
         .times(1)
         .returning(|_| Ok(None));
+
+        let repo = Arc::new(repo);
+        let shipment_repo = Arc::new(shipment_repo);
+        let gateway = Arc::new(gateway);
 
     let service = PaymentServiceImpl::new(
         repo,
@@ -414,6 +467,10 @@ async fn handle_webhook_invalid_transition() {
         .returning(move |_| {
             Ok(Some(payment_clone.clone()))
         });
+
+        let repo = Arc::new(repo);
+        let shipment_repo = Arc::new(shipment_repo);
+        let gateway = Arc::new(gateway);
 
     let service = PaymentServiceImpl::new(
         repo,
@@ -464,6 +521,10 @@ async fn handle_webhook_update_failure() {
             ))
         });
 
+        let repo = Arc::new(repo);
+        let shipment_repo = Arc::new(shipment_repo);
+        let gateway = Arc::new(gateway);
+
     let service = PaymentServiceImpl::new(
         repo,
         shipment_repo,
@@ -495,6 +556,10 @@ async fn delete_payment_success(){
     repo.expect_delete_payment()
     .returning(|_| Ok(()));
 
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
+
     let service = PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
     let deleted_payment = service.delete_payment(id).await;
 
@@ -518,6 +583,11 @@ async fn delete_payment_not_found(){
 
     repo.expect_delete_payment()
     .returning(|_| Ok(()));
+
+    let repo = Arc::new(repo);
+    let shipment_repo = Arc::new(shipment_repo);
+    let payment_gateway = Arc::new(payment_gateway);
+
 
     let service = PaymentServiceImpl::new(repo, shipment_repo, payment_gateway);
     let deleted_payment = service.delete_payment(id).await;
