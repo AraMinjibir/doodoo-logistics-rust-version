@@ -9,6 +9,13 @@ use crate::domain::gateways:: payment_gateway::{
 };
 pub struct MockPaymentGateway;
 
+impl MockPaymentGateway {
+
+    pub fn new() -> Self {
+        Self
+    }
+}
+
 #[async_trait]
 impl PaymentGateway for MockPaymentGateway {
     async fn initiate_payment(
