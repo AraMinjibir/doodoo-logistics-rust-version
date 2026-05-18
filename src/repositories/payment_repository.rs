@@ -3,7 +3,7 @@ use rust_decimal::Decimal;
 use uuid::Uuid;
 
 use crate::domain::{errors::repository_error::RepositoryError, 
-    models::{payment::Payment, payment_status::PaymentStatus}};
+    models::{payment::Payment}};
 
 
 #[async_trait::async_trait]
