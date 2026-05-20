@@ -10,7 +10,7 @@ use crate::domain::models::{
     shipment::UpdateShipment,
 };
 use crate::domain::errors::domain_error::DomainError;
-use crate::controllers::helpers::shipment_helper::IntoDomain;
+use crate::controllers::helpers::result_mapper::IntoDomain;
 
 
 #[derive(Debug, Deserialize)]
