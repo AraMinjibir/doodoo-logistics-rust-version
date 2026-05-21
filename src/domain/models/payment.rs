@@ -13,6 +13,7 @@ pub enum PaymentMethod {
     BankTransfer,
 }
 
+#[allow(dead_code)]
 impl PaymentMethod {
     pub fn methods() -> &'static [PaymentMethod] {
         &[Self::Card, Self::MobileMoney, Self::BankTransfer]
@@ -103,7 +104,7 @@ impl Payment {
     }
 
     pub fn update_status(
-        mut self,
+         self,
         status: PaymentStatus,
         gateway_transaction_id: Option<String>,
     ) -> Result<Self, DomainError> {
