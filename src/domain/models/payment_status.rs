@@ -18,6 +18,7 @@ pub enum PaymentStatus {
     Refunded
      }
 
+#[allow(dead_code)]
  impl PaymentStatus {
      pub fn statuses() -> &'static [PaymentStatus] {
 

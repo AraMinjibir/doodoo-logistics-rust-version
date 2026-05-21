@@ -18,6 +18,7 @@ pub trait PaymentGateway: Send + Sync {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct PaymentGatewayResponse {
     pub authorization_url: String,
     pub reference: String,

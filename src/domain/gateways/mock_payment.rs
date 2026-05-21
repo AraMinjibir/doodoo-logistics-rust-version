@@ -15,6 +15,7 @@ impl MockPaymentGateway {
     }
 }
 
+
 #[async_trait]
 impl PaymentGateway for MockPaymentGateway {
     async fn initiate_payment(
@@ -32,7 +33,7 @@ impl PaymentGateway for MockPaymentGateway {
 
     async fn verify_webhook(
         &self,
-        event: &PaymentWebhookEvent,
+        _event: &PaymentWebhookEvent,
         _signature: &str,
     ) -> Result<(), DomainError> {
         
