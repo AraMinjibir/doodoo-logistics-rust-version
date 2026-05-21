@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
 use crate::domain::models::payment::Payment;
 use crate::domain::errors::domain_error::DomainError;
 
@@ -6,15 +7,14 @@ use crate::domain::errors::domain_error::DomainError;
 pub trait PaymentGateway: Send + Sync {
     async fn initiate_payment(
         &self,
-        payment: &Payment,
-        callback_url: &str,
+        payment: &Payment
     ) -> Result<PaymentGatewayResponse, DomainError>;
 
     async fn verify_webhook(
         &self,
-        payload: &str,
+        event: &PaymentWebhookEvent,
         signature: &str,
-    ) -> Result<PaymentWebhookEvent, DomainError>;
+    ) -> Result<(), DomainError>;
 }
 
 #[derive(Debug, Clone)]
@@ -23,7 +23,7 @@ pub struct PaymentGatewayResponse {
     pub reference: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct PaymentWebhookEvent {
     pub reference: String,
     pub status: String,
