@@ -1,16 +1,18 @@
-use mockall::mock;
 use async_trait::async_trait;
-use uuid::Uuid;
-use rust_decimal::Decimal;
 use chrono::NaiveDate;
+use mockall::mock;
+use rust_decimal::Decimal;
+use uuid::Uuid;
 
-
-use crate::domain::models::{shipment::Shipment, payment::Payment};
-use crate::domain::errors::{repository_error::RepositoryError, domain_error::DomainError};
-use crate::repositories::{shipment_repository::ShipmentRepository, 
-    payment_repository::PaymentRepository};
-use crate::domain::gateways::{payment_gateway::PaymentGateway,
-    payment_gateway::PaymentWebhookEvent, payment_gateway::PaymentGatewayResponse};
+use crate::domain::errors::{domain_error::DomainError, repository_error::RepositoryError};
+use crate::domain::gateways::{
+    payment_gateway::PaymentGateway, payment_gateway::PaymentGatewayResponse,
+    payment_gateway::PaymentWebhookEvent,
+};
+use crate::domain::models::{payment::Payment, shipment::Shipment};
+use crate::repositories::{
+    payment_repository::PaymentRepository, shipment_repository::ShipmentRepository,
+};
 
 mock! {
     pub ShipmentRepo {}
@@ -53,25 +55,24 @@ mock! {
         async fn get_monthly_revenue(&self, year:u32, month: u32) -> Result<Option<Decimal>, RepositoryError>;
 
     }
-    
+
 }
-mock!{
+mock! {
     pub Payment{}
 
     #[async_trait]
     impl PaymentGateway for Payment {
-        
+
         async fn initiate_payment(
             &self,
-            payment: &Payment,
-            callback_url: &str,
+            payment: &Payment
         ) -> Result<PaymentGatewayResponse, DomainError>;
-    
+
         async fn verify_webhook(
             &self,
-            payload: &str,
+            payload:&PaymentWebhookEvent,
             signature: &str,
-        ) -> Result<PaymentWebhookEvent, DomainError>;
+        ) -> Result<(), DomainError>;
 
     }
 }

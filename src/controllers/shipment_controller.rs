@@ -10,7 +10,7 @@ use crate::controllers::dto::{
     ProofOfDeliveryDto, 
     UpdateShipmentDto,
     UpdateStatusDto};
-use crate::controllers::helpers::shipment_helper::
+use crate::controllers::helpers::result_mapper::
 {map_domain_error, extract_or_bad_request,parse_dto, parse_status, log_and_map};
 
 

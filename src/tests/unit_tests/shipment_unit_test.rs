@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use uuid::Uuid;
 
 use crate::domain::errors::repository_error::RepositoryError;
@@ -24,6 +26,8 @@ async fn create_shipment_success() {
         .times(1)
         .returning(|_| Ok(()));
 
+    let repo = Arc::new(repo);
+
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service.create_shipment(shipment.clone()).await;
@@ -41,6 +45,8 @@ async fn create_shipment_repo_error() {
     repo.expect_create()
         .returning(|_| Err(RepositoryError::DatabaseError("fail".into())));
 
+    let repo = Arc::new(repo);
+
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service.create_shipment(test_shipment()).await;
@@ -56,6 +62,8 @@ async fn get_by_tracking_success() {
     repo.expect_find_by_tracking_number()
         .returning(move |_| Ok(Some(shipment.clone())));
 
+    let repo = Arc::new(repo);
+
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service.get_by_tracking_number("T1").await;
@@ -69,6 +77,8 @@ async fn get_by_tracking_not_found() {
 
     repo.expect_find_by_tracking_number()
         .returning(|_| Ok(None));
+
+     let repo = Arc::new(repo);
 
     let service = ShipmentServiceImpl::new(repo);
 
@@ -86,6 +96,7 @@ async fn get_by_id_success() {
     repo.expect_get_by_id()
         .returning(move |_| Ok(Some(shipment.clone())));
 
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service.get_by_id(id).await;
@@ -100,6 +111,7 @@ async fn get_by_id_not_found() {
     repo.expect_get_by_id()
         .returning(|_| Ok(None));
 
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service.get_by_id(Uuid::new_v4()).await;
@@ -114,6 +126,8 @@ async fn get_by_status_success() {
     repo.expect_get_by_status()
         .returning(|_| Ok(vec![test_shipment()]));
 
+
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service.get_by_status(ShipmentStatus::Created).await;
@@ -141,6 +155,8 @@ async fn update_status_success() {
     repo.expect_update()
         .returning(|_| Ok(()));
 
+
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service
@@ -160,6 +176,7 @@ async fn update_status_not_found() {
     repo.expect_find_by_tracking_number()
         .returning(|_| Ok(None));
 
+    let repo = Arc::new(repo);    
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service
@@ -186,6 +203,7 @@ async fn update_shipment_success() {
     repo.expect_update()
         .returning(|_| Ok(()));
 
+    let repo = Arc::new(repo);    
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service
@@ -202,6 +220,8 @@ async fn list_shipments_success() {
     repo.expect_list_all()
         .returning(|_, _| Ok(vec![test_shipment()]));
 
+    
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service.list_shipments(0, 10).await;
@@ -217,6 +237,8 @@ async fn delete_success() {
     repo.expect_delete()
         .returning(|_| Ok(1));
 
+
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service.delete_shipment(Uuid::new_v4()).await;
@@ -231,6 +253,7 @@ async fn delete_not_found() {
     repo.expect_delete()
         .returning(|_| Ok(0));
 
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service.delete_shipment(Uuid::new_v4()).await;
@@ -258,6 +281,7 @@ async fn upload_proof_success() {
     repo.expect_upload_proof_of_delivery()
         .returning(move |_, _| Ok(Some(shipment_upload.clone())));
 
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
     let proof = test_proof();
@@ -276,6 +300,8 @@ async fn upload_proof_not_found() {
     repo.expect_find_by_tracking_number()
         .returning(|_| Ok(None));
 
+
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service

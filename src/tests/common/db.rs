@@ -1,10 +1,9 @@
 #![allow(dead_code)] // This tells Rust to only look at this folder during 'cargo test'
 
-use sqlx::{PgPool, Executor, postgres::PgPoolOptions};
+use sqlx::{PgPool, postgres::PgPoolOptions};
 use actix_web::dev::{Service, ServiceResponse};
 use actix_http::Request;
 use std::env;
-use dotenvy::dotenv;
 use std::time::Duration;
 use testcontainers::{clients::Cli, Container};
 use testcontainers_modules::postgres::Postgres;

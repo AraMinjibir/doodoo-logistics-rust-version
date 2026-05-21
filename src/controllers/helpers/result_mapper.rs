@@ -22,6 +22,31 @@ pub fn map_domain_error(err: DomainError) -> HttpResponse {
                 "message": format!("Shipment with id {} not found", id)
             }))
         }
+        DomainError::PaymentNotFound {reference } => {
+            HttpResponse::NotFound().json(json!({
+                "error": "PaymentNotFound",
+                "message": format!("Payment {} not found", reference)
+            }))
+        }
+        
+        DomainError::PaymentWithShipmentIdNotFound {shipment_id } => {
+            HttpResponse::NotFound().json(json!({
+                "error": "PaymentNotFound",
+                "message": format!("Payment with id: {} not found", shipment_id)
+            }))
+        }
+        DomainError::RevenueNotFoundWithDate {date } => {
+            HttpResponse::NotFound().json(json!({
+                "error": "RevenueNotFound",
+                "message": format!("Revenue for this day: {} not found", date)
+            }))
+        }
+        DomainError::RevenueNotFound {month } => {
+            HttpResponse::NotFound().json(json!({
+                "error": "RevenueNotFound",
+                "message": format!("Revenue for this month: {} not found", month)
+            }))
+        }
 
         // VALIDATION / CLIENT ERRORS
         DomainError::ValidationError(errors) => {
@@ -59,6 +84,12 @@ pub fn map_domain_error(err: DomainError) -> HttpResponse {
             }))
         }
 
+        DomainError::PaymentGatewayError{signature} => {
+            HttpResponse::BadRequest().json(json!({
+                "error": "ShipmentNotDelivered",
+                "message": format!("Invalid signature {} ", signature)
+            }))
+        }
         // CONFLICT (BUSINESS RULES)
         DomainError::DuplicateProofOfDelivery => {
             HttpResponse::Conflict().json(json!({
@@ -71,6 +102,12 @@ pub fn map_domain_error(err: DomainError) -> HttpResponse {
             HttpResponse::Conflict().json(json!({
                 "error": "DuplicateEntity",
                 "message": "Entity already exists"
+            }))
+        }
+        DomainError::PaymentExistsForThisShipment {id } => {
+            HttpResponse::Conflict().json(json!({
+                "error": "Duplicate",
+                "message": format!("Payment with shipment id: {}, already exists", id)
             }))
         }
 
