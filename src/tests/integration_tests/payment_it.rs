@@ -1,9 +1,8 @@
-#![allow(dead_code)]
 
 use chrono::{DateTime, Utc, NaiveDate};
 use rust_decimal::Decimal;
 
-use crate::domain::models::{shipment, payment_status::PaymentStatus};
+use crate::domain::models::{payment_status::PaymentStatus};
 use crate::repositories::{payment_repository::PaymentRepository, 
     shipment_repository::ShipmentRepository, 
     sqlx_payment_repository::SqlxPaymentRepository, 

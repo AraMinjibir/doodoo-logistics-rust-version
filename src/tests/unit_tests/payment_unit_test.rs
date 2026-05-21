@@ -227,6 +227,7 @@ async fn get_all_payments() {
     assert_eq!(fetched_payments.unwrap().len(), 1);
 }
 
+
 #[tokio::test]
 async fn get_daily_revenue() {
     let mut repo = MockPaymentRepo::new();
@@ -302,7 +303,6 @@ async fn handle_webhook_success() {
     let mut gateway = MockPayment::new();
 
     let shipment = test_shipment();
-    let payment = test_payment(shipment.id());
 
     gateway.expect_verify_webhook().returning(|_, _| Ok(()));
 
