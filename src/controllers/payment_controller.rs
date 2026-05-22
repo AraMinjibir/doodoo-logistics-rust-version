@@ -6,19 +6,16 @@ use crate::config::app_state::AppState;
 use crate::controllers::dto::{GeneratePaymentDto, PaymentResponseDto};
 use crate::controllers::helpers::result_mapper::map_domain_error;
 use crate::domain::gateways::payment_gateway::PaymentWebhookEvent;
-
+use crate::controllers::dto::GeneratePaymentResponseDto;
 
 pub async fn generate_payment(
     state: web::Data<AppState>,
     payload: web::Json<GeneratePaymentDto>,
 ) -> impl Responder {
-    let domain = match payload.into_inner().to_domain() {
-        Ok(payment) => payment,
-        Err(err) => return map_domain_error(err),
-    };
+    let input =  payload.into_inner().to_domain();
 
-    match state.payment_service.generate_payment(&domain).await {
-        Ok(payment) => HttpResponse::Created().json(PaymentResponseDto::from_domain(payment)),
+    match state.payment_service.generate_payment(&input).await {
+        Ok(response) => HttpResponse::Created().json(GeneratePaymentResponseDto::from_response(response)),
 
         Err(err) => map_domain_error(err),
     }
