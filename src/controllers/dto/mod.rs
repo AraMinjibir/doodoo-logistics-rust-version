@@ -11,3 +11,4 @@ pub(super) use shipment_creation_dto::UpdateShipmentDto;
 pub(super) use shipment_creation_dto::UpdateStatusDto;
 pub(super) use payment_generation_dto::GeneratePaymentDto;
 pub(super) use payment_response_dto::PaymentResponseDto;
+pub(super) use payment_response_dto::GeneratePaymentResponseDto;
