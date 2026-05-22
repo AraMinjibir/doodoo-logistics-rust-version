@@ -2,7 +2,7 @@ use uuid::Uuid;
 use rust_decimal::Decimal;
 use serde::Deserialize;
 
-use crate::{domain::{errors::domain_error::DomainError, models::payment::{Payment, PaymentMethod}}};
+use crate::domain::models::payment::{PaymentMethod, PaymentCommand};
 
 #[derive(Debug, Deserialize)]
 pub struct GeneratePaymentDto {
@@ -14,14 +14,14 @@ pub struct GeneratePaymentDto {
 }
 
 impl GeneratePaymentDto {
-    pub fn to_domain(self) -> Result<Payment, DomainError> {
+    pub fn to_domain(self) -> PaymentCommand {
     
-    Payment::generate_payment(
-        self.customer_id, 
-        self.shipment_id, 
-        self.amount, 
-        self.payment_method
-    )
+        PaymentCommand::new(
+            self.customer_id,
+            self.shipment_id, 
+            self.amount, 
+            self.payment_method
+        )
     }
     
 }
