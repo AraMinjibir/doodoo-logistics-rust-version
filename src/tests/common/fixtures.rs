@@ -7,7 +7,7 @@ use chrono::{DateTime, Utc};
 
 use crate::domain::models::{
     address::Address, dimensions::Dimensions,
-    payment::Payment, proof_of_delivery::ProofOfDelivery,
+    payment::Payment,payment::PaymentCommand, proof_of_delivery::ProofOfDelivery,
     recipient::Recipient,shipment::{Shipment, UpdateShipment},
     package_details:: PackageDetails,payment::PaymentMethod,
     payment_status::PaymentStatus
@@ -38,6 +38,18 @@ pub fn test_payment(shipment_id:Uuid) -> Payment {
     .expect("Test payment should be valid")
 
 }
+pub fn test_command(shipment_id: Uuid) -> PaymentCommand {
+    let customer_id = Uuid::parse_str("11111111-1111-1111-1111-111111111111").unwrap();
+
+    PaymentCommand {
+        customer_id,
+        shipment_id,
+        amount: Decimal::new(1000, 0),
+        payment_method: PaymentMethod::Card,
+    }
+}
+
+
 pub fn test_success_payment(
     shipment_id: Uuid,
     amount: Decimal,
