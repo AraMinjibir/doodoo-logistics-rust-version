@@ -51,7 +51,50 @@ pub struct Payment {
     gateway_transaction_id: Option<String>,
     failure_reason: Option<String>,
 }
+#[derive(Debug, Clone)]
+pub struct PaymentCommand{
+    pub customer_id: Uuid,
+    pub shipment_id: Uuid,
+    pub amount: Decimal,
+   pub payment_method: PaymentMethod,
+}
 
+#[derive(Debug, Clone)]
+pub struct GeneratePaymentResponse{
+    pub payment: Payment,
+    pub authorization_url: String,
+}
+
+impl PaymentCommand {
+    pub fn new(
+        customer_id: Uuid,
+        shipment_id: Uuid,
+        amount: Decimal,
+        payment_method: PaymentMethod,
+    ) -> Self {
+        Self {
+            customer_id,
+            shipment_id,
+            amount,
+            payment_method,
+        }
+    }
+    
+    pub fn customer_id(&self) -> Uuid {
+        self.customer_id
+    }
+    pub fn shipment_id(&self) -> Uuid {
+        self.shipment_id
+    }
+
+    pub fn amount(&self) -> Decimal {
+        self.amount
+    }
+
+    pub fn payment_method(&self) -> PaymentMethod {
+        self.payment_method.clone()
+    }
+}
 #[allow(dead_code)]
 impl Payment {
     pub fn generate_payment(
