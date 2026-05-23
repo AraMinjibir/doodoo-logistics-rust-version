@@ -49,12 +49,8 @@ pub async fn get_by_id(
     id: web::Path<Uuid>,
 ) -> impl Responder {
     match state.shipment_service.get_by_id(id.into_inner()).await {
-        Ok(Some(shipment)) => {
+        Ok(shipment) => {
             HttpResponse::Ok().json(ShipmentResponseDto::from(shipment))
-        }
-
-        Ok(None) => {
-            HttpResponse::NotFound().json("Shipment not found")
         }
 
         Err(e) => log_and_map(e),

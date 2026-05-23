@@ -25,7 +25,7 @@ pub trait ShipmentService {
     async fn get_by_id(
         &self,
         id: Uuid,
-    ) -> Result<Option<Shipment>, DomainError>;
+    ) -> Result<Shipment, DomainError>;
 
     async fn get_by_status(
         &self,
