@@ -156,7 +156,7 @@ async fn update_payment(){
 
     payment.set_status(PaymentStatus::Successful);
     payment.set_failure_reason(Some("Updated reason".to_string()));
-    payment.set_gateway_transaction_id(Some(("Updated id".to_string())));
+    payment.set_gateway_transaction_id(Some("Updated id".to_string()));
 
     ctx.repo.update_payment(&payment).await.unwrap();
 
