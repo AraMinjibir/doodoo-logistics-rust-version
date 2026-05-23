@@ -3,14 +3,15 @@ use uuid::Uuid;
 use rust_decimal::Decimal;
 use chrono::NaiveDate;
 
-use crate::domain::{errors::domain_error::DomainError, models::payment::Payment,
+use crate::domain::{errors::domain_error::DomainError, 
+    models::{payment::Payment,payment::GeneratePaymentResponse, payment::PaymentCommand},
 gateways::payment_gateway::PaymentWebhookEvent};
 
 
 #[async_trait]
 pub trait PaymentService{
 
-    async fn generate_payment( &self, payment: &Payment) -> Result<Payment, DomainError>;
+    async fn generate_payment( &self, payment: &PaymentCommand) -> Result<GeneratePaymentResponse, DomainError>;
 
     async fn get_payment_by_ref(&self, reference:&str)-> Result<Payment, DomainError>;
     async fn get_payment_by_status(&self, status:&str) -> Result<Vec<Payment>, DomainError>;

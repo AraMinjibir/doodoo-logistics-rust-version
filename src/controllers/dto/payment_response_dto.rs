@@ -3,12 +3,10 @@ use uuid::Uuid;
 use rust_decimal::Decimal;
 use chrono::{DateTime,Utc};
 
-use crate::domain::models::{payment::{Payment, PaymentMethod}, payment_status::PaymentStatus};
+use crate::domain::models::{payment::{Payment,GeneratePaymentResponse, PaymentMethod}, payment_status::PaymentStatus};
 
 #[derive(Debug,Serialize, Deserialize)]
 pub struct PaymentResponseDto{
-
-
     customer_id: Uuid,
     shipment_id: Uuid,
     amount: Decimal, 
@@ -33,6 +31,25 @@ impl PaymentResponseDto {
             payment_method: payment.payment_method(),
             gateway_transaction_id: payment.gateway_transaction_id(),
             failure_reason: payment.failure_reason()
+        }
+    }
+}
+
+#[derive(Debug,Serialize, Deserialize)]
+pub struct GeneratePaymentResponseDto {
+    pub reference_number: String,
+    pub status: PaymentStatus,
+    pub authorization_url: String,
+}
+
+impl GeneratePaymentResponseDto {
+    pub fn from_response(
+        response: GeneratePaymentResponse,
+    ) -> Self {
+        Self {
+            reference_number: response.payment.reference_number(),
+            status: response.payment.status(),
+            authorization_url: response.authorization_url,
         }
     }
 }

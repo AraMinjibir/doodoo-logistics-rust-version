@@ -8,7 +8,7 @@ use crate::{
     domain::{
         errors::domain_error::DomainError,
         gateways::{payment_gateway::PaymentGateway, payment_gateway::PaymentWebhookEvent},
-        models::{payment::Payment, payment_status::PaymentStatus},
+        models::{payment::Payment,payment::PaymentCommand, payment_status::PaymentStatus, payment::GeneratePaymentResponse},
         services::payment_service::PaymentService,
     },
     repositories::{
@@ -38,7 +38,7 @@ impl PaymentServiceImpl {
 
 #[async_trait::async_trait]
 impl PaymentService for PaymentServiceImpl {
-    async fn generate_payment(&self, payment: &Payment) -> Result<Payment, DomainError> {
+    async fn generate_payment(&self, payment: &PaymentCommand) -> Result<GeneratePaymentResponse, DomainError> {
         // Ensure shipment exists first
         self.shipment_repo
             .get_by_id(payment.shipment_id())
@@ -74,7 +74,10 @@ impl PaymentService for PaymentServiceImpl {
         // 5. Save payment
         self.payment_repo.persist_payment(&payment_to_save).await?;
 
-        Ok(payment_to_save)
+        Ok(GeneratePaymentResponse {
+            payment: payment_to_save,
+            authorization_url: gateway_response.authorization_url,
+        })
     }
 
     async fn get_payment_by_ref(&self, reference: &str) -> Result<Payment, DomainError> {
@@ -158,10 +161,12 @@ impl PaymentService for PaymentServiceImpl {
             })?;
 
         // 3. derive status
-        let new_status = if event.status == "success" {
-            PaymentStatus::Successful
-        } else {
-            PaymentStatus::Failed
+        let new_status = match event.status.as_str() {
+            "success" => PaymentStatus::Successful,
+            "failed" => PaymentStatus::Failed,
+            "pending" => PaymentStatus::Pending,
+            "refunded" => PaymentStatus::Refunded,
+            _ => return Err(DomainError::Internal("Invalid status".to_string())),
         };
 
         // 4. validate invariant

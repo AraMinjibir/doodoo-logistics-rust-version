@@ -11,7 +11,7 @@ use crate::domain::gateways::{
 use crate::domain::models::payment_status::PaymentStatus;
 use crate::domain::services::payment_service::PaymentService;
 use crate::domain::services::payment_service_impl::PaymentServiceImpl;
-use crate::tests::common::fixtures::{test_payment, test_shipment, test_success_payment};
+use crate::tests::common::fixtures::{test_command, test_payment, test_shipment, test_success_payment};
 use crate::tests::common::mock_repo::{MockPayment, MockPaymentRepo, MockShipmentRepo};
 
 #[tokio::test]
@@ -22,7 +22,7 @@ async fn generate_payment_sucess() {
 
     let shipment = test_shipment();
 
-    let payment = test_payment(shipment.id());
+    let payment = test_command(shipment.id());
     let expected_reference = "mock-ref".to_string();
 
     shipment_repo
@@ -54,7 +54,7 @@ async fn generate_payment_sucess() {
 
     assert!(payment_result.is_ok());
     let paid = payment_result.unwrap();
-    assert_eq!(paid.reference_number(), "mock-ref");
+    assert_eq!(paid.payment.reference_number(), "mock-ref");
 }
 
 #[tokio::test]
@@ -65,7 +65,7 @@ async fn generate_paymnent_failure() {
 
     let shipment = test_shipment();
 
-    let payment = test_payment(shipment.id());
+    let payment = test_command(shipment.id());
 
     shipment_repo
         .expect_create()

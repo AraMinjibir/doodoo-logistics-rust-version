@@ -88,10 +88,8 @@ impl FromStr for PaymentStatus {
         use PaymentStatus::*;
 
         HashMap::from([
-            (Pending, HashSet::from([Failed, Refunded, Successful])),
-            (Failed, HashSet::from([Refunded])),
-            (Refunded, HashSet::from([Pending, Successful])),
-            (Successful, HashSet::new()),
+            (Pending, HashSet::from([Failed, Successful])),
+            (Successful, HashSet::from([Refunded])),
         ])
     });
 
