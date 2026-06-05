@@ -12,7 +12,11 @@ use crate::domain::models::{
     package_details:: PackageDetails,payment::PaymentMethod,
     payment_status::PaymentStatus
 };
-
+use actix_http::Request;
+use actix_web::{
+    dev::{Service, ServiceResponse},
+    test::{call_service, TestRequest},
+};
 
 #[allow(dead_code)]
 
@@ -90,6 +94,15 @@ pub fn create_shipment_payload() -> Value {
     })
 }
 
+pub fn generate_payment_payload(shipment_id: Uuid) -> Value {
+    json!({
+        "customer_id": "22222222-2222-2222-2222-222222222222",
+        "shipment_id": shipment_id,
+        "amount": 3.0,
+        "payment_method": "Card"
+    })
+}
+
 pub fn updated_shipment() -> UpdateShipment {
     let address = Address::create(
         "123 Street".to_string(),
@@ -151,4 +164,25 @@ fn test_recipient() -> Recipient{
 }
 
 
+pub async fn create_test_shipment(
+    app: &impl Service<
+        Request,
+        Response = ServiceResponse,
+        Error = actix_web::Error,
+    >,
+) -> Uuid {
+    let req = TestRequest::post()
+        .uri("/shipments")
+        .set_json(&create_shipment_payload())
+        .to_request();
 
+    let resp = call_service(app, req).await;
+
+    assert_eq!(resp.status(), 201);
+
+    let body: serde_json::Value =
+        serde_json::from_slice(&actix_web::test::read_body(resp).await)
+            .unwrap();
+
+    Uuid::parse_str(body["id"].as_str().unwrap()).unwrap()
+}
