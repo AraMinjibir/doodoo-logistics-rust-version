@@ -234,7 +234,8 @@ async fn get_daily_revenue() {
     let shipment_repo = MockShipmentRepo::new();
     let payment_gateway = MockPayment::new();
 
-    let date = NaiveDate::from_num_days_from_ce(1);
+    let date = NaiveDate::from_num_days_from_ce_opt(1)
+    .ok_or_else(|| DomainError::Internal("Invalid date".into())).unwrap();
 
     repo.expect_get_daily_revenue()
         .returning(|_| Ok(Some(Decimal::new(100, 2))));
@@ -256,7 +257,8 @@ async fn get_weekly_revenue() {
     let shipment_repo = MockShipmentRepo::new();
     let payment_gateway = MockPayment::new();
 
-    let date = NaiveDate::from_num_days_from_ce(1);
+    let date = NaiveDate::from_num_days_from_ce_opt(1)
+    .ok_or_else(|| DomainError::Internal("Invalid date".into())).unwrap();
 
     repo.expect_get_weekly_revenue()
         .returning(|_| Ok(Some(Decimal::new(100, 2))));
@@ -278,7 +280,8 @@ async fn get_monthly_revenue() {
     let shipment_repo = MockShipmentRepo::new();
     let payment_gateway = MockPayment::new();
 
-    let date = NaiveDate::from_num_days_from_ce(1);
+    let date = NaiveDate::from_num_days_from_ce_opt(1)
+    .ok_or_else(|| DomainError::Internal("Invalid date".into())).unwrap();
     let year = date.year() as u32;
     let month = date.month() as u32;
 
