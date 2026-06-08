@@ -62,15 +62,21 @@ async fn main() -> std::io::Result<()> {
         
     });
 
-    println!("🚀 Server running at http://127.0.0.1:8080");
+    println!("Server running at http://127.0.0.1:8080");
 
-    // 5. Start server
-    HttpServer::new(move || {
-        App::new()
-            .app_data(state.clone())
-            .configure(configure_routes)
-    })
-    .bind(("127.0.0.1", 8080))?
-    .run()
-    .await
+        // 5. Start server
+
+        let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+        let bind_addr = format!("0.0.0.0:{}", port);
+    
+        tracing::info!("🚀 Server running at http://{}", bind_addr);
+    
+        HttpServer::new(move || {
+            App::new()
+                .app_data(state.clone())
+                .configure(configure_routes)
+        })
+        .bind(bind_addr)?
+        .run()
+        .await
 }
