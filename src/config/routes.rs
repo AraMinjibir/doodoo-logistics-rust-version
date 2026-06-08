@@ -1,7 +1,12 @@
 use actix_web::web;
-use crate::controllers::{payment_controller, shipment_controller};
+use crate::controllers::{payment_controller, shipment_controller, health_controller};
 
 pub fn configure_routes(cfg: &mut web::ServiceConfig) {
+    cfg.route(
+        "/health",
+        web::get().to(health_controller::health),
+    );
+
     cfg.service(
         web::scope("/shipments")
             .route("", web::post().to(shipment_controller::create_shipment))
