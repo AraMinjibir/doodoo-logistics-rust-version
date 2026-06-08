@@ -3,6 +3,8 @@ FROM rust:latest AS builder
 
 WORKDIR /app
 
+ENV SQLX_OFFLINE=true
+
 # Copy everything
 COPY . .
 
