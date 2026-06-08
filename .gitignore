@@ -1,2 +1,3 @@
 /target
 .env
+.gitlab-ci.yml
