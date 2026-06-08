@@ -1,6 +1,6 @@
 # ---------- Build stage ----------
-    FROM rust:1.78 as builder
-
+    FROM rust:1.82 as builder
+    
     WORKDIR /app
     
     # 1. copy manifests first (for caching)
