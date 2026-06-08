@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE payments \n            SET status = $1, \n                gateway_transaction_id = $2, \n                failure_reason = $3\n            WHERE reference_number = $4\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3751abb995223678a2eeb6227b3caa553138d5d0c2a085740bf6c74908f7cadb"
+}
