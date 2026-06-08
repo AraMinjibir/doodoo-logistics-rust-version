@@ -1,74 +1,9 @@
 stages:
-  - build
   - test
 
-variables:
-  SQLX_OFFLINE: "true"
-  RUST_BACKTRACE: "1"
-
-# BUILD
-build:
-  stage: build
-  image: rust:1.95
-  script:
-    - cargo build --verbose
-
-# UNIT TESTS
-unit_tests:
-  stage: test
-  image: rust:1.95
-  script:
-    - cargo test --bins --verbose
-
-# INTEGRATION TESTS
-integration_tests:
+cargo_test:
   stage: test
   image: rust:1.95
 
-  services:
-    - name: postgres:16
-      alias: postgres
-
-  variables:
-    POSTGRES_DB: doodoo_test
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
-    SQLX_OFFLINE: "false"
-    RUST_BACKTRACE: "1"
-
   script:
-    - apt-get update && apt-get install -y postgresql-client dnsutils
-
-  
-    # 🔍 DNS DEBUG (IMPORTANT)
-  
-    - echo "HOSTS FILE:"
-    - cat /etc/hosts
-
-    - echo "DNS CHECK:"
-    - getent hosts postgres || echo "POSTGRES NOT RESOLVABLE"
-
-  
-    # DB READINESS CHECK
-  
-    - echo "Waiting for database at postgres:5432..."
-    - until pg_isready -h postgres -U postgres; do
-        echo "Waiting for db...";
-        sleep 1;
-      done
-
-    - echo "Database is UP"
-
-  
-    # 🔥 MIGRATIONS (CRITICAL FIX)
-  
-    - echo "Running migrations..."
-    - cargo install sqlx-cli --no-default-features --features postgres
-    - sqlx migrate run
-
-  
-    # TESTS
-  
-    - echo "Running integration tests..."
-    - cargo test --bins
+    - cargo test
