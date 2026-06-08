@@ -1,19 +1,22 @@
 # DooDoo Logistics (Rust Version)
 
-**Rust • Axum • Tokio • PostgreSQL • REST • WebSockets**
+**Rust • Actix Web • Tokio • PostgreSQL • REST • WebSockets**
 
-DooDoo Logistics (Rust Version) is a production-oriented logistics and delivery management backend inspired by industrial-grade systems such as DHL, Bolt Logistics, and FedEx. This implementation rewrites the original Scala/Play system in Rust while preserving its domain-driven architecture, strict state transitions, and asynchronous event-driven design.
+A production-oriented logistics and delivery backend, rewritten from a Scala/Play Framework system into Rust, demonstrating modern backend engineering with async architecture, strict domain modeling, and event-driven design.
 
-The system is built as a **Modular Monolith**, focusing on correctness, maintainability, and performance without introducing unnecessary distributed complexity. It demonstrates how to design and implement a realistic logistics backend using Rust's strong type system, memory safety guarantees, and asynchronous runtime.
-
-The goal is to showcase how a real-world logistics platform can be implemented in Rust using modern async architecture, strong domain modeling, and production-ready design principles.
+Built as a modular monolith, it prioritizes correctness, maintainability, and performance using Rust’s type system and async runtime.
 
 ---
 
 # 1. Problem Statement
+Logistics systems require strict correctness and full traceability.
 
-Logistics platforms must maintain **100% data consistency** and **operational transparency**.
-DooDoo Logistics (Rust Version) addresses these challenges through:
+This system solves:
+
+* Invalid shipment state transitions
+* Lack of audit history in delivery systems
+* Poor role separation in logistics workflows
+* Blocking synchronous workflows in tracking/payment systems
 
 ### Deterministic Lifecycle Management
 
@@ -21,9 +24,10 @@ Prevents illegal state transitions (e.g., Created → Delivered without InTransi
 
 ### Role-Based Access Control (RBAC)
 
-Defines strict boundaries between:
+Enforces Principle of Least Privilege:
 
 * Customers
+* Recipient
 * Service Providers
 * Support Agents
 * Administrators
@@ -42,16 +46,17 @@ Ensures stakeholders receive updates asynchronously without blocking core API op
 
 The system enforces the **Principle of Least Privilege (PoLP)** across four distinct roles.
 
----
-
 ## Customer / Sender
 
 * Create shipments with full validation
 * Receive unique tracking numbers
-* Track shipment lifecycle
-* View complete shipment history
+* Track lifecycle via strict state machine
+* Full shipment history & audit trail
+* WebSocket-based live tracking updates
+* Lifecycle:
+ Created → InTransit → Assigned → OutForDelivery → Delivered
 
----
+Invalid transitions are rejected at runtime via domain rules.
 
 ## Recipient (Consignee)
 
@@ -60,8 +65,6 @@ The system enforces the **Principle of Least Privilege (PoLP)** across four dist
 * Provide Proof of Delivery (PoD)
 * Receive shipment notifications
 
----
-
 ## Service Provider (Courier)
 
 * Accept shipments
@@ -69,8 +72,6 @@ The system enforces the **Principle of Least Privilege (PoLP)** across four dist
 * Mark shipments as Delivered
 * Provide delivery metadata
 * Submit delivery notes
-
----
 
 ## Support Agent
 
@@ -95,24 +96,23 @@ The system enforces the **Principle of Least Privilege (PoLP)** across four dist
 
 # 3. Payment Management
 
-### Payment Processing
+* Shipment-linked payment processing
+* Status tracking: Pending | Successful | Failed | Refunded
+* Prevents dispatch before payment confirmation
+* Revenue aggregation (daily, weekly, monthly)
 
-* Create payment transactions
-* Link payment to shipment
-* Secure transaction recording
 
-### Payment Status Tracking
-
-* Pending
-* Successful
-* Failed
-* Refunded
-
-### Notifications & Alerts
+### Event-Driven Notifications
 
 * Payment success notification
 * Payment failure alert
 * Support agent alerts
+
+### Supports:
+
+* Async processing (Tokio runtime)
+* Extensible integrations (Email / SMS / Push)
+* Future message broker migration
 
 ### Shipment Flow Integration
 
@@ -144,8 +144,6 @@ Administrators can:
 
 Ensures secure access control and operational integrity.
 
----
-
 ## Shipment Monitoring
 
 Administrators can:
@@ -162,20 +160,26 @@ Administrators can:
 Implemented using in-memory domain events:
 
 * Decoupled business logic from notification handling
+
 * Centralized EventBus abstraction
+
 * Triggered on domain events:
 
   * Shipment created
   * Status updated
   * Payment processed
   * User updated
-* Async processing using Tokio tasks
+
+* Async processing powered by Tokio runtime (via Actix)
+
 * Extensible to support:
 
   * Email
   * Push notifications
   * SMS
+
 * Designed for future message broker integration
+
 * Dedicated NotificationService layer
 
 ---
@@ -199,7 +203,7 @@ API Clients (Web / Mobile / Admin)
                 |
              REST / WS
                 |
-          Axum HTTP Layer
+       Actix Web HTTP Layer
                 |
          Application Services
                 |
@@ -217,8 +221,7 @@ API Clients (Web / Mobile / Admin)
 Backend:
 
 * Rust
-* Axum (HTTP API framework)
-* Tokio (Async runtime)
+* Actix Web (HTTP API framework)
 
 Persistence:
 
@@ -232,7 +235,7 @@ Security:
 
 Async Processing:
 
-* Tokio tasks
+* Tokio runtime (used internally by Actix)
 * In-memory event bus
 
 Real-time:
@@ -308,7 +311,7 @@ cargo run
 # 12. Status Lifecycle
 
 ```
-Created → Accepted → InTransit → Delivered
+Created → Assigned → InTransit → Delivered
 ```
 
 Invalid transitions are rejected at compile-time and runtime.
@@ -333,12 +336,12 @@ Invalid transitions are rejected at compile-time and runtime.
 
 This project demonstrates:
 
-* Real-world Rust backend architecture
-* Async application design
-* Domain-driven development
-* State machine modeling
-* Clean modular monolith structure
-* Production-oriented system design
+Real-world Rust backend architecture
+Domain-Driven Design (DDD) in production systems
+State machine modeling for logistics workflows
+Async, non-blocking system design (Tokio + Actix)
+Clean modular monolith architecture
+Migration of enterprise system from Scala → Rust
 
 ---
 
