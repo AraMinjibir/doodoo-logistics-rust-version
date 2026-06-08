@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            DELETE FROM payments \n            WHERE reference_number = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1b1c7ec9f735200f672eb3f6fb84ec3befa74d59bf1b70fa48fb1b2cb4f9f3d8"
+}
