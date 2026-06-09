@@ -345,6 +345,28 @@ Migration of enterprise system from Scala → Rust
 
 ---
 
-# 15. License
+# 15. Live Demo
+
+Base URL:
+https://doodoo-logistics-rust.onrender.com
+
+Example endpoints:
+
+POST /shipments
+GET /shipments
+GET /shipments/{id}
+
+POST /payments
+GET /payments/reference/{ref}
+
+# 16. Docker
+
+Build:
+docker build -t doodoo-logistics .
+
+Run:
+docker run -p 8080:8080 doodoo-logistics
+
+# 17. License
 
 MIT
