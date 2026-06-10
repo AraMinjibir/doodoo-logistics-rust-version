@@ -8,7 +8,10 @@ use crate::{
     domain::{
         errors::domain_error::DomainError,
         gateways::{payment_gateway::PaymentGateway, payment_gateway::PaymentWebhookEvent},
-        models::{payment::Payment,payment::PaymentCommand, payment_status::PaymentStatus, payment::GeneratePaymentResponse},
+        models::{
+            payment::GeneratePaymentResponse, payment::Payment, payment::PaymentCommand,
+            payment_status::PaymentStatus,
+        },
         services::payment_service::PaymentService,
     },
     repositories::{
@@ -38,7 +41,10 @@ impl PaymentServiceImpl {
 
 #[async_trait::async_trait]
 impl PaymentService for PaymentServiceImpl {
-    async fn generate_payment(&self, payment: &PaymentCommand) -> Result<GeneratePaymentResponse, DomainError> {
+    async fn generate_payment(
+        &self,
+        payment: &PaymentCommand,
+    ) -> Result<GeneratePaymentResponse, DomainError> {
         // Ensure shipment exists first
         self.shipment_repo
             .get_by_id(payment.shipment_id())
@@ -188,10 +194,8 @@ impl PaymentService for PaymentServiceImpl {
         PaymentStatus::validate_transition(&payment.status(), &new_status)?;
 
         // 7. update
-        let updated_payment = payment.update_status(
-            new_status,
-            event.gateway_transaction_id.clone(),
-        )?;
+        let updated_payment =
+            payment.update_status(new_status, event.gateway_transaction_id.clone())?;
 
         // 8. persist
         self.payment_repo
