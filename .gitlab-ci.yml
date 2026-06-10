@@ -5,6 +5,7 @@ stages:
 
 variables:
   CARGO_TERM_COLOR: always
+  SQLX_OFFLINE: "true"
 
 cache:
   paths:
