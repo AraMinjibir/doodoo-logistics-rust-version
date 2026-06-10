@@ -6,27 +6,24 @@ stages:
 variables:
   CARGO_TERM_COLOR: always
   SQLX_OFFLINE: "true"
-  # Keeps your target directory inside the workspace for caching
-  CARGO_HOME: "$CI_PROJECT_DIR/.cargo"
 
 cache:
   key: "$CI_COMMIT_REF_SLUG"
   paths:
     - target/
-    - .cargo/
 
 # 1. CHECK (fast validation)
 check:
   image: rust:1.96
   stage: check
+  before_script:
+    # Force the shell to find the absolute path where rustup drops binaries
+    - export PATH="/usr/local/rustup/toolchains/1.96.0-x86_64-unknown-linux-gnu/bin:$PATH"
+    - rustup component add rustfmt clippy
   script:
-    # 1. Install components explicitly to the stable toolchain
-    - rustup component add rustfmt --toolchain stable
-    - rustup component add clippy --toolchain stable
-    # 2. Use 'rustup run' to force the execution context to see them
-    - rustup run stable cargo fmt -- --check
-    - rustup run stable cargo clippy -- -D warnings
-    - rustup run stable cargo check
+    - cargo fmt -- --check
+    - cargo clippy -- -D warnings
+    - cargo check
 
 # 2. TEST
 test:
