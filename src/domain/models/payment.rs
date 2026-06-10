@@ -214,6 +214,8 @@ impl Payment {
     pub fn set_paid_at(&mut self, paid: DateTime<Utc>) {
         self.paid_at = paid;
     }
+
+    #[allow(clippy::too_many_arguments)]
     pub fn reconstitute(
         customer_id: Uuid,
         shipment_id: Uuid,
