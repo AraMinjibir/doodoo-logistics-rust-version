@@ -17,6 +17,7 @@ check:
   image: rust:latest
   stage: check
   script:
+    - rustup component add rustfmt clippy
     - rustc --version
     - cargo --version
     - cargo check
