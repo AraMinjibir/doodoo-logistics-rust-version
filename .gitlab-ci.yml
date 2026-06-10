@@ -6,8 +6,8 @@ stages:
 variables:
   CARGO_TERM_COLOR: always
   SQLX_OFFLINE: "true"
-  # Force cargo to look in the right home directory for binaries
-  CARGO_HOME: "$CI_PROJECT_DIR/.cargo" 
+  # Override CARGO_HOME to ensure cached components are stored and readable in the workspace
+  CARGO_HOME: "$CI_PROJECT_DIR/.cargo"
 
 cache:
   key: "$CI_COMMIT_REF_SLUG"
@@ -20,21 +20,24 @@ check:
   image: rust:1.96
   stage: check
   before_script:
-    - rustup toolchain install 1.96 --component rustfmt clippy
-    - rustup default 1.96
+    # Ensure the PATH includes our local cargo home bin directory
+    export PATH="$CARGO_HOME/bin:$PATH"
+    # Explicitly add the components to the currently active toolchain
+    - rustup component add rustfmt --toolchain 1.96.0-x86_64-unknown-linux-gnu
+    - rustup component add clippy --toolchain 1.96.0-x86_64-unknown-linux-gnu
   script:
     - cargo fmt -- --check
     - cargo clippy -- -D warnings
     - cargo check
 
-# 2. TEST (Pinned to 1.96 to match check stage)
+# 2. TEST
 test:
   image: rust:1.96
   stage: test
   script:
     - cargo test --all
 
-# 3. BUILD (release check)
+# 3. BUILD
 build:
   image: rust:1.96
   stage: build
