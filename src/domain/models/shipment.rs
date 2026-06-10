@@ -60,7 +60,7 @@ impl Shipment {
 
     
     }
-
+    #[allow(clippy::too_many_arguments)]
     pub fn reconstitute(
         id: Uuid,
         sender_name: String,
