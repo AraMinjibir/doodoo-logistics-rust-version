@@ -1,39 +1,19 @@
-stages:
-  - check
-  - test
-  - build
-
-variables:
-  CARGO_TERM_COLOR: always
-  SQLX_OFFLINE: "true"
-
-cache:
-  paths:
-    - target/
-    - .cargo/
-
-# 1. CHECK (fast validation)
 check:
   image: rust:1.96
   stage: check
   script:
-  - cargo check
-  - cargo clippy -- -D warnings
-  - cargo test
-  - cargo build --release
+    - rustup component add clippy rustfmt
+    - cargo check
+    - cargo clippy -- -D warnings
 
-    
-
-# 2. TEST
 test:
-  image: rust:latest
+  image: rust:1.96
   stage: test
   script:
     - cargo test --all
 
-# 3. BUILD (release check)
 build:
-  image: rust:latest
+  image: rust:1.96
   stage: build
   script:
     - cargo build --release
