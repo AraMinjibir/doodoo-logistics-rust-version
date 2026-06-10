@@ -6,6 +6,8 @@ stages:
 variables:
   CARGO_TERM_COLOR: always
   SQLX_OFFLINE: "true"
+  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_TLS_CERTDIR: ""
 
 cache:
   key: "$CI_COMMIT_REF_SLUG"
@@ -28,6 +30,20 @@ check:
 test:
   image: rust:1.96
   stage: test
+  services:
+    # Provides a live Docker environment for Testcontainers inside your build job
+    - name: docker:24.0.7-dind
+      alias: docker
+    # Provides a standard postgres service if your integration tests hook into a shared static instance
+    - name: postgres:15-alpine
+      alias: postgres
+  variables:
+    # Standard DB environment credentials matching your src/tests/common/db.rs config
+    POSTGRES_DB: doodoo_logistics_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: password
+    # Override your DB URL context to point to the postgres container alias instead of localhost
+    DATABASE_URL: "postgres://postgres:password@postgres:5432/doodoo_logistics_test"
   script:
     - cargo test --all
 
