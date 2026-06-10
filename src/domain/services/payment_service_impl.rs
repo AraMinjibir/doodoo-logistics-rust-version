@@ -101,7 +101,7 @@ impl PaymentService for PaymentServiceImpl {
         self.payment_repo
             .get_payment_by_status(status)
             .await
-            .map_err(|e| DomainError::from(e))
+            .map_err(DomainError::from)
     }
 
     async fn get_payment_by_shipment_id(&self, shipment_id: Uuid) -> Result<Payment, DomainError> {
@@ -120,7 +120,7 @@ impl PaymentService for PaymentServiceImpl {
         self.payment_repo
             .get_all_payments()
             .await
-            .map_err(|e| DomainError::from(e))
+            .map_err(DomainError::from)
     }
 
     async fn get_daily_revenue(&self, date: NaiveDate) -> Result<Decimal, DomainError> {
