@@ -1,0 +1,37 @@
+stages:
+  - check
+  - test
+  - build
+
+variables:
+  CARGO_TERM_COLOR: always
+
+cache:
+  paths:
+    - target/
+    - .cargo/
+
+# 1. CHECK (fast validation)
+check:
+  image: rust:latest
+  stage: check
+  script:
+    - rustc --version
+    - cargo --version
+    - cargo check
+    - cargo fmt -- --check
+    - cargo clippy -- -D warnings
+
+# 2. TEST
+test:
+  image: rust:latest
+  stage: test
+  script:
+    - cargo test --all
+
+# 3. BUILD (release check)
+build:
+  image: rust:latest
+  stage: build
+  script:
+    - cargo build --release
