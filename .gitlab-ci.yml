@@ -14,15 +14,13 @@ cache:
 
 # 1. CHECK (fast validation)
 check:
-  image: rust:latest
+  image: rust:1.96
   stage: check
   script:
     - rustup component add rustfmt clippy
-    - rustc --version
-    - cargo --version
-    - cargo check
     - cargo fmt -- --check
     - cargo clippy -- -D warnings
+    - cargo check
 
 # 2. TEST
 test:
