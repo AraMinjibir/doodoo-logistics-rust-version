@@ -28,11 +28,9 @@ test:
   image: rust:1.96
   stage: test
   services:
-    # Match the alias used in your TestDb fallback layout perfectly!
     - name: postgres:15-alpine
       alias: postgres
   variables:
-    # Explicitly configure the Postgres sidecar to match your code's default fallbacks
     POSTGRES_DB: doodoo_test
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
@@ -40,10 +38,10 @@ test:
   before_script:
     - export PATH="/usr/local/rustup/toolchains/1.96.0-x86_64-unknown-linux-gnu/bin:$PATH"
   script:
-    # 1. Run unit tests and integration tests cleanly against the service container
-    - cargo test --test payment_it --test shipment_it --lib
-    # 2. To avoid burning minutes trying to wrap Docker sockets inside Docker,
-    # your local Testcontainers E2E suite remains explicitly saved for pristine local workstation loops.
+    # 1. Run unit tests embedded inside your main application binary
+    - cargo test --bin doodoo-logistics-rust
+    # 2. Run integration tests explicitly by pointing to their targets
+    - cargo test --test payment_it --test shipment_it
 
 # 3. BUILD
 build:
