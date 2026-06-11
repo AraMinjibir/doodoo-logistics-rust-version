@@ -7,6 +7,15 @@ variables:
   CARGO_TERM_COLOR: always
   SQLX_OFFLINE: "true"
 
+  # Global pipeline controls
+workflow:
+  rules:
+    # Run the pipeline ONLY when pushing or merging to the main branch
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    # Skip the pipeline for all other branch updates
+    - when: never
+    
 cache:
   key: "$CI_COMMIT_REF_SLUG"
   paths:
