@@ -1,13 +1,13 @@
+use async_trait::async_trait;
 use sqlx::PgPool;
 use uuid::Uuid;
-use async_trait::async_trait;
 
-use crate::repositories::shipment_repository::ShipmentRepository;
-use crate::infrastructure::mappers::shipment_mapper:: ShipmentMapper;
-use crate::domain::models::shipment::Shipment;
-use crate::domain::errors::repository_error::RepositoryError;
-use crate::infrastructure::shipment_row::ShipmentRow;
 use crate::domain::errors::repository_error::map_sqlx_error;
+use crate::domain::errors::repository_error::RepositoryError;
+use crate::domain::models::shipment::Shipment;
+use crate::infrastructure::mappers::shipment_mapper::ShipmentMapper;
+use crate::infrastructure::shipment_row::ShipmentRow;
+use crate::repositories::shipment_repository::ShipmentRepository;
 
 pub struct SqlxShipmentRepository {
     pool: PgPool,
@@ -17,18 +17,13 @@ impl SqlxShipmentRepository {
     pub fn new(pool: PgPool) -> Self {
         Self { pool }
     }
-
-    
 }
-
-
 
 #[async_trait]
 impl ShipmentRepository for SqlxShipmentRepository {
-    
     async fn create(&self, shipment: &Shipment) -> Result<(), RepositoryError> {
         let row = ShipmentMapper::to_row(shipment.clone());
-    
+
         sqlx::query!(
             r#"INSERT INTO shipments (
                 id, tracking_number, sender_name,
@@ -73,12 +68,12 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .execute(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
+
         Ok(())
     }
     async fn update(&self, shipment: &Shipment) -> Result<(), RepositoryError> {
         let row = ShipmentMapper::to_row(shipment.clone());
-    
+
         sqlx::query!(
             r#"UPDATE shipments SET
                 tracking_number = $1,
@@ -125,31 +120,24 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .execute(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
+
         Ok(())
     }
     async fn delete(&self, id: Uuid) -> Result<u64, RepositoryError> {
-        let result = sqlx::query!(
-            "DELETE FROM shipments WHERE id = $1",
-            id
-        )
-        .execute(&self.pool)
-        .await
-        .map_err(map_sqlx_error)?;
-    
+        let result = sqlx::query!("DELETE FROM shipments WHERE id = $1", id)
+            .execute(&self.pool)
+            .await
+            .map_err(map_sqlx_error)?;
+
         Ok(result.rows_affected())
     }
 
     async fn get_by_id(&self, id: Uuid) -> Result<Option<Shipment>, RepositoryError> {
-        let row = sqlx::query_as!(
-            ShipmentRow,
-            "SELECT * FROM shipments WHERE id = $1",
-            id
-        )
-        .fetch_optional(&self.pool)
-        .await
-        .map_err(map_sqlx_error)?;
-    
+        let row = sqlx::query_as!(ShipmentRow, "SELECT * FROM shipments WHERE id = $1", id)
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(map_sqlx_error)?;
+
         Ok(row.map(ShipmentMapper::from_row))
     }
 
@@ -162,13 +150,10 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .fetch_all(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
-        let shipments = rows
-    .into_iter()
-    .map(ShipmentMapper::from_row)
-    .collect();
 
-    Ok(shipments)
+        let shipments = rows.into_iter().map(ShipmentMapper::from_row).collect();
+
+        Ok(shipments)
     }
     async fn find_by_tracking_number(
         &self,
@@ -182,10 +167,9 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .fetch_optional(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
+
         Ok(row.map(ShipmentMapper::from_row))
-    
-  }
+    }
 
     async fn list_all(&self, offset: i64, limit: i64) -> Result<Vec<Shipment>, RepositoryError> {
         let rows = sqlx::query_as!(
@@ -197,19 +181,16 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .fetch_all(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
-        let shipments = rows
-        .into_iter()
-        .map(ShipmentMapper::from_row)
-        .collect();
-    
-        Ok(shipments)   
-     }
+
+        let shipments = rows.into_iter().map(ShipmentMapper::from_row).collect();
+
+        Ok(shipments)
+    }
 
     async fn upload_proof_of_delivery(
         &self,
         shipment_id: Uuid,
-        proof:serde_json::Value,
+        proof: serde_json::Value,
     ) -> Result<Option<Shipment>, RepositoryError> {
         sqlx::query!(
             r#"
@@ -224,7 +205,7 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .execute(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
+
         self.get_by_id(shipment_id).await
     }
 
@@ -241,7 +222,7 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .execute(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
+
         Ok(())
     }
 
@@ -257,7 +238,7 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .fetch_all(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
+
         Ok(rows.into_iter().map(ShipmentMapper::from_row).collect())
     }
 }

@@ -6,11 +6,7 @@ pub struct Dimensions {
 }
 
 impl Dimensions {
-    pub fn create(
-        length: f64,
-        width: f64,
-        height: f64,
-    ) -> Result<Self, Vec<String>> {
+    pub fn create(length: f64, width: f64, height: f64) -> Result<Self, Vec<String>> {
         let mut errors = Vec::new();
 
         if length <= 0.0 {
@@ -37,11 +33,11 @@ impl Dimensions {
     pub fn width(&self) -> f64 {
         self.width_in_centimeters
     }
-    
+
     pub fn length(&self) -> f64 {
         self.length_in_centimeters
     }
-    
+
     pub fn height(&self) -> f64 {
         self.height_in_centimeters
     }

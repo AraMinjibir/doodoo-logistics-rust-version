@@ -1,11 +1,9 @@
+use chrono::{DateTime, Duration, Utc};
 use uuid::Uuid;
-use chrono::{DateTime, Utc, Duration};
 
 use crate::domain::errors::domain_error::DomainError;
 use crate::domain::models::{
-    recipient::Recipient,
-    package_details::PackageDetails,
-    proof_of_delivery::ProofOfDelivery,
+    package_details::PackageDetails, proof_of_delivery::ProofOfDelivery, recipient::Recipient,
     shipment_status::ShipmentStatus,
 };
 
@@ -31,34 +29,29 @@ impl Shipment {
         package_details: PackageDetails,
         service_provider_id: Option<Uuid>,
     ) -> Result<Self, DomainError> {
-
         let mut errors = Vec::new();
 
         if sender_name.trim().is_empty() {
             errors.push("Sender name must not be empty".to_string());
         }
-    
-    
+
         if !errors.is_empty() {
             return Err(DomainError::ValidationError(errors));
         }
 
-
         let now = Utc::now();
-       Ok(Self {
+        Ok(Self {
             id: Uuid::new_v4(),
             sender_name,
             recipient,
             package_details,
             tracking_number: Self::generate_tracking_number(),
-            status: ShipmentStatus::Created,             
+            status: ShipmentStatus::Created,
             created_at: now,
             updated_at: now,
             proof_of_delivery: vec![],
             service_provider_id,
         })
-
-    
     }
     #[allow(clippy::too_many_arguments)]
     pub fn reconstitute(
@@ -87,7 +80,6 @@ impl Shipment {
         }
     }
 
-  
     pub fn updated_shipment(
         &self,
         sender_name: String,
@@ -103,7 +95,6 @@ impl Shipment {
         }
     }
     // Getters
-
 
     pub fn id(&self) -> Uuid {
         self.id
@@ -144,14 +135,14 @@ impl Shipment {
         &self.recipient
     }
 
-    pub fn package_details(&self) -> &PackageDetails{
+    pub fn package_details(&self) -> &PackageDetails {
         &self.package_details
     }
 
     pub fn created_at(&self) -> chrono::DateTime<chrono::Utc> {
         self.created_at
     }
-    
+
     pub fn updated_at(&self) -> chrono::DateTime<chrono::Utc> {
         self.updated_at
     }
@@ -176,26 +167,19 @@ impl Shipment {
         &self.tracking_number
     }
 
-        pub fn update_status(
-            &self,
-            next: ShipmentStatus,
-        ) -> Result<Self, DomainError> {
-            let now = Utc::now();
+    pub fn update_status(&self, next: ShipmentStatus) -> Result<Self, DomainError> {
+        let now = Utc::now();
 
-            ShipmentStatus::validate_transition(&self.status, &next)?;
-    
-            Ok(Self {
-                status: next,
-                updated_at: now,
-                ..self.clone()
-            })
-        }
+        ShipmentStatus::validate_transition(&self.status, &next)?;
 
+        Ok(Self {
+            status: next,
+            updated_at: now,
+            ..self.clone()
+        })
+    }
 
-   pub fn attach_proof_of_delivery(
-        &self,
-        proof: ProofOfDelivery,
-    ) -> Result<Self, DomainError> {
+    pub fn attach_proof_of_delivery(&self, proof: ProofOfDelivery) -> Result<Self, DomainError> {
         // 1. Must be delivered
         if self.status != ShipmentStatus::Delivered {
             return Err(DomainError::ShipmentNotDelivered);
@@ -220,7 +204,7 @@ impl Shipment {
             updated_at: Utc::now(),
             ..self.clone()
         })
-    } 
+    }
 }
 
 pub struct UpdateShipment {

@@ -8,11 +8,7 @@ pub struct Recipient {
 }
 
 impl Recipient {
-    pub fn create(
-        name: String,
-        contact: String,
-        address: Address,
-    ) -> Result<Self, Vec<String>> {
+    pub fn create(name: String, contact: String, address: Address) -> Result<Self, Vec<String>> {
         let mut errors = Vec::new();
 
         if name.trim().is_empty() {
