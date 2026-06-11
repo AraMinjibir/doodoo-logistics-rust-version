@@ -28,20 +28,23 @@ test:
   image: rust:1.96
   stage: test
   services:
-    - name: postgres:15-alpine
-      alias: postgres
+    # This spins up the actual background Docker daemon
+    - name: docker:24.0.7-dind
+      alias: docker
   variables:
-    POSTGRES_DB: doodoo_test
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
+    # Route all Docker requests from the Rust container to the DinD service over the open port
+    DOCKER_HOST: "tcp://docker:2375"
+    DOCKER_TLS_CERTDIR: ""
+    # Dummy URL here so TestDb::new() parses safely, 
+    # E2E tests will spin up their own containers via Testcontainers!
+    DATABASE_URL: "postgres://postgres:postgres@127.0.0.1:5432/postgres"
   before_script:
     - export PATH="/usr/local/rustup/toolchains/1.96.0-x86_64-unknown-linux-gnu/bin:$PATH"
+    # Install the missing docker CLI binary so the Testcontainers crate can talk to the daemon
+    - apt-get update && apt-get install -y docker.io
   script:
-    # 1. Run unit tests embedded inside your main application binary
+    # Run everything! Unit tests, integration tests, and your Testcontainers E2E tests.
     - cargo test --bin doodoo-logistics-rust
-    # 2. Run integration tests explicitly by pointing to their targets
-    - cargo test --test payment_it --test shipment_it
 
 # 3. BUILD
 build:
