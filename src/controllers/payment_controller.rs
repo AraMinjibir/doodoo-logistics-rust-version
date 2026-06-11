@@ -12,7 +12,7 @@ pub async fn generate_payment(
     state: web::Data<AppState>,
     payload: web::Json<GeneratePaymentDto>,
 ) -> impl Responder {
-    let input =  payload.into_inner().to_domain();
+    let input =  payload.into_inner().into_domain();
 
     match state.payment_service.generate_payment(&input).await {
         Ok(response) => HttpResponse::Created().json(GeneratePaymentResponseDto::from_response(response)),
