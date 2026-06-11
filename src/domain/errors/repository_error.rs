@@ -29,9 +29,7 @@ pub fn map_sqlx_error(err: sqlx::Error) -> RepositoryError {
                     "40P01" => RepositoryError::DeadlockDetected,
                     "57014" => RepositoryError::TransactionTimeout,
                     "40001" => RepositoryError::SerializationFailure,
-                    _ if code.as_ref().starts_with("22") => {
-                        RepositoryError::InvalidDataFormat
-                    }
+                    _ if code.as_ref().starts_with("22") => RepositoryError::InvalidDataFormat,
                     _ => RepositoryError::DatabaseError(msg),
                 }
             } else {
@@ -42,4 +40,3 @@ pub fn map_sqlx_error(err: sqlx::Error) -> RepositoryError {
         _ => RepositoryError::DatabaseError(err.to_string()),
     }
 }
-

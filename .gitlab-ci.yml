@@ -1,0 +1,58 @@
+stages:
+  - check
+  - test
+  - build
+
+variables:
+  CARGO_TERM_COLOR: always
+  SQLX_OFFLINE: "true"
+
+  # Global pipeline controls
+workflow:
+  rules:
+    # Run the pipeline ONLY when pushing or merging to the main branch
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    # Skip the pipeline for all other branch updates
+    - when: never
+    
+cache:
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - target/
+
+# 1. CHECK
+check:
+  image: rust:1.96
+  stage: check
+  before_script:
+    - export PATH="/usr/local/rustup/toolchains/1.96.0-x86_64-unknown-linux-gnu/bin:$PATH"
+    - rustup component add clippy
+  script:
+    - cargo clippy -- -D warnings
+    - cargo check
+
+# 2. TEST
+test:
+  image: rust:1.96
+  stage: test
+  services:
+    - name: postgres:15-alpine
+      alias: postgres
+  variables:
+    POSTGRES_DB: doodoo_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    DATABASE_URL: "postgres://postgres:postgres@postgres:5432/doodoo_test"
+  before_script:
+    - export PATH="/usr/local/rustup/toolchains/1.96.0-x86_64-unknown-linux-gnu/bin:$PATH"
+  script:
+    # Runs all unit and integration tests while skipping e2e
+    - cargo test --bin doodoo-logistics-rust -- --skip _e2e
+
+# 3. BUILD
+build:
+  image: rust:1.96
+  stage: build
+  script:
+    - cargo build --release

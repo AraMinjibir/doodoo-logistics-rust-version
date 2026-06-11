@@ -1,8 +1,8 @@
-use chrono::{DateTime, Utc};
 use crate::domain::errors::domain_error::DomainError;
-use serde::{Serialize, Deserialize};
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)] 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProofOfDelivery {
     image: Option<String>,
     note: String,
@@ -53,12 +53,11 @@ impl ProofOfDelivery {
         self.image.clone()
     }
 
-    pub fn  note(&self) -> String {
+    pub fn note(&self) -> String {
         self.note.clone()
     }
-    
-    pub fn  submitted_by(&self) -> String {
+
+    pub fn submitted_by(&self) -> String {
         self.submitted_by.clone()
     }
-    
 }

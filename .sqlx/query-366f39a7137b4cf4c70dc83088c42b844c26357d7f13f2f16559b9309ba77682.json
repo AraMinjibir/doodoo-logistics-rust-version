@@ -1,0 +1,70 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT \n                reference_number, customer_id, shipment_id, amount, \n                status, payment_method, paid_at, \n                gateway_transaction_id, failure_reason\n            FROM payments\n            WHERE reference_number = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "reference_number",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "customer_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "shipment_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "amount",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 4,
+        "name": "status",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "payment_method",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "paid_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "gateway_transaction_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "failure_reason",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "366f39a7137b4cf4c70dc83088c42b844c26357d7f13f2f16559b9309ba77682"
+}

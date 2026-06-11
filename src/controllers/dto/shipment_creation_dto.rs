@@ -1,17 +1,12 @@
 use serde::{Deserialize, Serialize};
 
+use crate::controllers::helpers::result_mapper::IntoDomain;
+use crate::domain::errors::domain_error::DomainError;
 use crate::domain::models::{
-    shipment::Shipment,
-    recipient::Recipient,
-    address::Address,
-    package_details::PackageDetails,
-    dimensions::Dimensions,
-    proof_of_delivery::ProofOfDelivery,
+    address::Address, dimensions::Dimensions, package_details::PackageDetails,
+    proof_of_delivery::ProofOfDelivery, recipient::Recipient, shipment::Shipment,
     shipment::UpdateShipment,
 };
-use crate::domain::errors::domain_error::DomainError;
-use crate::controllers::helpers::result_mapper::IntoDomain;
-
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct CreateShipmentDto {
@@ -32,7 +27,7 @@ pub(crate) struct CreateShipmentDto {
 
 #[allow(dead_code)]
 impl CreateShipmentDto {
-    pub fn to_domain(self) -> Result<Shipment, DomainError> {
+    pub fn into_domain(self) -> Result<Shipment, DomainError> {
         let address = Address::create(
             self.street,
             self.city,
@@ -40,35 +35,18 @@ impl CreateShipmentDto {
             self.country,
             self.postal_code,
         )
-        .map_err(|errs| DomainError::ValidationError(errs))?;
+        .map_err(DomainError::ValidationError)?;
 
-        let dimensions = Dimensions::create(
-            self.length,
-            self.width,
-            self.height,
-        )
-        .map_err(|errs| DomainError::ValidationError(errs))?;
+        let dimensions = Dimensions::create(self.length, self.width, self.height)
+            .map_err(DomainError::ValidationError)?;
 
-        let package_details = PackageDetails::create(
-            self.weight,
-            dimensions,
-            self.contents,
-        )
-        .map_err(|errs| DomainError::ValidationError(errs))?;
+        let package_details = PackageDetails::create(self.weight, dimensions, self.contents)
+            .map_err(DomainError::ValidationError)?;
 
-        let recipient = Recipient::create(
-            self.recipient_name.clone(),
-            self.contact,
-            address,
-        )
-        .map_err(|errs| DomainError::ValidationError(errs))?;
+        let recipient = Recipient::create(self.recipient_name.clone(), self.contact, address)
+            .map_err(DomainError::ValidationError)?;
 
-        Ok(Shipment::create(
-            self.sender_name,
-            recipient,
-            package_details,
-            None,
-        )?)
+        Shipment::create(self.sender_name, recipient, package_details, None)
     }
 }
 #[derive(Debug, Deserialize)]
@@ -90,22 +68,20 @@ pub struct UpdateShipmentDto {
 impl UpdateShipmentDto {
     pub fn into_command(self) -> Result<UpdateShipment, DomainError> {
         let dimensions = match (self.length, self.width, self.height) {
-            (Some(l), Some(w), Some(h)) => {
-                match Dimensions::create(l, w, h) {
-                    Ok(dim) => Some(dim),
-                    Err(errs) => {
-                        return Err(DomainError::ValidationError(
-                            errs.into_iter().map(|e| e.to_string()).collect()
-                        ));
-                    }
+            (Some(l), Some(w), Some(h)) => match Dimensions::create(l, w, h) {
+                Ok(dim) => Some(dim),
+                Err(errs) => {
+                    return Err(DomainError::ValidationError(
+                        errs.into_iter().map(|e| e.to_string()).collect(),
+                    ));
                 }
-            }
-        
+            },
+
             (None, None, None) => None,
-        
+
             _ => {
                 return Err(DomainError::ValidationError(vec![
-                    "Incomplete dimensions provided".to_string()
+                    "Incomplete dimensions provided".to_string(),
                 ]));
             }
         };
@@ -115,17 +91,17 @@ impl UpdateShipmentDto {
                     Ok(pd) => Some(pd),
                     Err(errs) => {
                         return Err(DomainError::ValidationError(
-                            errs.into_iter().map(|e| e.to_string()).collect()
+                            errs.into_iter().map(|e| e.to_string()).collect(),
                         ));
                     }
                 }
             }
-        
+
             (None, None, None) => None,
-        
+
             _ => {
                 return Err(DomainError::ValidationError(vec![
-                    "Incomplete package details provided".to_string()
+                    "Incomplete package details provided".to_string(),
                 ]));
             }
         };
@@ -149,10 +125,10 @@ impl UpdateShipmentDto {
             ) => {
                 let address = Address::create(street, city, state, country, postal)
                     .map_err(DomainError::ValidationError)?;
-        
+
                 Some(
                     Recipient::create(name, contact, address)
-                        .map_err(DomainError::ValidationError)?
+                        .map_err(DomainError::ValidationError)?,
                 )
             }
             _ => None,
@@ -160,7 +136,7 @@ impl UpdateShipmentDto {
 
         Ok(UpdateShipment {
             sender_name: self.sender_name,
-            recipient, 
+            recipient,
             package_details,
         })
     }
@@ -180,16 +156,9 @@ pub(crate) struct ProofOfDeliveryDto {
     pub submitted_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 impl ProofOfDeliveryDto {
-    pub fn to_domain(self) -> Result<ProofOfDelivery, DomainError> {
-        ProofOfDelivery::create(
-            self.image,
-            self.note,
-            self.submitted_by,
-        )
-        .map_err(|errs| {
-            DomainError::ValidationError(
-                errs.into_iter().map(|e| e.to_string()).collect()
-            )
+    pub fn into_domain(self) -> Result<ProofOfDelivery, DomainError> {
+        ProofOfDelivery::create(self.image, self.note, self.submitted_by).map_err(|errs| {
+            DomainError::ValidationError(errs.into_iter().map(|e| e.to_string()).collect())
         })
     }
 }
@@ -214,7 +183,7 @@ impl From<Dimensions> for DimensionsDto {
 pub struct RecipientDto {
     pub name: String,
     pub contact: String,
-    pub address: AddressDto
+    pub address: AddressDto,
 }
 
 #[derive(Debug, Serialize)]
@@ -231,7 +200,6 @@ pub struct AddressDto {
     pub state: String,
 }
 
-
 impl IntoDomain<Shipment> for CreateShipmentDto {
     fn to_domain(self) -> Result<Shipment, DomainError> {
         let address = Address::create(
@@ -243,33 +211,16 @@ impl IntoDomain<Shipment> for CreateShipmentDto {
         )
         .map_err(DomainError::ValidationError)?;
 
-        let dimensions = Dimensions::create(
-            self.length,
-            self.width,
-            self.height,
-        )
-        .map_err(DomainError::ValidationError)?;
+        let dimensions = Dimensions::create(self.length, self.width, self.height)
+            .map_err(DomainError::ValidationError)?;
 
-        let package_details = PackageDetails::create(
-            self.weight,
-            dimensions,
-            self.contents,
-        )
-        .map_err(DomainError::ValidationError)?;
+        let package_details = PackageDetails::create(self.weight, dimensions, self.contents)
+            .map_err(DomainError::ValidationError)?;
 
-        let recipient = Recipient::create(
-            self.recipient_name.clone(),
-            self.contact,
-            address,
-        )
-        .map_err(DomainError::ValidationError)?;
+        let recipient = Recipient::create(self.recipient_name.clone(), self.contact, address)
+            .map_err(DomainError::ValidationError)?;
 
-        Ok(Shipment::create(
-            self.sender_name,
-            recipient,
-            package_details,
-            None,
-        )?)
+        Shipment::create(self.sender_name, recipient, package_details, None)
     }
 }
 
@@ -277,7 +228,3 @@ impl IntoDomain<Shipment> for CreateShipmentDto {
 pub struct UpdateStatusDto {
     pub status: String,
 }
-
-
-
-
