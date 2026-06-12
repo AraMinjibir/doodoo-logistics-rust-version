@@ -14,7 +14,7 @@ pub enum SupportStatus {
 }
 
 impl SupportStatus {
-    pub fn values() -> &'static [SupportStatus] {
+    pub fn statuses() -> &'static [SupportStatus] {
         &[
             Self::Open,
             Self::InProgress,
