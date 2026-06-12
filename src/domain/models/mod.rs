@@ -7,3 +7,5 @@ pub mod proof_of_delivery;
 pub mod recipient;
 pub mod shipment;
 pub mod shipment_status;
+pub mod support;
+pub mod support_status;

@@ -5,6 +5,7 @@ use uuid::Uuid;
 use crate::domain::errors::repository_error::RepositoryError;
 use crate::domain::models::payment_status::PaymentStatus;
 use crate::domain::models::shipment_status::ShipmentStatus;
+use crate::domain::models::support_status::SupportStatus;
 
 #[derive(Debug)]
 #[allow(dead_code)]
@@ -25,6 +26,10 @@ pub enum DomainError {
     InvalidPaymentStatusTransition {
         from: PaymentStatus,
         to: PaymentStatus,
+    },
+    InvalidSupportStatusTransition {
+        from: SupportStatus,
+        to: SupportStatus,
     },
     PaymentExistsForThisShipment {
         id: Uuid,
@@ -90,6 +95,14 @@ impl fmt::Display for DomainError {
                 write!(
                     f,
                     "Invalid payment status transition from {} to {}",
+                    from, to
+                )
+            }
+
+            DomainError::InvalidSupportStatusTransition { from, to } => {
+                write!(
+                    f,
+                    "Invalid support status transition from {} to {}",
                     from, to
                 )
             }
