@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::domain::{errors::domain_error::DomainError, models::support_status::SupportStatus};
 
-pub struct Complain {
+pub struct Complaint {
     id: Uuid,
     user_id: Uuid,
     shipment_id: Uuid,
@@ -24,8 +24,8 @@ pub struct Comment {
     created_at: DateTime<Utc>,
 }
 
-impl Complain {
-    pub fn send_complain(
+impl Complaint {
+    pub fn send_complaint(
         user_id: Uuid,
         shipment_id: Uuid,
         subject: String,
