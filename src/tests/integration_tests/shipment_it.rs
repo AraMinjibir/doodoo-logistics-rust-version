@@ -1,11 +1,10 @@
 use uuid::Uuid;
 
-
+use crate::domain::models::shipment_status::ShipmentStatus;
 use crate::repositories::shipment_repository::ShipmentRepository;
 use crate::repositories::sqlx_shipment_repository::SqlxShipmentRepository;
 use crate::tests::common::db::TestDb;
 use crate::tests::common::fixtures::test_shipment;
-use crate::domain::models::shipment_status::ShipmentStatus;
 
 #[allow(dead_code)]
 pub struct TestContext {
@@ -84,14 +83,13 @@ async fn should_find_by_tracking_number() {
 
     ctx.repo.create(&shipment).await.unwrap();
 
+    let _result = ctx.repo.find_by_tracking_number("TRACK-123").await.unwrap();
+
+    let shipment = test_shipment();
     let _result = ctx
         .repo
-        .find_by_tracking_number("TRACK-123")
-        .await
-        .unwrap();
-
-        let shipment = test_shipment();
-        let _result = ctx.repo.find_by_tracking_number(shipment.tracking_number()).await;
+        .find_by_tracking_number(shipment.tracking_number())
+        .await;
 }
 
 #[tokio::test]
@@ -150,15 +148,12 @@ async fn should_upload_proof_of_delivery() {
         .unwrap()
         .unwrap();
 
-        let proofs = updated.proof_of_delivery();
+    let proofs = updated.proof_of_delivery();
 
-        assert_eq!(proofs.len(), 1);
-        
-        assert_eq!(
-            proofs[0].image_url(),
-            Some("https://example.com/proof.jpg")
-        );
-    }
+    assert_eq!(proofs.len(), 1);
+
+    assert_eq!(proofs[0].image_url(), Some("https://example.com/proof.jpg"));
+}
 
 #[tokio::test]
 async fn should_assign_service_provider() {
@@ -177,7 +172,6 @@ async fn should_assign_service_provider() {
     let updated = ctx.repo.get_by_id(shipment.id()).await.unwrap().unwrap();
 
     assert_eq!(updated.service_provider_id(), Some(provider_id));
-    
 }
 
 #[tokio::test]

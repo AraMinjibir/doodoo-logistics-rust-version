@@ -2,17 +2,13 @@ use std::sync::Arc;
 
 use uuid::Uuid;
 
-use crate::domain::errors::repository_error::RepositoryError;
-use crate::tests::common::fixtures::{test_shipment, test_proof, updated_shipment};
-use crate::domain::services::shipment_service_impl::ShipmentServiceImpl;
-use crate::domain::services::shipment_service::ShipmentService;
 use crate::domain::errors::domain_error::DomainError;
+use crate::domain::errors::repository_error::RepositoryError;
 use crate::domain::models::shipment_status::ShipmentStatus;
+use crate::domain::services::shipment_service::ShipmentService;
+use crate::domain::services::shipment_service_impl::ShipmentServiceImpl;
+use crate::tests::common::fixtures::{test_proof, test_shipment, updated_shipment};
 use crate::tests::common::mock_repo::MockShipmentRepo;
-
-
-
-
 
 #[tokio::test]
 async fn create_shipment_success() {
@@ -78,7 +74,7 @@ async fn get_by_tracking_not_found() {
     repo.expect_find_by_tracking_number()
         .returning(|_| Ok(None));
 
-     let repo = Arc::new(repo);
+    let repo = Arc::new(repo);
 
     let service = ShipmentServiceImpl::new(repo);
 
@@ -108,8 +104,7 @@ async fn get_by_id_success() {
 async fn get_by_id_not_found() {
     let mut repo = MockShipmentRepo::new();
 
-    repo.expect_get_by_id()
-        .returning(|_| Ok(None));
+    repo.expect_get_by_id().returning(|_| Ok(None));
 
     let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
@@ -126,7 +121,6 @@ async fn get_by_status_success() {
     repo.expect_get_by_status()
         .returning(|_| Ok(vec![test_shipment()]));
 
-
     let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
@@ -141,7 +135,7 @@ async fn update_status_success() {
     let mut repo = MockShipmentRepo::new();
 
     let mut shipment = test_shipment();
-    shipment.set_status(ShipmentStatus::InTransit); 
+    shipment.set_status(ShipmentStatus::InTransit);
 
     let tracking = "TRACK123".to_string();
 
@@ -152,9 +146,7 @@ async fn update_status_success() {
         .withf(move |t| t == tracking_match)
         .returning(move |_| Ok(Some(shipment_find.clone())));
 
-    repo.expect_update()
-        .returning(|_| Ok(()));
-
+    repo.expect_update().returning(|_| Ok(()));
 
     let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
@@ -176,7 +168,7 @@ async fn update_status_not_found() {
     repo.expect_find_by_tracking_number()
         .returning(|_| Ok(None));
 
-    let repo = Arc::new(repo);    
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
     let result = service
@@ -200,15 +192,12 @@ async fn update_shipment_success() {
         .withf(move |id| *id == shipment_id)
         .returning(move |_| Ok(Some(existing.clone())));
 
-    repo.expect_update()
-        .returning(|_| Ok(()));
+    repo.expect_update().returning(|_| Ok(()));
 
-    let repo = Arc::new(repo);    
+    let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
-    let result = service
-        .update_shipment(shipment_id, updated)
-        .await;
+    let result = service.update_shipment(shipment_id, updated).await;
 
     assert!(result.is_ok());
 }
@@ -220,7 +209,6 @@ async fn list_shipments_success() {
     repo.expect_list_all()
         .returning(|_, _| Ok(vec![test_shipment()]));
 
-    
     let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
@@ -234,9 +222,7 @@ async fn list_shipments_success() {
 async fn delete_success() {
     let mut repo = MockShipmentRepo::new();
 
-    repo.expect_delete()
-        .returning(|_| Ok(1));
-
+    repo.expect_delete().returning(|_| Ok(1));
 
     let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
@@ -250,8 +236,7 @@ async fn delete_success() {
 async fn delete_not_found() {
     let mut repo = MockShipmentRepo::new();
 
-    repo.expect_delete()
-        .returning(|_| Ok(0));
+    repo.expect_delete().returning(|_| Ok(0));
 
     let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
@@ -272,7 +257,7 @@ async fn upload_proof_success() {
 
     let tracking_match = tracking.clone();
     let shipment_find = shipment.clone();
-    let shipment_upload = shipment.clone(); 
+    let shipment_upload = shipment.clone();
 
     repo.expect_find_by_tracking_number()
         .withf(move |t| t == tracking_match)
@@ -286,11 +271,9 @@ async fn upload_proof_success() {
 
     let proof = test_proof();
 
-    let result = service
-        .upload_proof_of_delivery(&tracking, proof)
-        .await;
+    let result = service.upload_proof_of_delivery(&tracking, proof).await;
 
-        assert!(result.is_ok());
+    assert!(result.is_ok());
 }
 
 #[tokio::test]
@@ -300,13 +283,10 @@ async fn upload_proof_not_found() {
     repo.expect_find_by_tracking_number()
         .returning(|_| Ok(None));
 
-
     let repo = Arc::new(repo);
     let service = ShipmentServiceImpl::new(repo);
 
-    let result = service
-        .upload_proof_of_delivery("T1", test_proof())
-        .await;
+    let result = service.upload_proof_of_delivery("T1", test_proof()).await;
 
     assert!(result.is_err());
 }

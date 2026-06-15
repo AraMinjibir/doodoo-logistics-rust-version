@@ -1,15 +1,15 @@
+use chrono::NaiveDate;
 use std::fmt::{self};
 use uuid::Uuid;
-use chrono::NaiveDate;
 
-use crate::domain::models::shipment_status::ShipmentStatus;
 use crate::domain::errors::repository_error::RepositoryError;
 use crate::domain::models::payment_status::PaymentStatus;
+use crate::domain::models::shipment_status::ShipmentStatus;
+use crate::domain::models::support_status::SupportStatus;
 
 #[derive(Debug)]
 #[allow(dead_code)]
 pub enum DomainError {
-
     ShipmentNotFound {
         tracking_number: String,
     },
@@ -18,7 +18,7 @@ pub enum DomainError {
         id: Uuid,
     },
     ShipmentNotDelivered,
-    
+
     InvalidShipmentStatusTransition {
         from: ShipmentStatus,
         to: ShipmentStatus,
@@ -26,6 +26,10 @@ pub enum DomainError {
     InvalidPaymentStatusTransition {
         from: PaymentStatus,
         to: PaymentStatus,
+    },
+    InvalidSupportStatusTransition {
+        from: SupportStatus,
+        to: SupportStatus,
     },
     PaymentExistsForThisShipment {
         id: Uuid,
@@ -37,15 +41,15 @@ pub enum DomainError {
         shipment_id: Uuid,
     },
     RevenueNotFoundWithDate {
-        date:NaiveDate
+        date: NaiveDate,
     },
-    RevenueNotFound{
-        month:u32
+    RevenueNotFound {
+        month: u32,
     },
-    PaymentGatewayError{
-        signature: String
+    PaymentGatewayError {
+        signature: String,
     },
-    
+
     ProofMustContainImageOrNote,
     DuplicateProofOfDelivery,
     UpdateProofOfDeliveryError(String),
@@ -69,14 +73,13 @@ pub enum DomainError {
 impl fmt::Display for DomainError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-
             DomainError::ShipmentNotFound { tracking_number } => {
                 write!(f, "Shipment {} not found", tracking_number)
             }
 
             DomainError::ShipmentNotFoundById { id } => {
                 write!(f, "Shipment with id: {} not found", id)
-            },
+            }
             DomainError::ShipmentNotDelivered => {
                 write!(f, "Shipment status found is not delivered")
             }
@@ -84,98 +87,107 @@ impl fmt::Display for DomainError {
                 write!(
                     f,
                     "Invalid shipment status transition from {} to {}",
-                    from,
-                    to
+                    from, to
                 )
-            },
+            }
 
             DomainError::InvalidPaymentStatusTransition { from, to } => {
                 write!(
                     f,
                     "Invalid payment status transition from {} to {}",
-                    from,
-                    to
+                    from, to
                 )
-            },
+            }
 
-            DomainError::ProofMustContainImageOrNote =>
-                write!(f, "Proof of delivery must contain either an image or a note."),
+            DomainError::InvalidSupportStatusTransition { from, to } => {
+                write!(
+                    f,
+                    "Invalid support status transition from {} to {}",
+                    from, to
+                )
+            }
 
-            DomainError::DuplicateProofOfDelivery =>
-                write!(f, "Duplicate proof detected."),
+            DomainError::ProofMustContainImageOrNote => write!(
+                f,
+                "Proof of delivery must contain either an image or a note."
+            ),
 
-            DomainError::UpdateProofOfDeliveryError(cause) =>
-                write!(f, "Unable to update the proof of delivery: {}", cause),
+            DomainError::DuplicateProofOfDelivery => write!(f, "Duplicate proof detected."),
 
-            DomainError::SubmittedByEmptyError  =>
-            write!(f, "Unable to fecth the proof's sender details"),   
-            DomainError::ValidationError(causes) =>
-                write!(f, "Validation failed: {}", causes.join(", ")),
-                DomainError::DuplicateEntity => {
-                    write!(f, "Duplicate entity")
-                }
-                
-                DomainError::PaymentExistsForThisShipment { id } => {
-                    write!(f, "Payment for shipment with id: {} already made", id)
-                },
-                DomainError::PaymentNotFound { reference } => {
-                    write!(f, "Payment {} not found", reference)
-                }
-                 DomainError::PaymentWithShipmentIdNotFound { shipment_id } => {
-                    write!(f, "Payment with shipment id {} not found",shipment_id)
-                }
-                DomainError:: PaymentGatewayError { signature } => {
-                    write!(f, "Invalid signature {} ", signature)
-                }
-                DomainError::RevenueNotFoundWithDate { date } => {
-                    write!(f, "Revenue {} not found", date)
-                }
-                DomainError:: RevenueNotFound{month} => {
-                    write!(f, "Revenue {} not found", month)
-                }
-                DomainError::ForeignKeyViolation => {
-                    write!(f, "Foreign key violation")
-                }
-            
-                DomainError::NullConstraintViolation => {
-                    write!(f, "Null constraint violation")
-                }
-            
-                DomainError::CheckConstraintViolation => {
-                    write!(f, "Check constraint violation")
-                }
-            
-                DomainError::DataTooLong => {
-                    write!(f, "Data too long")
-                }
-            
-                DomainError::InvalidDataFormat => {
-                    write!(f, "Invalid data format")
-                }
-            
-                DomainError::NumericOverflow => {
-                    write!(f, "Numeric overflow")
-                }
-            
-                DomainError::DeadlockDetected => {
-                    write!(f, "Deadlock detected")
-                }
-            
-                DomainError::TransactionTimeout => {
-                    write!(f, "Transaction timeout")
-                }
-            
-                DomainError::SerializationFailure => {
-                    write!(f, "Serialization failure")
-                }
-            
-                DomainError::DatabaseError(msg) => {
-                    write!(f, "Database error: {}", msg)
-                }    
-                DomainError::Internal(msg) => {
-                    write!(f, "Internal system error: {}", msg)
-                }
- 
+            DomainError::UpdateProofOfDeliveryError(cause) => {
+                write!(f, "Unable to update the proof of delivery: {}", cause)
+            }
+
+            DomainError::SubmittedByEmptyError => {
+                write!(f, "Unable to fecth the proof's sender details")
+            }
+            DomainError::ValidationError(causes) => {
+                write!(f, "Validation failed: {}", causes.join(", "))
+            }
+            DomainError::DuplicateEntity => {
+                write!(f, "Duplicate entity")
+            }
+
+            DomainError::PaymentExistsForThisShipment { id } => {
+                write!(f, "Payment for shipment with id: {} already made", id)
+            }
+            DomainError::PaymentNotFound { reference } => {
+                write!(f, "Payment {} not found", reference)
+            }
+            DomainError::PaymentWithShipmentIdNotFound { shipment_id } => {
+                write!(f, "Payment with shipment id {} not found", shipment_id)
+            }
+            DomainError::PaymentGatewayError { signature } => {
+                write!(f, "Invalid signature {} ", signature)
+            }
+            DomainError::RevenueNotFoundWithDate { date } => {
+                write!(f, "Revenue {} not found", date)
+            }
+            DomainError::RevenueNotFound { month } => {
+                write!(f, "Revenue {} not found", month)
+            }
+            DomainError::ForeignKeyViolation => {
+                write!(f, "Foreign key violation")
+            }
+
+            DomainError::NullConstraintViolation => {
+                write!(f, "Null constraint violation")
+            }
+
+            DomainError::CheckConstraintViolation => {
+                write!(f, "Check constraint violation")
+            }
+
+            DomainError::DataTooLong => {
+                write!(f, "Data too long")
+            }
+
+            DomainError::InvalidDataFormat => {
+                write!(f, "Invalid data format")
+            }
+
+            DomainError::NumericOverflow => {
+                write!(f, "Numeric overflow")
+            }
+
+            DomainError::DeadlockDetected => {
+                write!(f, "Deadlock detected")
+            }
+
+            DomainError::TransactionTimeout => {
+                write!(f, "Transaction timeout")
+            }
+
+            DomainError::SerializationFailure => {
+                write!(f, "Serialization failure")
+            }
+
+            DomainError::DatabaseError(msg) => {
+                write!(f, "Database error: {}", msg)
+            }
+            DomainError::Internal(msg) => {
+                write!(f, "Internal system error: {}", msg)
+            }
         }
     }
 }
@@ -206,4 +218,3 @@ impl From<serde_json::Error> for DomainError {
 }
 
 impl std::error::Error for DomainError {}
-

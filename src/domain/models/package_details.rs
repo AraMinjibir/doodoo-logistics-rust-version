@@ -1,6 +1,5 @@
 use crate::domain::models::dimensions::Dimensions;
 
-
 #[derive(Debug, Clone)]
 pub struct PackageDetails {
     weight_in_kilograms: f64,
