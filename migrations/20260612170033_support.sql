@@ -1,4 +1,4 @@
-    CREAT TABLE support(
+    CREATE TABLE support(
         id UUID NOT NULL,
         user_id UUID NOT NULL,
         shipment_id UUID NOT NULL,
@@ -11,5 +11,5 @@
         comment JSONB NOT NULL
     );
 
-    CREAT INDEX idx_support_status
+    CREATE INDEX idx_support_status
     ON support(status)
