@@ -3,35 +3,35 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
-use crate::domain::models::{
-    support::{Comment, Complaint},
-    support_status::SupportStatus,
-};
+use crate::domain::models::support::{Comment, Complaint};
 
 #[derive(Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct ComplaintRow {
-    id: Uuid,
-    user_id: Uuid,
-    shipment_id: Uuid,
-    subject: String,
-    description: String,
-    status: SupportStatus,
-    created_at: DateTime<Utc>,
-    resolved_at: Option<DateTime<Utc>>,
-    resolved_by: Option<Uuid>,
-    comment: Vec<Comment>,
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub shipment_id: Uuid,
+    pub subject: String,
+    pub description: String,
+    pub status: String,
+    pub created_at: DateTime<Utc>,
+    pub resolved_at: Option<DateTime<Utc>>,
+    pub resolved_by: Option<Uuid>,
+    pub comment: serde_json::Value,
 }
 
 #[derive(Debug, Clone, FromRow, Serialize, Deserialize)]
 pub struct CommentRow {
-    id: Uuid,
-    complaint_id: Uuid,
-    author_id: Uuid,
-    message: String,
-    created_at: DateTime<Utc>,
+    pub id: Uuid,
+    pub complaint_id: Uuid,
+    pub author_id: Uuid,
+    pub message: String,
+    pub created_at: DateTime<Utc>,
 }
 
 impl ComplaintRow {
+    fn deserialize_pod(value: serde_json::Value) -> Vec<Comment> {
+        serde_json::from_value(value).unwrap_or_else(|_| vec![])
+    }
     pub fn into_complaint_domain(self) -> Complaint {
         Complaint::reconstitute(
             self.id,
@@ -39,11 +39,11 @@ impl ComplaintRow {
             self.shipment_id,
             self.subject,
             self.description,
-            self.status,
+            self.status.parse().expect("Invalid complaint status in DB"),
             self.created_at,
             self.resolved_at,
             self.resolved_by,
-            self.comment,
+            Self::deserialize_pod(self.comment),
         )
     }
 
@@ -54,33 +54,11 @@ impl ComplaintRow {
             shipment_id: complaint.shipment_id(),
             subject: complaint.subject(),
             description: complaint.description(),
-            status: complaint.status(),
+            status: complaint.status().to_string(),
             created_at: complaint.created_at(),
             resolved_at: complaint.resolved_at(),
             resolved_by: complaint.resolved_by(),
-            comment: complaint.comment(),
-        }
-    }
-}
-
-impl CommentRow {
-    pub fn into_comment_domain(self) -> Comment {
-        Comment::reconstitute_comment(
-            self.id,
-            self.complaint_id,
-            self.author_id,
-            self.message,
-            self.created_at,
-        )
-    }
-
-    pub fn from_comment_domain(comment: Comment) -> Self {
-        Self {
-            id: comment.id(),
-            complaint_id: comment.complaint_id(),
-            author_id: comment.author_id(),
-            message: comment.message(),
-            created_at: comment.created_at(),
+            comment: serde_json::json!(complaint.comment()),
         }
     }
 }
