@@ -50,7 +50,7 @@ impl TestDb {
     pub async fn clean(&self) {
         sqlx::query(
             r#"
-            TRUNCATE TABLE payments, shipments
+            TRUNCATE TABLE support, payments, shipments
             RESTART IDENTITY CASCADE
             "#,
         )

@@ -115,8 +115,6 @@ impl SupportRepository for SqlxSupportRepository {
         status: &str,
         complaint: &Complaint,
     ) -> Result<(), RepositoryError> {
-        let row = ComplaintRow::from_complaint_domain(complaint);
-
         sqlx::query!(
             r#"
             UPDATE support SET
@@ -124,8 +122,8 @@ impl SupportRepository for SqlxSupportRepository {
             resolved_at = NOW()
             WHERE id = $2
             "#,
-            row.status,
-            row.id
+            status,
+            complaint.id()
         )
         .execute(&self.pool)
         .await
