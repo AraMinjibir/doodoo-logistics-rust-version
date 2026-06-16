@@ -16,6 +16,7 @@ use crate::domain::models::{
     proof_of_delivery::ProofOfDelivery,
     recipient::Recipient,
     shipment::{Shipment, UpdateShipment},
+    support::Complaint,
 };
 use actix_http::Request;
 use actix_web::{
@@ -163,4 +164,16 @@ pub async fn create_test_shipment(
         serde_json::from_slice(&actix_web::test::read_body(resp).await).unwrap();
 
     Uuid::parse_str(body["id"].as_str().unwrap()).unwrap()
+}
+
+pub fn test_complaint(shipment_id: Uuid) -> Complaint {
+    let user_id = Uuid::parse_str("11111111-1111-1111-1111-111111111111").unwrap();
+
+    Complaint::send_complaint(
+        user_id,
+        shipment_id,
+        "Shipment Delay".to_string(),
+        "Package has not arrived".to_string(),
+    )
+    .unwrap()
 }
