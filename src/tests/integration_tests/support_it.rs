@@ -5,7 +5,6 @@ use crate::tests::common::db::TestDb;
 use crate::tests::common::fixtures::{test_complaint, test_shipment};
 
 pub struct TestContext {
-    pub db: TestDb,
     pub repo: SqlxSupportRepository,
 }
 
@@ -14,7 +13,7 @@ impl TestContext {
         let db = TestDb::new().await;
         let repo = SqlxSupportRepository::new(db.pool.clone());
 
-        Self { db, repo }
+        Self {  repo }
     }
 }
 
@@ -113,7 +112,7 @@ async fn should_update_complaint_status() {
 
     let updated_status = ctx
         .repo
-        .update_complaint_status("Resolved", &complaint)
+        .update_complaint_status(&SupportStatus::Resolved, &complaint)
         .await
         .unwrap();
     println!("Updated complaint = {:?}", updated_status);

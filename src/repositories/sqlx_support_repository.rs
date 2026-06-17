@@ -3,7 +3,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::domain::errors::repository_error::map_sqlx_error;
-use crate::domain::models::support::Complaint;
+use crate::domain::models::{support::Complaint, support_status::SupportStatus};
 use crate::{
     domain::errors::repository_error::RepositoryError, infrastructure::support_row::ComplaintRow,
     repositories::support_repository::SupportRepository,
@@ -53,7 +53,7 @@ impl SupportRepository for SqlxSupportRepository {
             r#"
                UPDATE support
                SET comment = $1,
-                   created_at = NOW()
+                  resolved_at = NOW()
                 WHERE id = $2
                 "#,
             comment,
@@ -112,7 +112,7 @@ impl SupportRepository for SqlxSupportRepository {
 
     async fn update_complaint_status(
         &self,
-        status: &str,
+        status: &SupportStatus,
         complaint: &Complaint,
     ) -> Result<(), RepositoryError> {
         sqlx::query!(
@@ -122,7 +122,7 @@ impl SupportRepository for SqlxSupportRepository {
             resolved_at = NOW()
             WHERE id = $2
             "#,
-            status,
+            status.as_str(),
             complaint.id()
         )
         .execute(&self.pool)
