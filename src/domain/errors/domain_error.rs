@@ -37,6 +37,9 @@ pub enum DomainError {
     PaymentNotFound {
         reference: String,
     },
+    ComplaintNotFound {
+        id: Uuid,
+    },
     PaymentWithShipmentIdNotFound {
         shipment_id: Uuid,
     },
@@ -134,6 +137,9 @@ impl fmt::Display for DomainError {
             DomainError::PaymentNotFound { reference } => {
                 write!(f, "Payment {} not found", reference)
             }
+            DomainError::ComplaintNotFound { id } => {
+                write!(f, "Complaint {} not found", id)
+            }
             DomainError::PaymentWithShipmentIdNotFound { shipment_id } => {
                 write!(f, "Payment with shipment id {} not found", shipment_id)
             }
@@ -192,7 +198,7 @@ impl fmt::Display for DomainError {
     }
 }
 
-// Mapping RepoError to DOmainError
+// Mapping RepoError to DomainError
 impl From<RepositoryError> for DomainError {
     fn from(err: RepositoryError) -> Self {
         match err {
