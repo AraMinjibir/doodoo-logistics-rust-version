@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-use crate::domain::{errors::repository_error::RepositoryError, models::support::Complaint};
+use crate::domain::{errors::repository_error::RepositoryError, models::{support::Complaint, support_status::SupportStatus}};
 
 #[async_trait::async_trait]
 pub trait SupportRepository: Send + Sync {
@@ -21,7 +21,7 @@ pub trait SupportRepository: Send + Sync {
 
     async fn update_complaint_status(
         &self,
-        status: &str,
+        status: &SupportStatus,
         complaint: &Complaint,
     ) -> Result<(), RepositoryError>;
     async fn delete_complaint(&self, id: Uuid) -> Result<u64, RepositoryError>;
