@@ -28,6 +28,7 @@ pub struct Comment {
 }
 
 impl Complaint {
+    
     pub fn send_complaint(
         user_id: Uuid,
         shipment_id: Uuid,
@@ -125,7 +126,20 @@ impl Complaint {
     pub fn comment(&self) -> Vec<Comment> {
         self.comment.clone()
     }
+
+    pub fn update_status(&self, next: &SupportStatus) -> Result<Self, DomainError> {
+        let now = Utc::now();
+
+        SupportStatus::validate_transition(&self.status, &next)?;
+
+        Ok(Self {
+            status: next.clone(),
+            resolved_at: Some(now),
+            ..self.clone()
+        })
+    }
 }
+
 
 impl Comment {
     pub fn make_comment(
@@ -157,22 +171,6 @@ impl Comment {
             message,
             created_at: now,
         })
-    }
-
-    pub fn reconstitute_comment(
-        id: Uuid,
-        complaint_id: Uuid,
-        author_id: Uuid,
-        message: String,
-        created_at: DateTime<Utc>,
-    ) -> Self {
-        Self {
-            id,
-            complaint_id,
-            author_id,
-            message,
-            created_at,
-        }
     }
 
     pub fn id(&self) -> Uuid {
