@@ -33,23 +33,33 @@ impl SupportStatus {
             _ => None,
         }
     }
-}
 
-pub fn validate_transition(
-    current: &SupportStatus,
-    next: &SupportStatus,
-) -> Result<(), DomainError> {
-    let allowed = ALLOWED_TRANSITIONS.get(current).unwrap_or(&EMPTY_SET);
-
-    if !allowed.contains(next) {
-        return Err(DomainError::InvalidSupportStatusTransition {
-            from: current.clone(),
-            to: next.clone(),
-        });
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            SupportStatus::Open => "Open",
+            SupportStatus::InProgress => "InProgress",
+            SupportStatus::Resolved => "Resolved",
+            SupportStatus::Cancelled => "Cancelled"
+        }
     }
 
-    Ok(())
+    pub fn validate_transition(
+        current: &SupportStatus,
+        next: &SupportStatus,
+    ) -> Result<(), DomainError> {
+        let allowed = ALLOWED_TRANSITIONS.get(current).unwrap_or(&EMPTY_SET);
+    
+        if !allowed.contains(next) {
+            return Err(DomainError::InvalidSupportStatusTransition {
+                from: current.clone(),
+                to: next.clone(),
+            });
+        }
+    
+        Ok(())
+    }
 }
+
 
 impl fmt::Display for SupportStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
