@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n               UPDATE support\n               SET comment = $1,\n                  resolved_at = NOW()\n                WHERE id = $2\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Jsonb",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "420ecf602d201e7e30c037640b10a06bba9bc245c665f19149248e22e38ee4f3"
+}
