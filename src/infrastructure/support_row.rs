@@ -19,15 +19,6 @@ pub struct ComplaintRow {
     pub comment: serde_json::Value,
 }
 
-#[derive(Debug, Clone, FromRow, Serialize, Deserialize)]
-pub struct CommentRow {
-    pub id: Uuid,
-    pub complaint_id: Uuid,
-    pub author_id: Uuid,
-    pub message: String,
-    pub created_at: DateTime<Utc>,
-}
-
 impl ComplaintRow {
     fn deserialize_pod(value: serde_json::Value) -> Vec<Comment> {
         serde_json::from_value(value).unwrap_or_else(|_| vec![])

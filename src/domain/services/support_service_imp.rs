@@ -87,10 +87,10 @@ impl SupportService for SupportServiceImpl {
         &self,
         complaint_id: Uuid,
         status: &SupportStatus,
-        complaint: &Complaint,
     ) -> Result<Complaint, DomainError> {
         // Find complaint first
-        self.repo
+        let complaint = self
+            .repo
             .get_complaint_by_id(complaint_id)
             .await
             .map_err(DomainError::from)?

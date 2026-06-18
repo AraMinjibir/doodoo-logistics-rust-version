@@ -26,7 +26,6 @@ pub trait SupportService {
         &self,
         complaint_id: Uuid,
         status: &SupportStatus,
-        complaint: &Complaint,
     ) -> Result<Complaint, DomainError>;
     async fn delete_complaint(&self, id: Uuid) -> Result<(), DomainError>;
 }
