@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use crate::domain::{errors::domain_error::DomainError, models::support_status::SupportStatus};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Complaint {
     id: Uuid,
     user_id: Uuid,
@@ -169,25 +169,5 @@ impl Comment {
             message,
             created_at: now,
         })
-    }
-
-    pub fn id(&self) -> Uuid {
-        self.id
-    }
-
-    pub fn author_id(&self) -> Uuid {
-        self.author_id
-    }
-
-    pub fn complaint_id(&self) -> Uuid {
-        self.complaint_id
-    }
-
-    pub fn message(&self) -> String {
-        self.message.clone()
-    }
-
-    pub fn created_at(&self) -> DateTime<Utc> {
-        self.created_at
     }
 }
