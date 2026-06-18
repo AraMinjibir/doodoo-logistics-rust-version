@@ -77,12 +77,12 @@ impl SupportRepository for SqlxSupportRepository {
 
     async fn get_complaint_by_status(
         &self,
-        status: &str,
+        status: &SupportStatus,
     ) -> Result<Vec<Complaint>, RepositoryError> {
         let row = sqlx::query_as!(
             ComplaintRow,
             "SELECT * FROM support WHERE status = $1",
-            status
+            status.as_str(),
         )
         .fetch_all(&self.pool)
         .await

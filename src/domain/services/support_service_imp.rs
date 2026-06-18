@@ -23,16 +23,9 @@ impl SupportServiceImpl {
 #[async_trait]
 impl SupportService for SupportServiceImpl {
     async fn send_complaint(&self, complaint: &Complaint) -> Result<Complaint, DomainError> {
-        // Create complaint using the defined smart constructor
-        let complaint = Complaint::send_complaint(
-            complaint.user_id(),
-            complaint.shipment_id(),
-            complaint.subject(),
-            complaint.description(),
-        )?;
-
+    
         self.repo.persist_complaint(&complaint).await?;
-        Ok(complaint)
+        Ok(complaint.clone())
     }
 
     async fn send_comment(
@@ -40,11 +33,6 @@ impl SupportService for SupportServiceImpl {
         complaint_id: Uuid,
         comment: Comment,
     ) -> Result<Complaint, DomainError> {
-        let valid_comment = Comment::make_comment(
-            comment.complaint_id(),
-            comment.author_id(),
-            comment.message(),
-        )?;
 
         self.repo
             .get_complaint_by_id(complaint_id)
@@ -55,7 +43,7 @@ impl SupportService for SupportServiceImpl {
         self.repo
             .persist_comment(
                 complaint_id,
-                serde_json::to_value(&valid_comment)
+                serde_json::to_value(&comment)
                     .map_err(|e| DomainError::ValidationError(vec![e.to_string()]))?,
             )
             .await
@@ -80,7 +68,7 @@ impl SupportService for SupportServiceImpl {
         }
     }
 
-    async fn get_complaint_by_status(&self, status: &str) -> Result<Vec<Complaint>, DomainError> {
+    async fn get_complaint_by_status(&self, status: &SupportStatus) -> Result<Vec<Complaint>, DomainError> {
         self.repo
             .get_complaint_by_status(status)
             .await
