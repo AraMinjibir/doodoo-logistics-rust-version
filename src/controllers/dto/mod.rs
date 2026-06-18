@@ -2,6 +2,8 @@ mod payment_generation_dto;
 mod payment_response_dto;
 mod shipment_creation_dto;
 mod shipment_response_dto;
+mod support_dto;
+mod support_response;
 
 pub(super) use payment_generation_dto::GeneratePaymentDto;
 pub(super) use payment_response_dto::GeneratePaymentResponseDto;
@@ -12,3 +14,7 @@ pub(super) use shipment_creation_dto::ProofOfDeliveryDto;
 pub(super) use shipment_creation_dto::UpdateShipmentDto;
 pub(super) use shipment_creation_dto::UpdateStatusDto;
 pub(super) use shipment_response_dto::ShipmentResponseDto;
+pub(super) use support_dto::CommentDto;
+pub(super) use support_dto::ComplaintDto;
+pub(super) use support_dto::UpdateComplaintStatusDto;
+pub(super) use support_response::ComplaintResponse;
