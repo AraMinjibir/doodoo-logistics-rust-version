@@ -1,6 +1,9 @@
 use uuid::Uuid;
 
-use crate::domain::{errors::repository_error::RepositoryError, models::{support::Complaint, support_status::SupportStatus}};
+use crate::domain::{
+    errors::repository_error::RepositoryError,
+    models::{support::Complaint, support_status::SupportStatus},
+};
 
 #[async_trait::async_trait]
 pub trait SupportRepository: Send + Sync {

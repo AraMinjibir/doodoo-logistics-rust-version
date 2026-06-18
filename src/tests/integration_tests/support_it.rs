@@ -13,7 +13,7 @@ impl TestContext {
         let db = TestDb::new().await;
         let repo = SqlxSupportRepository::new(db.pool.clone());
 
-        Self {  repo }
+        Self { repo }
     }
 }
 
@@ -44,7 +44,11 @@ async fn should_get_complaints_by_status() {
 
     ctx.repo.persist_complaint(&complaint).await.unwrap();
 
-    let complaints = ctx.repo.get_complaint_by_status(&SupportStatus::Open).await.unwrap();
+    let complaints = ctx
+        .repo
+        .get_complaint_by_status(&SupportStatus::Open)
+        .await
+        .unwrap();
 
     assert!(!complaints.is_empty());
 
