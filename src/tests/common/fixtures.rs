@@ -9,14 +9,12 @@ use crate::domain::models::{
     address::Address,
     dimensions::Dimensions,
     package_details::PackageDetails,
-    payment::Payment,
-    payment::PaymentCommand,
-    payment::PaymentMethod,
+    payment::{Payment, PaymentCommand, PaymentMethod},
     payment_status::PaymentStatus,
     proof_of_delivery::ProofOfDelivery,
     recipient::Recipient,
     shipment::{Shipment, UpdateShipment},
-    support::Complaint,
+    support::{Comment, Complaint},
 };
 use actix_http::Request;
 use actix_web::{
@@ -176,4 +174,14 @@ pub fn test_complaint(shipment_id: Uuid) -> Complaint {
         "Package has not arrived".to_string(),
     )
     .unwrap()
+}
+
+pub fn test_comment(complaint_id: Uuid) -> Comment {
+    let author_id = Uuid::parse_str("11111111-1111-1111-1111-111111111111").unwrap();
+
+    Comment::make_comment(
+        complaint_id,
+         author_id, 
+         "We're addressing the issue".to_string()
+        ).unwrap()
 }
