@@ -28,7 +28,6 @@ pub struct Comment {
 }
 
 impl Complaint {
-    
     pub fn send_complaint(
         user_id: Uuid,
         shipment_id: Uuid,
@@ -139,7 +138,6 @@ impl Complaint {
         })
     }
 }
-
 
 impl Comment {
     pub fn make_comment(
