@@ -181,7 +181,8 @@ pub fn test_comment(complaint_id: Uuid) -> Comment {
 
     Comment::make_comment(
         complaint_id,
-         author_id, 
-         "We're addressing the issue".to_string()
-        ).unwrap()
+        author_id,
+        "We're addressing the issue".to_string(),
+    )
+    .unwrap()
 }

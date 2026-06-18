@@ -123,8 +123,7 @@ async fn delete_complaint() {
     let complaint = test_complaint(shipment.id());
     let id = complaint.id();
 
-    repo.expect_delete_complaint()
-    .returning(|_| Ok(1));
+    repo.expect_delete_complaint().returning(|_| Ok(1));
 
     let repo = Arc::new(repo);
     let service = SupportServiceImpl::new(repo);

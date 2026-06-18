@@ -39,7 +39,7 @@ impl SupportStatus {
             SupportStatus::Open => "Open",
             SupportStatus::InProgress => "InProgress",
             SupportStatus::Resolved => "Resolved",
-            SupportStatus::Cancelled => "Cancelled"
+            SupportStatus::Cancelled => "Cancelled",
         }
     }
 
@@ -48,18 +48,17 @@ impl SupportStatus {
         next: &SupportStatus,
     ) -> Result<(), DomainError> {
         let allowed = ALLOWED_TRANSITIONS.get(current).unwrap_or(&EMPTY_SET);
-    
+
         if !allowed.contains(next) {
             return Err(DomainError::InvalidSupportStatusTransition {
                 from: current.clone(),
                 to: next.clone(),
             });
         }
-    
+
         Ok(())
     }
 }
-
 
 impl fmt::Display for SupportStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
