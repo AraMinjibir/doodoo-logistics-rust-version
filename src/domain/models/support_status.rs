@@ -15,15 +15,6 @@ pub enum SupportStatus {
 }
 
 impl SupportStatus {
-    pub fn statuses() -> &'static [SupportStatus] {
-        &[
-            Self::Open,
-            Self::InProgress,
-            Self::Resolved,
-            Self::Cancelled,
-        ]
-    }
-
     pub fn from_string(value: &str) -> Option<Self> {
         match value {
             "Open" => Some(Self::Open),
