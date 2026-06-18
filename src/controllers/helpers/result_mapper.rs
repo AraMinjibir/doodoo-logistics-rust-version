@@ -3,6 +3,7 @@ use serde_json::json;
 
 use crate::domain::errors::domain_error::DomainError;
 use crate::domain::models::shipment_status::ShipmentStatus;
+use crate::domain::models::support_status::SupportStatus;
 
 pub fn map_domain_error(err: DomainError) -> HttpResponse {
     match err {
@@ -128,6 +129,11 @@ where
 }
 
 pub fn parse_status(input: String) -> Result<ShipmentStatus, HttpResponse> {
+    input
+        .parse()
+        .map_err(|_| HttpResponse::BadRequest().body("Invalid status"))
+}
+pub fn parse_complaint_status(input: String) -> Result<SupportStatus, HttpResponse> {
     input
         .parse()
         .map_err(|_| HttpResponse::BadRequest().body("Invalid status"))
