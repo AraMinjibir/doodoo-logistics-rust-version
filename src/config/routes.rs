@@ -1,4 +1,6 @@
-use crate::controllers::{health_controller, payment_controller, shipment_controller};
+use crate::controllers::{
+    health_controller, payment_controller, shipment_controller, support_controller,
+};
 use actix_web::web;
 
 pub fn configure_routes(cfg: &mut web::ServiceConfig) {
@@ -72,6 +74,42 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
             .route(
                 "/{ref}",
                 web::delete().to(payment_controller::delete_payment),
+            ),
+    );
+
+    cfg.service(
+        web::scope("/support")
+            .route(
+                "/complaints",
+                web::post().to(support_controller::send_complaint),
+            )
+            .route(
+                "/complaints",
+                web::get().to(support_controller::get_all_compalints),
+            )
+            .route(
+                "/complaints/{id}",
+                web::get().to(support_controller::get_complaint_by_id),
+            )
+            .route(
+                "/complaints/{id}",
+                web::delete().to(support_controller::delete_complaint),
+            )
+            .route(
+                "/complaints/status/{status}",
+                web::get().to(support_controller::get_complaint_by_status),
+            )
+            .route(
+                "compaints/{id}",
+                web::patch().to(support_controller::make_comment),
+            )
+            .route(
+                "/complaints",
+                web::post().to(support_controller::send_complaint),
+            )
+            .route(
+                "/complaints/{id}/status",
+                web::patch().to(support_controller::update_complaint_status),
             ),
     );
 }
