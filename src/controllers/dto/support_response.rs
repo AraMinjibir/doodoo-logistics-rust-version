@@ -17,8 +17,7 @@ pub struct ComplaintResponse {
     status: SupportStatus,
     created_at: DateTime<Utc>,
     resolved_at: Option<DateTime<Utc>>,
-    resolved_by: Option<Uuid>,
-    comment: Vec<Comment>,
+    comment: Vec<CommentResponseDto>,
 }
 impl ComplaintResponse {
     pub fn new(complaint: Complaint) -> Self {
@@ -31,8 +30,26 @@ impl ComplaintResponse {
             status: complaint.status(),
             created_at: complaint.created_at(),
             resolved_at: complaint.resolved_at(),
-            resolved_by: complaint.resolved_by(),
-            comment: complaint.comment(),
+            comment: complaint.comment().iter().cloned().map(CommentResponseDto::from).collect(),
         }
     }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct CommentResponseDto {
+    id: Uuid,
+    author_id: Uuid,
+    message: String,
+    created_at: DateTime<Utc>,
+}
+
+impl From<Comment> for CommentResponseDto {
+
+    fn from(comment:Comment) -> Self {
+        Self { id: comment.id(), author_id: comment.author_id(),
+             message: comment.message(), 
+             created_at: comment.created_at() 
+            }
+    }
+    
 }
