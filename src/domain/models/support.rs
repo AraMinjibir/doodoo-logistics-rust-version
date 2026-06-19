@@ -67,7 +67,7 @@ impl Complaint {
             comment: vec![],
         })
     }
-
+    #[allow(clippy::too_many_arguments)]
     pub fn reconstitute(
         id: Uuid,
         user_id: Uuid,
