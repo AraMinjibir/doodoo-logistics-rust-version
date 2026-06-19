@@ -8,7 +8,6 @@ use crate::domain::models::shipment_status::ShipmentStatus;
 use crate::domain::models::support_status::SupportStatus;
 
 #[derive(Debug)]
-#[allow(dead_code)]
 pub enum DomainError {
     ShipmentNotFound {
         tracking_number: String,
@@ -55,7 +54,6 @@ pub enum DomainError {
 
     ProofMustContainImageOrNote,
     DuplicateProofOfDelivery,
-    UpdateProofOfDeliveryError(String),
     SubmittedByEmptyError,
     ValidationError(Vec<String>),
 
@@ -116,10 +114,6 @@ impl fmt::Display for DomainError {
             ),
 
             DomainError::DuplicateProofOfDelivery => write!(f, "Duplicate proof detected."),
-
-            DomainError::UpdateProofOfDeliveryError(cause) => {
-                write!(f, "Unable to update the proof of delivery: {}", cause)
-            }
 
             DomainError::SubmittedByEmptyError => {
                 write!(f, "Unable to fecth the proof's sender details")

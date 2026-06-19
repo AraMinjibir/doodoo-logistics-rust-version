@@ -22,7 +22,7 @@ pub async fn send_complaint(
 
     match state.support_service.send_complaint(&domain).await {
         Ok(response) => {
-            HttpResponse::Created().json(ComplaintResponse::complaint_response(response))
+            HttpResponse::Created().json(ComplaintResponse::new(response))
         }
         Err(err) => map_domain_error(err),
     }
@@ -41,7 +41,7 @@ pub async fn make_comment(
 
     match state.support_service.send_comment(id, domain).await {
         Ok(response) => {
-            HttpResponse::Created().json(ComplaintResponse::complaint_response(response))
+            HttpResponse::Created().json(ComplaintResponse::new(response))
         }
         Err(err) => map_domain_error(err),
     }
@@ -54,7 +54,7 @@ pub async fn get_complaint_by_id(
     let id = complaint_id.into_inner();
 
     match state.support_service.get_complaint_by_id(id).await {
-        Ok(complaint) => HttpResponse::Ok().json(ComplaintResponse::complaint_response(complaint)),
+        Ok(complaint) => HttpResponse::Ok().json(ComplaintResponse::new(complaint)),
         Err(err) => log_and_map(err),
     }
 }
@@ -71,7 +71,7 @@ pub async fn get_complaint_by_status(
         Ok(complaints) => {
             let response: Vec<ComplaintResponse> = complaints
                 .into_iter()
-                .map(ComplaintResponse::complaint_response)
+                .map(ComplaintResponse::new)
                 .collect();
 
             HttpResponse::Ok().json(response)
@@ -85,7 +85,7 @@ pub async fn get_all_compalints(state: web::Data<AppState>) -> impl Responder {
         Ok(all_compalaints) => {
             let res: Vec<ComplaintResponse> = all_compalaints
                 .into_iter()
-                .map(ComplaintResponse::complaint_response)
+                .map(ComplaintResponse::new)
                 .collect();
             HttpResponse::Ok().json(res)
         }

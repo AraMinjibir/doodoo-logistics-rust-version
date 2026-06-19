@@ -23,7 +23,7 @@ impl SupportServiceImpl {
 #[async_trait]
 impl SupportService for SupportServiceImpl {
     async fn send_complaint(&self, complaint: &Complaint) -> Result<Complaint, DomainError> {
-        self.repo.persist_complaint(&complaint).await?;
+        self.repo.persist_complaint(complaint).await?;
         Ok(complaint.clone())
     }
 
@@ -99,7 +99,7 @@ impl SupportService for SupportServiceImpl {
         let updated_complaint = complaint.update_status(status)?;
 
         self.repo
-            .update_complaint_status(&status, &updated_complaint)
+            .update_complaint_status(status, &updated_complaint)
             .await
             .map_err(DomainError::from)?;
 
