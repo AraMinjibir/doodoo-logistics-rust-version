@@ -19,7 +19,7 @@ pub struct ComplaintDto {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateComplaintStatusDto {
-    pub status: String
+    pub status: String,
 }
 #[derive(Debug, Deserialize)]
 pub struct CommentDto {

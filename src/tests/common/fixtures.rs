@@ -198,9 +198,5 @@ pub fn test_complaint(shipment_id: Uuid) -> Complaint {
 pub fn test_comment() -> Comment {
     let author_id = Uuid::parse_str("11111111-1111-1111-1111-111111111111").unwrap();
 
-    Comment::make_comment(
-        author_id,
-        "We're addressing the issue".to_string(),
-    )
-    .unwrap()
+    Comment::make_comment(author_id, "We're addressing the issue".to_string()).unwrap()
 }

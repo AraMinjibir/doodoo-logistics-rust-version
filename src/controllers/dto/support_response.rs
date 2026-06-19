@@ -30,7 +30,12 @@ impl ComplaintResponse {
             status: complaint.status(),
             created_at: complaint.created_at(),
             resolved_at: complaint.resolved_at(),
-            comment: complaint.comment().iter().cloned().map(CommentResponseDto::from).collect(),
+            comment: complaint
+                .comment()
+                .iter()
+                .cloned()
+                .map(CommentResponseDto::from)
+                .collect(),
         }
     }
 }
@@ -44,12 +49,12 @@ pub struct CommentResponseDto {
 }
 
 impl From<Comment> for CommentResponseDto {
-
-    fn from(comment:Comment) -> Self {
-        Self { id: comment.id(), author_id: comment.author_id(),
-             message: comment.message(), 
-             created_at: comment.created_at() 
-            }
+    fn from(comment: Comment) -> Self {
+        Self {
+            id: comment.id(),
+            author_id: comment.author_id(),
+            message: comment.message(),
+            created_at: comment.created_at(),
+        }
     }
-    
 }

@@ -132,10 +132,7 @@ impl Complaint {
 }
 
 impl Comment {
-    pub fn make_comment(
-        author_id: Uuid,
-        message: String,
-    ) -> Result<Self, DomainError> {
+    pub fn make_comment(author_id: Uuid, message: String) -> Result<Self, DomainError> {
         let mut errors = Vec::new();
 
         if author_id.is_nil() {
@@ -164,7 +161,6 @@ impl Comment {
     pub fn author_id(&self) -> Uuid {
         self.author_id
     }
-
 
     pub fn message(&self) -> String {
         self.message.clone()
