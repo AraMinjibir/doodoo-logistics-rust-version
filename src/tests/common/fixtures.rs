@@ -86,6 +86,26 @@ pub fn create_shipment_payload() -> Value {
     })
 }
 
+pub fn create_complaint_payload(shipment_id: Uuid) -> Value {
+    json!(
+        {
+        "user_id": "22222222-2222-2222-2222-222222222222",
+        "shipment_id": shipment_id,
+        "subject": "Shipment Delay",
+        "description": "Package has not arrived"
+    }
+    )
+}
+
+pub fn comment_payload(complaint_id: Uuid) -> Value {
+    json!(
+        {
+        "complaint_id": complaint_id,
+        "author_id":"22222222-2222-2222-2222-222222222222",
+        "message": "We are addressing the issue"
+        }
+    )
+}
 pub fn generate_payment_payload(shipment_id: Uuid) -> Value {
     json!({
         "customer_id": "22222222-2222-2222-2222-222222222222",
@@ -175,11 +195,10 @@ pub fn test_complaint(shipment_id: Uuid) -> Complaint {
     .unwrap()
 }
 
-pub fn test_comment(complaint_id: Uuid) -> Comment {
+pub fn test_comment() -> Comment {
     let author_id = Uuid::parse_str("11111111-1111-1111-1111-111111111111").unwrap();
 
     Comment::make_comment(
-        complaint_id,
         author_id,
         "We're addressing the issue".to_string(),
     )
