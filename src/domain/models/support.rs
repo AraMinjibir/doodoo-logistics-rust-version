@@ -14,14 +14,12 @@ pub struct Complaint {
     status: SupportStatus,
     created_at: DateTime<Utc>,
     resolved_at: Option<DateTime<Utc>>,
-    resolved_by: Option<Uuid>,
     comment: Vec<Comment>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Comment {
     id: Uuid,
-    complaint_id: Uuid,
     author_id: Uuid,
     message: String,
     created_at: DateTime<Utc>,
@@ -63,7 +61,6 @@ impl Complaint {
             status: SupportStatus::Open,
             created_at: now,
             resolved_at: None,
-            resolved_by: None,
             comment: vec![],
         })
     }
@@ -77,7 +74,6 @@ impl Complaint {
         status: SupportStatus,
         created_at: DateTime<Utc>,
         resolved_at: Option<DateTime<Utc>>,
-        resolved_by: Option<Uuid>,
         comment: Vec<Comment>,
     ) -> Self {
         Self {
@@ -89,7 +85,6 @@ impl Complaint {
             status,
             created_at,
             resolved_at,
-            resolved_by,
             comment,
         }
     }
@@ -119,9 +114,6 @@ impl Complaint {
     pub fn resolved_at(&self) -> Option<DateTime<Utc>> {
         self.resolved_at
     }
-    pub fn resolved_by(&self) -> Option<Uuid> {
-        self.resolved_by
-    }
     pub fn comment(&self) -> Vec<Comment> {
         self.comment.clone()
     }
@@ -141,15 +133,11 @@ impl Complaint {
 
 impl Comment {
     pub fn make_comment(
-        complaint_id: Uuid,
         author_id: Uuid,
         message: String,
     ) -> Result<Self, DomainError> {
         let mut errors = Vec::new();
 
-        if complaint_id.is_nil() {
-            errors.push("Complaint id must be provided".to_string())
-        }
         if author_id.is_nil() {
             errors.push("Author id must be provided".to_string());
         }
@@ -164,10 +152,25 @@ impl Comment {
         let now = Utc::now();
         Ok(Self {
             id: Uuid::new_v4(),
-            complaint_id,
             author_id,
             message,
             created_at: now,
         })
+    }
+
+    pub fn id(&self) -> Uuid {
+        self.id
+    }
+    pub fn author_id(&self) -> Uuid {
+        self.author_id
+    }
+
+
+    pub fn message(&self) -> String {
+        self.message.clone()
+    }
+
+    pub fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
     }
 }
