@@ -6,9 +6,7 @@ use crate::repositories::sqlx_shipment_repository::SqlxShipmentRepository;
 use crate::tests::common::db::TestDb;
 use crate::tests::common::fixtures::test_shipment;
 
-#[allow(dead_code)]
 pub struct TestContext {
-    pub db: TestDb,
     pub repo: SqlxShipmentRepository,
 }
 
@@ -18,7 +16,7 @@ impl TestContext {
 
         let repo = SqlxShipmentRepository::new(db.pool.clone());
 
-        Self { db, repo }
+        Self { repo }
     }
 }
 

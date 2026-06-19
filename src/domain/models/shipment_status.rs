@@ -15,19 +15,7 @@ pub enum ShipmentStatus {
     Cancelled,
 }
 
-#[allow(dead_code)]
 impl ShipmentStatus {
-    pub fn values() -> &'static [ShipmentStatus] {
-        &[
-            Self::Created,
-            Self::Assigned,
-            Self::InTransit,
-            Self::OutForDelivery,
-            Self::Delivered,
-            Self::Cancelled,
-        ]
-    }
-
     pub fn from_string(value: &str) -> Option<Self> {
         match value {
             "Created" => Some(Self::Created),
