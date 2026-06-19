@@ -67,7 +67,7 @@ impl Complaint {
             comment: vec![],
         })
     }
-
+    #[allow(clippy::too_many_arguments)]
     pub fn reconstitute(
         id: Uuid,
         user_id: Uuid,
@@ -129,7 +129,7 @@ impl Complaint {
     pub fn update_status(&self, next: &SupportStatus) -> Result<Self, DomainError> {
         let now = Utc::now();
 
-        SupportStatus::validate_transition(&self.status, &next)?;
+        SupportStatus::validate_transition(&self.status, next)?;
 
         Ok(Self {
             status: next.clone(),

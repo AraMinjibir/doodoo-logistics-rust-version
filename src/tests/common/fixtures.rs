@@ -22,7 +22,6 @@ use actix_web::{
     test::{call_service, TestRequest},
 };
 
-#[allow(dead_code)]
 pub fn test_shipment() -> Shipment {
     let service_provider_id = Uuid::parse_str("22222222-2222-2222-2222-222222222222").unwrap();
     Shipment::create(

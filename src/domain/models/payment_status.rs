@@ -12,17 +12,7 @@ pub enum PaymentStatus {
     Refunded,
 }
 
-#[allow(dead_code)]
 impl PaymentStatus {
-    pub fn statuses() -> &'static [PaymentStatus] {
-        &[
-            Self::Pending,
-            Self::Successful,
-            Self::Failed,
-            Self::Refunded,
-        ]
-    }
-
     pub fn from_string(value: &str) -> Option<Self> {
         match value {
             "Pending" => Some(Self::Pending),

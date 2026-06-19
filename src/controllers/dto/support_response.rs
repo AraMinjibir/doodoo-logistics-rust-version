@@ -21,7 +21,7 @@ pub struct ComplaintResponse {
     comment: Vec<Comment>,
 }
 impl ComplaintResponse {
-    pub fn complaint_response(complaint: Complaint) -> Self {
+    pub fn new(complaint: Complaint) -> Self {
         Self {
             id: complaint.id(),
             user_id: complaint.user_id(),
