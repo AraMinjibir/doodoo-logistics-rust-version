@@ -26,8 +26,8 @@ impl SupportRepository for SqlxSupportRepository {
         sqlx::query!( r#"
         INSERT INTO support
         (
-        id, user_id, shipment_id, subject, description, status,created_at, resolved_at, resolved_by, comment
-        ) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9, $10)
+        id, user_id, shipment_id, subject, description, status,created_at, resolved_at,comment
+        ) VALUES ($1,$2, $3, $4, $5, $6, $7, $8, $9)
          "#,
          row.id,
          row.user_id,
@@ -37,8 +37,7 @@ impl SupportRepository for SqlxSupportRepository {
          row.status.to_string(),
          row.created_at,
          row.resolved_at,
-         row.resolved_by,
-         row.comment,
+         row.comment
         ).execute(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
@@ -51,13 +50,13 @@ impl SupportRepository for SqlxSupportRepository {
     ) -> Result<(), RepositoryError> {
         sqlx::query!(
             r#"
-               UPDATE support
-               SET comment = $1,
-                  resolved_at = NOW()
-                WHERE id = $2
-                "#,
-            comment,
-            complaint_id
+            UPDATE support
+            SET comment = comment || $1::jsonb,
+                resolved_at = NOW()
+            WHERE id = $2
+            "#,
+            comment,       
+            complaint_id   
         )
         .execute(&self.pool)
         .await
