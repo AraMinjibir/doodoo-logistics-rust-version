@@ -15,7 +15,6 @@ pub struct ComplaintRow {
     pub status: String,
     pub created_at: DateTime<Utc>,
     pub resolved_at: Option<DateTime<Utc>>,
-    pub resolved_by: Option<Uuid>,
     pub comment: serde_json::Value,
 }
 
@@ -33,7 +32,6 @@ impl ComplaintRow {
             self.status.parse().expect("Invalid complaint status in DB"),
             self.created_at,
             self.resolved_at,
-            self.resolved_by,
             Self::deserialize_pod(self.comment),
         )
     }
@@ -48,8 +46,7 @@ impl ComplaintRow {
             status: complaint.status().to_string(),
             created_at: complaint.created_at(),
             resolved_at: complaint.resolved_at(),
-            resolved_by: complaint.resolved_by(),
-            comment: serde_json::json!(complaint.comment()),
+            comment: serde_json::to_value(complaint.comment()).unwrap(),
         }
     }
 }
