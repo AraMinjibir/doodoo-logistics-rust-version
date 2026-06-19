@@ -19,11 +19,10 @@ pub struct ComplaintDto {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateComplaintStatusDto {
-    pub status: String,
+    pub status: String
 }
 #[derive(Debug, Deserialize)]
 pub struct CommentDto {
-    complaint_id: Uuid,
     author_id: Uuid,
     message: String,
 }
@@ -41,6 +40,6 @@ impl IntoDomain<Complaint> for ComplaintDto {
 
 impl IntoDomain<Comment> for CommentDto {
     fn to_domain(self) -> Result<Comment, DomainError> {
-        Comment::make_comment(self.complaint_id, self.author_id, self.message)
+        Comment::make_comment(self.author_id, self.message)
     }
 }
