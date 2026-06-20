@@ -45,11 +45,6 @@
       },
       {
         "ordinal": 8,
-        "name": "resolved_by",
-        "type_info": "Uuid"
-      },
-      {
-        "ordinal": 9,
         "name": "comment",
         "type_info": "Jsonb"
       }
@@ -65,7 +60,6 @@
       false,
       false,
       false,
-      true,
       true,
       false
     ]
