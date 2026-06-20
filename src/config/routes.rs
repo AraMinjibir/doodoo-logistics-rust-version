@@ -78,37 +78,28 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
     );
 
     cfg.service(
-        web::scope("/support")
+        web::scope("/complaints")
+            .route("", web::post().to(support_controller::send_complaint))
+            .route("", web::get().to(support_controller::get_all_compalints))
             .route(
-                "/complaints",
-                web::post().to(support_controller::send_complaint),
-            )
-            .route(
-                "/complaints",
-                web::get().to(support_controller::get_all_compalints),
-            )
-            .route(
-                "/complaints/{id}",
+                "/{id}",
                 web::get().to(support_controller::get_complaint_by_id),
             )
             .route(
-                "/complaints/{id}",
+                "/{id}",
                 web::delete().to(support_controller::delete_complaint),
             )
             .route(
-                "/complaints/status/{status}",
+                "/status/{status}",
                 web::get().to(support_controller::get_complaint_by_status),
             )
             .route(
-                "compaints/{id}",
+                "/{id}/comment",
                 web::patch().to(support_controller::make_comment),
             )
+            .route("", web::post().to(support_controller::send_complaint))
             .route(
-                "/complaints",
-                web::post().to(support_controller::send_complaint),
-            )
-            .route(
-                "/complaints/{id}/status",
+                "/{id}/status",
                 web::patch().to(support_controller::update_complaint_status),
             ),
     );

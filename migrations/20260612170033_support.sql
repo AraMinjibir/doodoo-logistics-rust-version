@@ -7,8 +7,7 @@
         status TEXT NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE NOT NULL,
         resolved_at TIMESTAMP WITH TIME ZONE,
-        resolved_by UUID,
-        comment JSONB NOT NULL
+        comment JSONB NOT NULL DEFAULT '[]'
     );
 
     CREATE INDEX idx_support_status

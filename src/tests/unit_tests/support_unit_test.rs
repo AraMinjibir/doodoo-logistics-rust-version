@@ -39,7 +39,7 @@ async fn create_comment() {
     let mut repo = MockSupportRepo::new();
     let shipment = test_shipment();
     let complaint = test_complaint(shipment.id());
-    let comment = test_comment(complaint.id());
+    let comment = test_comment();
 
     let complaint_id = complaint.id();
 
