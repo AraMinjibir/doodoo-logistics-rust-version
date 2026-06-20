@@ -1,16 +1,17 @@
 use async_trait::async_trait;
 use chrono::NaiveDate;
+use rust_decimal::Decimal;
 use sqlx::PgPool;
 use uuid::Uuid;
-use rust_decimal::Decimal;
 
-use crate::domain::{models::payment::Payment,
-    errors::{repository_error::RepositoryError, repository_error::map_sqlx_error},
-    models::{payment_status::PaymentStatus}
+use crate::domain::{
+    errors::{repository_error::map_sqlx_error, repository_error::RepositoryError},
+    models::payment::Payment,
+    models::payment_status::PaymentStatus,
 };
 
-use crate::repositories::payment_repository::PaymentRepository;
 use crate::infrastructure::payment_row::PaymentRow;
+use crate::repositories::payment_repository::PaymentRepository;
 pub struct SqlxPaymentRepository {
     pool: PgPool,
 }
@@ -53,7 +54,10 @@ impl PaymentRepository for SqlxPaymentRepository {
         Ok(())
     }
 
-    async fn get_payment_by_ref(&self, reference: &str) -> Result<Option<Payment>, RepositoryError> {
+    async fn get_payment_by_ref(
+        &self,
+        reference: &str,
+    ) -> Result<Option<Payment>, RepositoryError> {
         // 1. Fetch the optional row from the database
         let row: Option<PaymentRow> = sqlx::query_as!(
             PaymentRow,
@@ -76,7 +80,6 @@ impl PaymentRepository for SqlxPaymentRepository {
     }
 
     async fn get_payment_by_status(&self, status: &str) -> Result<Vec<Payment>, RepositoryError> {
-
         let rows: Vec<PaymentRow> = sqlx::query_as!(
             PaymentRow,
             r#"
@@ -91,7 +94,10 @@ impl PaymentRepository for SqlxPaymentRepository {
         Ok(rows.into_iter().map(|r| r.into_domain()).collect())
     }
 
-    async fn get_payment_by_shipment_id(&self, shipment_id: Uuid) -> Result<Option<Payment>, RepositoryError> {
+    async fn get_payment_by_shipment_id(
+        &self,
+        shipment_id: Uuid,
+    ) -> Result<Option<Payment>, RepositoryError> {
         let row: Option<PaymentRow> = sqlx::query_as!(
             PaymentRow,
             r#"
@@ -142,7 +148,9 @@ impl PaymentRepository for SqlxPaymentRepository {
 
         if result.rows_affected() == 0 {
             // Return a specific 'NotFound' error here
-            return Err(RepositoryError::DatabaseError("No payment found to update".into()));
+            return Err(RepositoryError::DatabaseError(
+                "No payment found to update".into(),
+            ));
         }
 
         Ok(())
@@ -163,10 +171,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         Ok(())
     }
 
-    async fn get_daily_revenue(
-        &self,
-        date: NaiveDate,
-    ) -> Result<Option<Decimal>, RepositoryError> {
+    async fn get_daily_revenue(&self, date: NaiveDate) -> Result<Option<Decimal>, RepositoryError> {
         let total = sqlx::query_scalar!(
             r#"
             SELECT COALESCE(SUM(amount), 0) as "total!"
@@ -180,7 +185,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
+
         Ok(Some(total))
     }
 
@@ -197,12 +202,12 @@ impl PaymentRepository for SqlxPaymentRepository {
               AND paid_at < date_trunc('week', $2::timestamp) + interval '1 week'
             "#,
             PaymentStatus::Successful.to_string(),
-            date.and_hms_opt(0,0,0)
+            date.and_hms_opt(0, 0, 0)
         )
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
+
         Ok(Some(total))
     }
 
@@ -226,7 +231,7 @@ impl PaymentRepository for SqlxPaymentRepository {
         .fetch_one(&self.pool)
         .await
         .map_err(map_sqlx_error)?;
-    
+
         Ok(Some(total))
     }
 }

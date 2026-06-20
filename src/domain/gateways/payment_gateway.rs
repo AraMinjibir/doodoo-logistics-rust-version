@@ -1,13 +1,13 @@
+use crate::domain::errors::domain_error::DomainError;
+use crate::domain::models::payment::Payment;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use crate::domain::models::payment::Payment;
-use crate::domain::errors::domain_error::DomainError;
 
 #[async_trait]
 pub trait PaymentGateway: Send + Sync {
     async fn initiate_payment(
         &self,
-        payment: &Payment
+        payment: &Payment,
     ) -> Result<PaymentGatewayResponse, DomainError>;
 
     async fn verify_webhook(
@@ -18,7 +18,6 @@ pub trait PaymentGateway: Send + Sync {
 }
 
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub struct PaymentGatewayResponse {
     pub authorization_url: String,
     pub reference: String,

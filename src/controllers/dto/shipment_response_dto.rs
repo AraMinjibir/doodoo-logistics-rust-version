@@ -1,17 +1,8 @@
-use serde::Serialize;
 use chrono::{DateTime, Utc};
+use serde::Serialize;
 
-
-use crate::domain::models::{
-     shipment::Shipment,
-    proof_of_delivery::ProofOfDelivery
-};
-use crate::controllers::dto::shipment_creation_dto::{
-    PackageDetailsDto,
-    RecipientDto,
-    AddressDto
-
- };
+use crate::controllers::dto::shipment_creation_dto::{AddressDto, PackageDetailsDto, RecipientDto};
+use crate::domain::models::{proof_of_delivery::ProofOfDelivery, shipment::Shipment};
 
 #[derive(Debug, Serialize)]
 pub struct ShipmentResponseDto {
@@ -90,4 +81,3 @@ impl From<ProofOfDelivery> for ProofOfDeliveryResponseDto {
         }
     }
 }
-

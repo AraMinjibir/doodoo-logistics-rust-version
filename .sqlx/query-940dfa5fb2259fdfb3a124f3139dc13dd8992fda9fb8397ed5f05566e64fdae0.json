@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE support\n            SET comment = comment || $1::jsonb,\n                resolved_at = NOW()\n            WHERE id = $2\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Jsonb",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "940dfa5fb2259fdfb3a124f3139dc13dd8992fda9fb8397ed5f05566e64fdae0"
+}

@@ -1,6 +1,6 @@
-use chrono::{DateTime, Utc};
 use crate::tests::common::db::spawn_app;
 use crate::tests::common::fixtures::create_shipment_payload;
+use chrono::{DateTime, Utc};
 
 // 1. CREATE (POST)
 
@@ -13,7 +13,7 @@ async fn should_create_and_fetch_shipment() {
         .set_json(&create_shipment_payload())
         .to_request();
 
-    let resp = actix_web::test::call_service(&ctx.app, req).await;    
+    let resp = actix_web::test::call_service(&ctx.app, req).await;
     assert_eq!(resp.status(), 201);
 }
 
@@ -30,7 +30,9 @@ async fn should_fetch_shipment_by_id() {
         .to_request();
     let create_resp = actix_web::test::call_service(&ctx.app, create_req).await;
     let created_shipment: serde_json::Value = actix_web::test::read_body_json(create_resp).await;
-    let id = created_shipment["id"].as_str().expect("ID missing in response");
+    let id = created_shipment["id"]
+        .as_str()
+        .expect("ID missing in response");
 
     // Action: Fetch by ID
     let get_req = actix_web::test::TestRequest::get()
@@ -75,12 +77,14 @@ async fn should_perform_partial_update() {
     let ctx = spawn_app().await;
 
     // Create a shipment
-    let create_resp = actix_web::test::call_service(&ctx.app, 
+    let create_resp = actix_web::test::call_service(
+        &ctx.app,
         actix_web::test::TestRequest::post()
             .uri("/shipments")
             .set_json(&create_shipment_payload())
-            .to_request()
-    ).await;
+            .to_request(),
+    )
+    .await;
     let created: serde_json::Value = actix_web::test::read_body_json(create_resp).await;
     let id = created["id"].as_str().unwrap();
 
@@ -93,7 +97,7 @@ async fn should_perform_partial_update() {
 
     let update_resp = actix_web::test::call_service(&ctx.app, update_req).await;
     assert_eq!(update_resp.status(), 200);
-    
+
     let updated_body: serde_json::Value = actix_web::test::read_body_json(update_resp).await;
     assert_eq!(updated_body["sender_name"], "New Sender Name");
 }
@@ -105,12 +109,14 @@ async fn should_delete_shipment() {
     let ctx = spawn_app().await;
 
     // Create a shipment
-    let create_resp = actix_web::test::call_service(&ctx.app, 
+    let create_resp = actix_web::test::call_service(
+        &ctx.app,
         actix_web::test::TestRequest::post()
             .uri("/shipments")
             .set_json(&create_shipment_payload())
-            .to_request()
-    ).await;
+            .to_request(),
+    )
+    .await;
     let body: serde_json::Value = actix_web::test::read_body_json(create_resp).await;
     let id = body["id"].as_str().unwrap();
 
@@ -122,9 +128,13 @@ async fn should_delete_shipment() {
     assert_eq!(delete_resp.status(), 204);
 
     // Verification: Get should now return 404
-    let get_resp = actix_web::test::call_service(&ctx.app, 
-        actix_web::test::TestRequest::get().uri(&format!("/shipments/{}", id)).to_request()
-    ).await;
+    let get_resp = actix_web::test::call_service(
+        &ctx.app,
+        actix_web::test::TestRequest::get()
+            .uri(&format!("/shipments/{}", id))
+            .to_request(),
+    )
+    .await;
     assert_eq!(get_resp.status(), 404);
 }
 
@@ -135,9 +145,14 @@ async fn should_transition_shipment_status() {
     let ctx = spawn_app().await;
 
     // 1. Setup
-    let create_resp = actix_web::test::call_service(&ctx.app, 
-        actix_web::test::TestRequest::post().uri("/shipments").set_json(&create_shipment_payload()).to_request()
-    ).await;
+    let create_resp = actix_web::test::call_service(
+        &ctx.app,
+        actix_web::test::TestRequest::post()
+            .uri("/shipments")
+            .set_json(&create_shipment_payload())
+            .to_request(),
+    )
+    .await;
     let create_body: serde_json::Value = actix_web::test::read_body_json(create_resp).await;
     let tracking = create_body["tracking_number"].as_str().unwrap();
 
@@ -149,7 +164,7 @@ async fn should_transition_shipment_status() {
 
     let update_resp = actix_web::test::call_service(&ctx.app, update_req).await;
     assert_eq!(update_resp.status(), 200);
-    
+
     // 3. Verify: Check status and timestamp update
     let update_body: serde_json::Value = actix_web::test::read_body_json(update_resp).await;
     let created_at: DateTime<Utc> = create_body["created_at"].as_str().unwrap().parse().unwrap();
@@ -164,9 +179,14 @@ async fn should_fail_when_transitioning_directly_from_created_to_delivered() {
     let ctx = spawn_app().await;
 
     // Create (Initial: Created)
-    let create_resp = actix_web::test::call_service(&ctx.app, 
-        actix_web::test::TestRequest::post().uri("/shipments").set_json(&create_shipment_payload()).to_request()
-    ).await;
+    let create_resp = actix_web::test::call_service(
+        &ctx.app,
+        actix_web::test::TestRequest::post()
+            .uri("/shipments")
+            .set_json(&create_shipment_payload())
+            .to_request(),
+    )
+    .await;
     let create_body: serde_json::Value = actix_web::test::read_body_json(create_resp).await;
     let tracking = create_body["tracking_number"].as_str().unwrap();
 
@@ -185,9 +205,14 @@ async fn should_upload_proof_of_delivery() {
     let ctx = spawn_app().await;
 
     // 1. Setup: Create and move to Delivered
-    let create_resp = actix_web::test::call_service(&ctx.app, 
-        actix_web::test::TestRequest::post().uri("/shipments").set_json(&create_shipment_payload()).to_request()
-    ).await;
+    let create_resp = actix_web::test::call_service(
+        &ctx.app,
+        actix_web::test::TestRequest::post()
+            .uri("/shipments")
+            .set_json(&create_shipment_payload())
+            .to_request(),
+    )
+    .await;
     let created: serde_json::Value = actix_web::test::read_body_json(create_resp).await;
     let tracking = created["tracking_number"].as_str().unwrap();
 
@@ -211,7 +236,7 @@ async fn should_upload_proof_of_delivery() {
     });
 
     let req_proof = actix_web::test::TestRequest::post()
-        .uri(&format!("/shipments/tracking/{}/proof", tracking)) 
+        .uri(&format!("/shipments/tracking/{}/proof", tracking))
         .set_json(&proof_payload)
         .to_request();
 
@@ -224,9 +249,14 @@ async fn should_fail_upload_proof_if_status_is_not_delivered() {
     let ctx = spawn_app().await;
 
     // Create (Status: Created)
-    let create_resp = actix_web::test::call_service(&ctx.app, 
-        actix_web::test::TestRequest::post().uri("/shipments").set_json(&create_shipment_payload()).to_request()
-    ).await;
+    let create_resp = actix_web::test::call_service(
+        &ctx.app,
+        actix_web::test::TestRequest::post()
+            .uri("/shipments")
+            .set_json(&create_shipment_payload())
+            .to_request(),
+    )
+    .await;
     let created: serde_json::Value = actix_web::test::read_body_json(create_resp).await;
     let tracking = created["tracking_number"].as_str().unwrap();
 
@@ -239,7 +269,7 @@ async fn should_fail_upload_proof_if_status_is_not_delivered() {
 
     // Action: Attempt proof upload while only "Created"
     let req_created = actix_web::test::TestRequest::post()
-        .uri(&format!("/shipments/tracking/{}/proof", tracking)) 
+        .uri(&format!("/shipments/tracking/{}/proof", tracking))
         .set_json(&proof_payload)
         .to_request();
 
