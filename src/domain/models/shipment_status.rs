@@ -1,7 +1,7 @@
+use once_cell::sync::Lazy;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::str::FromStr;
-use once_cell::sync::Lazy;
 
 use crate::domain::errors::domain_error::DomainError;
 
@@ -15,19 +15,7 @@ pub enum ShipmentStatus {
     Cancelled,
 }
 
-#[allow(dead_code)]
 impl ShipmentStatus {
-    pub fn values() -> &'static [ShipmentStatus] {
-        &[
-            Self::Created,
-            Self::Assigned,
-            Self::InTransit,
-            Self::OutForDelivery,
-            Self::Delivered,
-            Self::Cancelled,
-        ]
-    }
-
     pub fn from_string(value: &str) -> Option<Self> {
         match value {
             "Created" => Some(Self::Created),
@@ -44,17 +32,15 @@ impl ShipmentStatus {
         current: &ShipmentStatus,
         next: &ShipmentStatus,
     ) -> Result<(), DomainError> {
-        let allowed = ALLOWED_TRANSITIONS
-            .get(current)
-            .unwrap_or(&EMPTY_SET);
-    
+        let allowed = ALLOWED_TRANSITIONS.get(current).unwrap_or(&EMPTY_SET);
+
         if !allowed.contains(next) {
             return Err(DomainError::InvalidShipmentStatusTransition {
                 from: current.clone(),
                 to: next.clone(),
             });
         }
-    
+
         Ok(())
     }
 }
@@ -77,8 +63,7 @@ impl FromStr for ShipmentStatus {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from_string(s)
-            .ok_or_else(|| format!("Invalid status: {}", s))
+        Self::from_string(s).ok_or_else(|| format!("Invalid status: {}", s))
     }
 }
 
@@ -88,8 +73,14 @@ static ALLOWED_TRANSITIONS: Lazy<HashMap<ShipmentStatus, HashSet<ShipmentStatus>
 
         HashMap::from([
             (Created, HashSet::from([Assigned, InTransit, Cancelled])),
-            (Assigned, HashSet::from([InTransit, OutForDelivery, Cancelled])),
-            (InTransit, HashSet::from([OutForDelivery, Delivered, Cancelled])),
+            (
+                Assigned,
+                HashSet::from([InTransit, OutForDelivery, Cancelled]),
+            ),
+            (
+                InTransit,
+                HashSet::from([OutForDelivery, Delivered, Cancelled]),
+            ),
             (OutForDelivery, HashSet::from([Delivered, Cancelled])),
             (Delivered, HashSet::new()),
             (Cancelled, HashSet::new()),

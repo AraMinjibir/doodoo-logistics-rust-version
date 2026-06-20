@@ -1,10 +1,10 @@
-use uuid::Uuid;
 use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
-use serde::{Serialize, Deserialize};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, FromRow, Serialize, Deserialize)]
-pub struct ShipmentRow{
+pub struct ShipmentRow {
     pub id: Uuid,
     pub tracking_number: Option<String>,
     pub sender_name: String,
@@ -32,7 +32,5 @@ pub struct ShipmentRow{
     pub cost: f64,
 
     pub proof_of_delivery: serde_json::Value,
-    pub service_provider_id: Option<Uuid>
-
-
+    pub service_provider_id: Option<Uuid>,
 }

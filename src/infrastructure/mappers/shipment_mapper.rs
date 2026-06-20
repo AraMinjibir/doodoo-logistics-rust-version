@@ -1,17 +1,16 @@
 use chrono::{DateTime, Utc};
 
+use crate::domain::models::address::Address;
+use crate::domain::models::dimensions::Dimensions;
+use crate::domain::models::package_details::PackageDetails;
+use crate::domain::models::proof_of_delivery::ProofOfDelivery;
+use crate::domain::models::recipient::Recipient;
 use crate::domain::models::shipment::Shipment;
 use crate::infrastructure::shipment_row::ShipmentRow;
-use crate::domain::models::recipient::Recipient;
-use crate::domain::models::address::Address;
-use crate::domain::models::package_details::PackageDetails;
-use crate::domain::models::dimensions::Dimensions;
-use crate::domain::models::proof_of_delivery::ProofOfDelivery;
 
 pub struct ShipmentMapper;
 
 impl ShipmentMapper {
-
     fn to_utc(ndt: chrono::NaiveDateTime) -> DateTime<Utc> {
         DateTime::<Utc>::from_naive_utc_and_offset(ndt, Utc)
     }
@@ -93,20 +92,10 @@ pub struct PackageDetailsMapper;
 
 impl PackageDetailsMapper {
     pub fn from_row(row: &ShipmentRow) -> PackageDetails {
-        let dimensions = Dimensions::create(
-            row.length,
-            row.width,
-            row.height,
-        )
-        .expect("Invalid dimensions in DB");
+        let dimensions = Dimensions::create(row.length, row.width, row.height)
+            .expect("Invalid dimensions in DB");
 
-        PackageDetails::create(
-            row.weight,
-            dimensions,
-            row.contents.clone(),
-        )
-        .expect("Invalid package details in DB")
+        PackageDetails::create(row.weight, dimensions, row.contents.clone())
+            .expect("Invalid package details in DB")
     }
 }
-
-

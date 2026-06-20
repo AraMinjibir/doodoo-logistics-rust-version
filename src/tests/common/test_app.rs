@@ -1,6 +1,7 @@
-#![allow(dead_code)] // This tells Rust to only look at this folder during 'cargo test'
-
 use crate::configure_routes;
+use crate::domain::services::support_service::SupportService;
+use crate::domain::services::support_service_imp::SupportServiceImpl;
+use crate::repositories::sqlx_support_repository::SqlxSupportRepository;
 use actix_http::Request;
 use actix_web::dev::{Service, ServiceResponse};
 use actix_web::{test, web, App};
@@ -26,19 +27,25 @@ pub async fn setup_app_with_pool(
     let shipment_repo = Arc::new(SqlxShipmentRepository::new(pool.clone()));
     let payment_repo = Arc::new(SqlxPaymentRepository::new(pool.clone()));
     let gateway: Arc<dyn PaymentGateway + Send + Sync> = Arc::new(MockPaymentGateway::new());
+    let support_repo = Arc::new(SqlxSupportRepository::new(pool.clone()));
 
     let shipment_service_impl = ShipmentServiceImpl::new(shipment_repo.clone());
 
     let payment_service_impl =
         PaymentServiceImpl::new(payment_repo, shipment_repo.clone(), gateway);
 
+    let support_service_impl = SupportServiceImpl::new(support_repo.clone());
+
     let shipment_service: Arc<dyn ShipmentService + Send + Sync> = Arc::new(shipment_service_impl);
 
     let payment_service: Arc<dyn PaymentService + Send + Sync> = Arc::new(payment_service_impl);
 
+    let support_service: Arc<dyn SupportService + Send + Sync> = Arc::new(support_service_impl);
+
     let state = AppState {
         shipment_service,
         payment_service,
+        support_service,
     };
 
     test::init_service(

@@ -1,12 +1,6 @@
-use std::{
-    fmt,
-    str::FromStr,
-    collections::HashMap,
-    collections::HashSet,
-};
 use once_cell::sync::Lazy;
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, collections::HashSet, fmt, str::FromStr};
 
 use crate::domain::errors::domain_error::DomainError;
 
@@ -14,61 +8,45 @@ use crate::domain::errors::domain_error::DomainError;
 pub enum PaymentStatus {
     Pending,
     Successful,
-    Failed, 
-    Refunded
-     }
+    Failed,
+    Refunded,
+}
 
-#[allow(dead_code)]
- impl PaymentStatus {
-     pub fn statuses() -> &'static [PaymentStatus] {
-
-        &[
-            Self::Pending,
-            Self::Successful,
-            Self::Failed,
-            Self::Refunded
-        ]
-     }
-
-     pub fn from_string(value: &str) -> Option<Self> {
+impl PaymentStatus {
+    pub fn from_string(value: &str) -> Option<Self> {
         match value {
             "Pending" => Some(Self::Pending),
             "Successful" => Some(Self::Successful),
             "Failed" => Some(Self::Failed),
             "Refunded" => Some(Self::Refunded),
-            _ => None
-            
+            _ => None,
         }
-     }
+    }
 
-     pub fn validate_transition(
+    pub fn validate_transition(
         current: &PaymentStatus,
         next: &PaymentStatus,
-        ) -> Result<(), DomainError> {
-        let allowed = ALLOWED_TRANSITIONS
-            .get(current)
-            .unwrap_or(&EMPTY_SET);
-    
+    ) -> Result<(), DomainError> {
+        let allowed = ALLOWED_TRANSITIONS.get(current).unwrap_or(&EMPTY_SET);
+
         if !allowed.contains(next) {
             return Err(DomainError::InvalidPaymentStatusTransition {
                 from: current.clone(),
                 to: next.clone(),
             });
         }
-    
+
         Ok(())
     }
+}
 
-
- }    
-
- impl fmt::Display for PaymentStatus {
+impl fmt::Display for PaymentStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let value = match self {
             Self::Pending => "Pending",
             Self::Successful => "Successful",
             Self::Failed => "Failed",
-            Self::Refunded => "Refunded"
+            Self::Refunded => "Refunded",
         };
         write!(f, "{}", value)
     }
@@ -78,12 +56,11 @@ impl FromStr for PaymentStatus {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::from_string(s)
-            .ok_or_else(|| format!("Invalid status: {}", s))
+        Self::from_string(s).ok_or_else(|| format!("Invalid status: {}", s))
     }
 }
 
- static ALLOWED_TRANSITIONS: Lazy<HashMap<PaymentStatus, HashSet<PaymentStatus>>> =
+static ALLOWED_TRANSITIONS: Lazy<HashMap<PaymentStatus, HashSet<PaymentStatus>>> =
     Lazy::new(|| {
         use PaymentStatus::*;
 
@@ -93,4 +70,4 @@ impl FromStr for PaymentStatus {
         ])
     });
 
-    static EMPTY_SET: Lazy<HashSet<PaymentStatus>> = Lazy::new(HashSet::new);
+static EMPTY_SET: Lazy<HashSet<PaymentStatus>> = Lazy::new(HashSet::new);

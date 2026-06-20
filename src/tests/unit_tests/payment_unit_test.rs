@@ -11,7 +11,9 @@ use crate::domain::gateways::{
 use crate::domain::models::payment_status::PaymentStatus;
 use crate::domain::services::payment_service::PaymentService;
 use crate::domain::services::payment_service_impl::PaymentServiceImpl;
-use crate::tests::common::fixtures::{test_command, test_payment, test_shipment, test_success_payment};
+use crate::tests::common::fixtures::{
+    test_command, test_payment, test_shipment, test_success_payment,
+};
 use crate::tests::common::mock_repo::{MockPayment, MockPaymentRepo, MockShipmentRepo};
 
 #[tokio::test]
@@ -227,7 +229,6 @@ async fn get_all_payments() {
     assert_eq!(fetched_payments.unwrap().len(), 1);
 }
 
-
 #[tokio::test]
 async fn get_daily_revenue() {
     let mut repo = MockPaymentRepo::new();
@@ -235,7 +236,8 @@ async fn get_daily_revenue() {
     let payment_gateway = MockPayment::new();
 
     let date = NaiveDate::from_num_days_from_ce_opt(1)
-    .ok_or_else(|| DomainError::Internal("Invalid date".into())).unwrap();
+        .ok_or_else(|| DomainError::Internal("Invalid date".into()))
+        .unwrap();
 
     repo.expect_get_daily_revenue()
         .returning(|_| Ok(Some(Decimal::new(100, 2))));
@@ -258,7 +260,8 @@ async fn get_weekly_revenue() {
     let payment_gateway = MockPayment::new();
 
     let date = NaiveDate::from_num_days_from_ce_opt(1)
-    .ok_or_else(|| DomainError::Internal("Invalid date".into())).unwrap();
+        .ok_or_else(|| DomainError::Internal("Invalid date".into()))
+        .unwrap();
 
     repo.expect_get_weekly_revenue()
         .returning(|_| Ok(Some(Decimal::new(100, 2))));
@@ -281,7 +284,8 @@ async fn get_monthly_revenue() {
     let payment_gateway = MockPayment::new();
 
     let date = NaiveDate::from_num_days_from_ce_opt(1)
-    .ok_or_else(|| DomainError::Internal("Invalid date".into())).unwrap();
+        .ok_or_else(|| DomainError::Internal("Invalid date".into()))
+        .unwrap();
     let year = date.year() as u32;
     let month = date.month() as u32;
 
@@ -358,14 +362,12 @@ async fn handle_webhook_invalid_signature() {
     let service = PaymentServiceImpl::new(repo, shipment_repo, gateway);
 
     let event = PaymentWebhookEvent {
-    reference: "mock-ref".to_string(),
-    status: "success".to_string(),
-    gateway_transaction_id: Some("txn-123".to_string()),
-};
+        reference: "mock-ref".to_string(),
+        status: "success".to_string(),
+        gateway_transaction_id: Some("txn-123".to_string()),
+    };
 
-let result = service
-    .handle_webhook(&event, "bad-signature")
-    .await;
+    let result = service.handle_webhook(&event, "bad-signature").await;
 
     assert!(matches!(
         result,

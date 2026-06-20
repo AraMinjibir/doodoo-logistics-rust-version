@@ -52,15 +52,15 @@ pub struct Payment {
     failure_reason: Option<String>,
 }
 #[derive(Debug, Clone)]
-pub struct PaymentCommand{
+pub struct PaymentCommand {
     pub customer_id: Uuid,
     pub shipment_id: Uuid,
     pub amount: Decimal,
-   pub payment_method: PaymentMethod,
+    pub payment_method: PaymentMethod,
 }
 
 #[derive(Debug, Clone)]
-pub struct GeneratePaymentResponse{
+pub struct GeneratePaymentResponse {
     pub payment: Payment,
     pub authorization_url: String,
 }
@@ -79,7 +79,7 @@ impl PaymentCommand {
             payment_method,
         }
     }
-    
+
     pub fn customer_id(&self) -> Uuid {
         self.customer_id
     }
@@ -147,7 +147,7 @@ impl Payment {
     }
 
     pub fn update_status(
-         self,
+        self,
         status: PaymentStatus,
         gateway_transaction_id: Option<String>,
     ) -> Result<Self, DomainError> {

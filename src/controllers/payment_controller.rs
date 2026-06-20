@@ -1,21 +1,23 @@
-use actix_web::{HttpRequest, HttpResponse, Responder, web};
+use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use chrono::NaiveDate;
 use uuid::Uuid;
 
 use crate::config::app_state::AppState;
+use crate::controllers::dto::GeneratePaymentResponseDto;
 use crate::controllers::dto::{GeneratePaymentDto, PaymentResponseDto};
 use crate::controllers::helpers::result_mapper::map_domain_error;
 use crate::domain::gateways::payment_gateway::PaymentWebhookEvent;
-use crate::controllers::dto::GeneratePaymentResponseDto;
 
 pub async fn generate_payment(
     state: web::Data<AppState>,
     payload: web::Json<GeneratePaymentDto>,
 ) -> impl Responder {
-    let input =  payload.into_inner().into_domain();
+    let input = payload.into_inner().into_domain();
 
     match state.payment_service.generate_payment(&input).await {
-        Ok(response) => HttpResponse::Created().json(GeneratePaymentResponseDto::from_response(response)),
+        Ok(response) => {
+            HttpResponse::Created().json(GeneratePaymentResponseDto::from_response(response))
+        }
 
         Err(err) => map_domain_error(err),
     }
@@ -126,7 +128,6 @@ pub async fn handle_webhook(
     req: HttpRequest,
     body: web::Json<PaymentWebhookEvent>,
 ) -> impl Responder {
-
     // Extract signature from headers
     let signature = match req.headers().get("x-signature") {
         Some(value) => match value.to_str() {

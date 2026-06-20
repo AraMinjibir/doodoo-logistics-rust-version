@@ -1,6 +1,6 @@
 use crate::tests::common::db::spawn_app;
 use crate::tests::common::fixtures::{create_test_shipment, generate_payment_payload};
-use actix_web::test::{TestRequest, call_service};
+use actix_web::test::{call_service, TestRequest};
 use chrono::Datelike;
 
 #[tokio::test]

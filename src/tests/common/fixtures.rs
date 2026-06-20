@@ -9,13 +9,12 @@ use crate::domain::models::{
     address::Address,
     dimensions::Dimensions,
     package_details::PackageDetails,
-    payment::Payment,
-    payment::PaymentCommand,
-    payment::PaymentMethod,
+    payment::{Payment, PaymentCommand, PaymentMethod},
     payment_status::PaymentStatus,
     proof_of_delivery::ProofOfDelivery,
     recipient::Recipient,
     shipment::{Shipment, UpdateShipment},
+    support::{Comment, Complaint},
 };
 use actix_http::Request;
 use actix_web::{
@@ -23,7 +22,6 @@ use actix_web::{
     test::{call_service, TestRequest},
 };
 
-#[allow(dead_code)]
 pub fn test_shipment() -> Shipment {
     let service_provider_id = Uuid::parse_str("22222222-2222-2222-2222-222222222222").unwrap();
     Shipment::create(
@@ -88,6 +86,26 @@ pub fn create_shipment_payload() -> Value {
     })
 }
 
+pub fn create_complaint_payload(shipment_id: Uuid) -> Value {
+    json!(
+        {
+        "user_id": "22222222-2222-2222-2222-222222222222",
+        "shipment_id": shipment_id,
+        "subject": "Shipment Delay",
+        "description": "Package has not arrived"
+    }
+    )
+}
+
+pub fn comment_payload(complaint_id: Uuid) -> Value {
+    json!(
+        {
+        "complaint_id": complaint_id,
+        "author_id":"22222222-2222-2222-2222-222222222222",
+        "message": "We are addressing the issue"
+        }
+    )
+}
 pub fn generate_payment_payload(shipment_id: Uuid) -> Value {
     json!({
         "customer_id": "22222222-2222-2222-2222-222222222222",
@@ -163,4 +181,22 @@ pub async fn create_test_shipment(
         serde_json::from_slice(&actix_web::test::read_body(resp).await).unwrap();
 
     Uuid::parse_str(body["id"].as_str().unwrap()).unwrap()
+}
+
+pub fn test_complaint(shipment_id: Uuid) -> Complaint {
+    let user_id = Uuid::parse_str("11111111-1111-1111-1111-111111111111").unwrap();
+
+    Complaint::send_complaint(
+        user_id,
+        shipment_id,
+        "Shipment Delay".to_string(),
+        "Package has not arrived".to_string(),
+    )
+    .unwrap()
+}
+
+pub fn test_comment() -> Comment {
+    let author_id = Uuid::parse_str("11111111-1111-1111-1111-111111111111").unwrap();
+
+    Comment::make_comment(author_id, "We're addressing the issue".to_string()).unwrap()
 }
