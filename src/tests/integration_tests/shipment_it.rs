@@ -14,6 +14,11 @@ impl TestContext {
     pub async fn new() -> Self {
         let db = TestDb::new().await;
 
+        sqlx::query!("DELETE FROM shipments")
+            .execute(&db.pool)
+            .await
+            .unwrap();
+
         let repo = SqlxShipmentRepository::new(db.pool.clone());
 
         Self { repo }

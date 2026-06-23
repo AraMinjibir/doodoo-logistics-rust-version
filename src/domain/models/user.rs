@@ -125,4 +125,9 @@ impl User {
     pub fn updated_at(&self) -> Option<DateTime<Utc>> {
         self.updated_at
     }
+
+    pub fn set_status(&mut self, status: UserStatus) {
+        self.status = status;
+        self.updated_at = Some(Utc::now());
+    }
 }
