@@ -126,7 +126,7 @@ impl User {
         self.updated_at
     }
 
-    pub fn set_status(&mut self, status:UserStatus)  {
+    pub fn set_status(&mut self, status: UserStatus) {
         self.status = status;
         self.updated_at = Some(Utc::now());
     }
