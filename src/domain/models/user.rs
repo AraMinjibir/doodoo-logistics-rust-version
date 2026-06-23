@@ -1,6 +1,6 @@
+use bcrypt::{hash, verify, DEFAULT_COST};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
-use bcrypt::{hash, DEFAULT_COST, verify};
 
 use crate::domain::{
     errors::domain_error::DomainError,
@@ -61,6 +61,30 @@ impl User {
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
+    pub fn reconstitute(
+        id: Uuid,
+        name: String,
+        email: String,
+        hash_password: String,
+        phone_number: String,
+        role: UserRole,
+        status: UserStatus,
+        created_at: DateTime<Utc>,
+        updated_at: Option<DateTime<Utc>>,
+    ) -> Self {
+        Self {
+            id,
+            name,
+            email,
+            hash_password,
+            phone_number,
+            role,
+            status,
+            created_at,
+            updated_at,
+        }
+    }
     pub fn hash_password_value(plain_password: &str) -> Result<String, bcrypt::BcryptError> {
         hash(plain_password, DEFAULT_COST)
     }
@@ -70,5 +94,35 @@ impl User {
         hash_password: &str,
     ) -> Result<bool, bcrypt::BcryptError> {
         verify(plain_password, hash_password)
+    }
+
+    pub fn id(&self) -> Uuid {
+        self.id
+    }
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+    pub fn email(&self) -> String {
+        self.email.clone()
+    }
+
+    pub fn hash_password(&self) -> String {
+        self.hash_password.clone()
+    }
+    pub fn phone_number(&self) -> String {
+        self.phone_number.clone()
+    }
+    pub fn role(&self) -> UserRole {
+        self.role.clone()
+    }
+    pub fn status(&self) -> UserStatus {
+        self.status.clone()
+    }
+
+    pub fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+    pub fn updated_at(&self) -> Option<DateTime<Utc>> {
+        self.updated_at
     }
 }
