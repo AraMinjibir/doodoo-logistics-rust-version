@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum UserRole {
@@ -42,6 +42,13 @@ impl fmt::Display for UserRole {
         write!(f, "{}", value)
     }
 }
+impl FromStr for UserRole {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::string_roles(s).ok_or_else(|| format!("Invalid role: {}", s))
+    }
+}
 
 impl UserStatus {
     pub fn from_string(value: &str) -> Option<Self> {
@@ -62,5 +69,12 @@ impl fmt::Display for UserStatus {
             Self::Deleted => "Deleted",
         };
         write!(f, "{}", value)
+    }
+}
+impl FromStr for UserStatus {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::from_string(s).ok_or_else(|| format!("Invalid status: {}", s))
     }
 }
