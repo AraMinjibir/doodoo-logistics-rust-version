@@ -14,7 +14,9 @@ use crate::domain::models::{
     proof_of_delivery::ProofOfDelivery,
     recipient::Recipient,
     shipment::{Shipment, UpdateShipment},
-    support::{Comment, Complaint}, user::User, user_status::UserRole,
+    support::{Comment, Complaint},
+    user::User,
+    user_status::UserRole,
 };
 use actix_http::Request;
 use actix_web::{
@@ -69,11 +71,12 @@ pub fn test_success_payment(shipment_id: Uuid, amount: Decimal, paid_at: DateTim
 pub fn test_user() -> User {
     User::create_user(
         "DooDoo User".to_string(),
-        format!("{}@email.com", Uuid::new_v4()), 
-         "password1234567".to_string(), 
-        "phone_number".to_string(), 
-        UserRole::Admin
-    ).expect("msg")
+        format!("{}@email.com", Uuid::new_v4()),
+        "password1234567".to_string(),
+        "phone_number".to_string(),
+        UserRole::Admin,
+    )
+    .expect("msg")
 }
 pub fn create_shipment_payload() -> Value {
     json!({
