@@ -124,7 +124,7 @@ impl UserRepository for SqlxUserRepository {
             SET status = $1
             WHERE id = $2
             "#,
-            "DELETED",
+            "Deleted",
             id
         )
         .execute(&self.pool)
