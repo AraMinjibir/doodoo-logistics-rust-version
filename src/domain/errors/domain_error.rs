@@ -45,11 +45,11 @@ pub enum DomainError {
         email: String,
     },
     UserNotFoundWithId {
-       id:Uuid,
+        id: Uuid,
     },
-    
+
     UserStatusIsNotActive {
-       status: UserStatus,
+        status: UserStatus,
     },
     ComplaintNotFound {
         id: Uuid,
@@ -86,7 +86,6 @@ pub enum DomainError {
     DatabaseError(String),
     JwtError(String),
     InvalidCredentials,
-    
 }
 
 impl fmt::Display for DomainError {
