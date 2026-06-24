@@ -88,6 +88,14 @@ impl UserRepository for SqlxUserRepository {
 
         Ok(row.map(UserRow::from_row))
     }
+    async fn get_by_email(&self, email: String) -> Result<Option<User>, RepositoryError> {
+        let row = sqlx::query_as!(UserRow, "SELECT * FROM users WHERE email = $1", email)
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(map_sqlx_error)?;
+
+        Ok(row.map(UserRow::from_row))
+    }
     async fn get_by_status(&self, status: &str) -> Result<Vec<User>, RepositoryError> {
         let rows = sqlx::query_as!(UserRow, "SELECT * FROM users WHERE status = $1", status)
             .fetch_all(&self.pool)
