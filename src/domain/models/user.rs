@@ -21,10 +21,10 @@ pub struct User {
 }
 #[derive(Debug, Clone)]
 pub struct UserInput {
-   pub name: Option<String>,
-   pub email:  Option<String>,
-   pub phone_number:  Option<String>,
-   pub role:  Option<UserRole>,
+    pub name: Option<String>,
+    pub email: Option<String>,
+    pub phone_number: Option<String>,
+    pub role: Option<UserRole>,
 }
 impl User {
     pub fn create_user(
@@ -113,7 +113,7 @@ impl User {
 
         Ok(Self {
             status: next,
-            updated_at:Some(now),
+            updated_at: Some(now),
             ..self.clone()
         })
     }
