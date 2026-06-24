@@ -107,7 +107,6 @@ impl User {
             ..self.clone()
         }
     }
-
     pub fn update_status(&self, next: UserStatus) -> Result<Self, DomainError> {
         let now = Utc::now();
 
