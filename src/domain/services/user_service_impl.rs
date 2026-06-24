@@ -10,10 +10,7 @@ use crate::{
             user::{User, UserInput},
             user_status::UserStatus,
         },
-        services::{
-            jwt_service::{JwtService},
-            user_service::UserService,
-        },
+        services::{jwt_service::JwtService, user_service::UserService},
     },
     repositories::user_repository::UserRepository,
 };
