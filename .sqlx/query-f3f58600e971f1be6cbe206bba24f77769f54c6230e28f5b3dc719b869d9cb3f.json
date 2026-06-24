@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM users ORDER BY created_at",
+  "query": "SELECT * FROM users WHERE email = $1",
   "describe": {
     "columns": [
       {
@@ -50,7 +50,9 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Text"
+      ]
     },
     "nullable": [
       false,
@@ -64,5 +66,5 @@
       true
     ]
   },
-  "hash": "4415e33af3c5f28722ded1bb3b67b2f3d6138b6257183ee353292b115fa70ac7"
+  "hash": "f3f58600e971f1be6cbe206bba24f77769f54c6230e28f5b3dc719b869d9cb3f"
 }
