@@ -1,9 +1,11 @@
-
 use chrono::{Duration, Utc};
-use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
-use crate::domain::{errors::domain_error::DomainError, models::{user::User, user_status::UserRole}};
+use crate::domain::{
+    errors::domain_error::DomainError,
+    models::{user::User, user_status::UserRole},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JwtClaims {
@@ -20,11 +22,7 @@ pub struct JwtService {
 }
 
 impl JwtService {
-    pub fn generate_token(
-        &self,
-        user: &User,
-    ) -> Result<String, DomainError> {
-
+    pub fn generate_token(&self, user: &User) -> Result<String, DomainError> {
         let now = Utc::now();
         let expiry = now + Duration::minutes(self.expiry_minutes);
 
@@ -40,23 +38,15 @@ impl JwtService {
         encode(
             &Header::default(),
             &claims,
-            &EncodingKey::from_secret(
-                self.secret.as_bytes(),
-            ),
+            &EncodingKey::from_secret(self.secret.as_bytes()),
         )
         .map_err(Into::into)
     }
 
-    pub fn validate_token(
-        &self,
-        token: &str,
-    ) -> Result<JwtClaims, DomainError> {
-
+    pub fn validate_token(&self, token: &str) -> Result<JwtClaims, DomainError> {
         decode::<JwtClaims>(
             token,
-            &DecodingKey::from_secret(
-                self.secret.as_bytes(),
-            ),
+            &DecodingKey::from_secret(self.secret.as_bytes()),
             &Validation::default(),
         )
         .map(|data| data.claims)
