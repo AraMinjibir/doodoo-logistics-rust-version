@@ -1,3 +1,4 @@
+use bcrypt::BcryptError;
 use chrono::NaiveDate;
 use std::fmt::{self};
 use uuid::Uuid;
@@ -6,6 +7,7 @@ use crate::domain::errors::repository_error::RepositoryError;
 use crate::domain::models::payment_status::PaymentStatus;
 use crate::domain::models::shipment_status::ShipmentStatus;
 use crate::domain::models::support_status::SupportStatus;
+use crate::domain::models::user_status::UserStatus;
 
 #[derive(Debug)]
 pub enum DomainError {
@@ -33,8 +35,21 @@ pub enum DomainError {
     PaymentExistsForThisShipment {
         id: Uuid,
     },
+    UserWithEmailAlreadyExist {
+        email: String,
+    },
     PaymentNotFound {
         reference: String,
+    },
+    UserNotFound {
+        email: String,
+    },
+    UserNotFoundWithId {
+        id: Uuid,
+    },
+
+    UserStatusIsNotActive {
+        status: UserStatus,
     },
     ComplaintNotFound {
         id: Uuid,
@@ -69,6 +84,8 @@ pub enum DomainError {
     SerializationFailure,
     Internal(String),
     DatabaseError(String),
+    JwtError(String),
+    InvalidCredentials,
 }
 
 impl fmt::Display for DomainError {
@@ -128,8 +145,20 @@ impl fmt::Display for DomainError {
             DomainError::PaymentExistsForThisShipment { id } => {
                 write!(f, "Payment for shipment with id: {} already made", id)
             }
+            DomainError::UserWithEmailAlreadyExist { email } => {
+                write!(f, "Payment for shipment with email: {} already made", email)
+            }
             DomainError::PaymentNotFound { reference } => {
                 write!(f, "Payment {} not found", reference)
+            }
+            DomainError::UserNotFound { email } => {
+                write!(f, "User with email: {} not found", email)
+            }
+            DomainError::UserNotFoundWithId { id } => {
+                write!(f, "User with id: {} not found", id)
+            }
+            DomainError::UserStatusIsNotActive { status } => {
+                write!(f, "User's status: {} is not Active", status)
             }
             DomainError::ComplaintNotFound { id } => {
                 write!(f, "Complaint {} not found", id)
@@ -188,6 +217,13 @@ impl fmt::Display for DomainError {
             DomainError::Internal(msg) => {
                 write!(f, "Internal system error: {}", msg)
             }
+
+            DomainError::JwtError(msg) => {
+                write!(f, "Auth error: {}", msg)
+            }
+            DomainError::InvalidCredentials => {
+                write!(f, "Invalid Credentials")
+            }
         }
     }
 }
@@ -214,6 +250,18 @@ impl From<RepositoryError> for DomainError {
 impl From<serde_json::Error> for DomainError {
     fn from(err: serde_json::Error) -> Self {
         DomainError::DatabaseError(err.to_string())
+    }
+}
+
+impl From<BcryptError> for DomainError {
+    fn from(err: BcryptError) -> Self {
+        DomainError::DatabaseError(err.to_string())
+    }
+}
+
+impl From<jsonwebtoken::errors::Error> for DomainError {
+    fn from(err: jsonwebtoken::errors::Error) -> Self {
+        DomainError::JwtError(err.to_string())
     }
 }
 
