@@ -4,3 +4,6 @@ pub mod shipment_service;
 pub mod shipment_service_impl;
 pub mod support_service;
 pub mod support_service_imp;
+pub mod user_service;
+pub mod user_service_impl;
+pub mod jwt_service;
