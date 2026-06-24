@@ -19,7 +19,13 @@ pub struct User {
     created_at: DateTime<Utc>,
     updated_at: Option<DateTime<Utc>>,
 }
-
+#[derive(Debug, Clone)]
+pub struct UserInput {
+   pub name: Option<String>,
+   pub email:  Option<String>,
+   pub phone_number:  Option<String>,
+   pub role:  Option<UserRole>,
+}
 impl User {
     pub fn create_user(
         name: String,
@@ -85,7 +91,33 @@ impl User {
             updated_at,
         }
     }
-    pub fn hash_password_value(plain_password: &str) -> Result<String, bcrypt::BcryptError> {
+    pub fn update_user(
+        &self,
+        name: String,
+        email: String,
+        phone_number: String,
+        role: UserRole,
+    ) -> Self {
+        Self {
+            name,
+            email,
+            phone_number,
+            role,
+            updated_at: Some(Utc::now()),
+            ..self.clone()
+        }
+    }
+
+    pub fn update_status(&self, next: UserStatus) -> Result<Self, DomainError> {
+        let now = Utc::now();
+
+        Ok(Self {
+            status: next,
+            updated_at:Some(now),
+            ..self.clone()
+        })
+    }
+    pub fn hash_password_value(plain_password: String) -> Result<String, bcrypt::BcryptError> {
         hash(plain_password, DEFAULT_COST)
     }
 
@@ -107,6 +139,9 @@ impl User {
     }
 
     pub fn hash_password(&self) -> String {
+        self.hash_password.clone()
+    }
+    pub fn password(&self) -> String {
         self.hash_password.clone()
     }
     pub fn phone_number(&self) -> String {
