@@ -22,6 +22,13 @@ pub struct JwtService {
 }
 
 impl JwtService {
+    pub fn new(secret: String, expiry_minutes: i64) -> Self {
+        Self {
+            secret,
+            expiry_minutes,
+        }
+    }
+
     pub fn generate_token(&self, user: &User) -> Result<String, DomainError> {
         let now = Utc::now();
         let expiry = now + Duration::minutes(self.expiry_minutes);

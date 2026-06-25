@@ -11,7 +11,7 @@ use crate::domain::{
 
 #[async_trait]
 pub trait UserService {
-    async fn register_user(&self, user: &User) -> Result<User, DomainError>;
+    async fn register_user(&self, user: User) -> Result<User, DomainError>;
     async fn login(&self, email: String, password: String) -> Result<String, DomainError>;
     async fn update_user(&self, id: Uuid, user: UserInput) -> Result<User, DomainError>;
     async fn update_status(&self, id: Uuid, status: UserStatus) -> Result<User, DomainError>;

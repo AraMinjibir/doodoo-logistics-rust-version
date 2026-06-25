@@ -14,7 +14,7 @@ impl TestContext {
     pub async fn new() -> Self {
         let db = TestDb::new().await;
         TestDb::init(&db.pool).await;
-        
+
         sqlx::query!("DELETE FROM shipments")
             .execute(&db.pool)
             .await

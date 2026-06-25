@@ -13,7 +13,7 @@ impl TestContext {
         let db = TestDb::new().await;
 
         TestDb::init(&db.pool).await;
-        
+
         sqlx::query!("DELETE FROM support")
             .execute(&db.pool)
             .await

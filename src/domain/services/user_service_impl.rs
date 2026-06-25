@@ -31,7 +31,7 @@ impl UserServiceImpl {
 
 #[async_trait]
 impl UserService for UserServiceImpl {
-    async fn register_user(&self, user: &User) -> Result<User, DomainError> {
+    async fn register_user(&self, user: User) -> Result<User, DomainError> {
         // Hash the user's password
         let hash_password = User::hash_password_value(user.hash_password());
 
@@ -45,7 +45,7 @@ impl UserService for UserServiceImpl {
         }
 
         // Create user
-        let user = User::create_user(
+        let new_user = User::create_user(
             user.name(),
             user.email(),
             hash_password?,
@@ -54,9 +54,9 @@ impl UserService for UserServiceImpl {
         )?;
 
         // Persist user to db
-        self.user_repo.create_user(&user).await?;
+        self.user_repo.create_user(&new_user).await?;
 
-        Ok(user)
+        Ok(new_user)
     }
 
     async fn login(&self, email: String, password: String) -> Result<String, DomainError> {
@@ -147,8 +147,10 @@ impl UserService for UserServiceImpl {
             .await?
             .ok_or(DomainError::UserNotFoundWithId { id })?;
 
-        let new_status = fetched_user.update_status(status)?;
+        let updated_user = fetched_user.update_status(status)?;
 
-        Ok(new_status)
+        self.user_repo.update(&updated_user).await?;
+
+        Ok(updated_user)
     }
 }
