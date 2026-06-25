@@ -23,14 +23,12 @@ pub struct TestContext {
 impl TestContext {
     pub async fn new() -> Self {
         let db = TestDb::new().await;
+        TestDb::init(&db.pool).await;
 
         sqlx::query!("DELETE FROM payments")
             .execute(&db.pool)
             .await
             .unwrap();
-
-        TestDb::init(&db.pool).await;
-        db.clean().await;
 
         let shipment_repo = SqlxShipmentRepository::new(db.pool.clone());
         let repo = SqlxPaymentRepository::new(db.pool.clone());
