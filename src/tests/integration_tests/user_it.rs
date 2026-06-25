@@ -12,7 +12,7 @@ impl TestContext {
     pub async fn new() -> Self {
         let db = TestDb::new().await;
         TestDb::init(&db.pool).await;
-        
+
         sqlx::query!("DELETE FROM users")
             .execute(&db.pool)
             .await
@@ -74,10 +74,10 @@ async fn should_get_user_by_role() {
 async fn should_get_all_users() {
     let ctx = TestContext::new().await;
 
-    let user = test_user();
-
-    ctx.repo.create_user(&user).await.unwrap();
-    ctx.repo.create_user(&user).await.unwrap();
+    let user1 = test_user();
+    let user2 = test_user();
+    ctx.repo.create_user(&user1).await.unwrap();
+    ctx.repo.create_user(&user2).await.unwrap();
 
     let users = ctx.repo.get_all().await.unwrap();
     println!("users: {:?}", users);
