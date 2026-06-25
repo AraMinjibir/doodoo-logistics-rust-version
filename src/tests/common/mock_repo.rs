@@ -9,12 +9,13 @@ use crate::domain::gateways::{
     payment_gateway::PaymentGateway, payment_gateway::PaymentGatewayResponse,
     payment_gateway::PaymentWebhookEvent,
 };
+use crate::domain::models::user::User;
 use crate::domain::models::{
     payment::Payment, shipment::Shipment, support::Complaint, support_status::SupportStatus,
 };
 use crate::repositories::{
     payment_repository::PaymentRepository, shipment_repository::ShipmentRepository,
-    support_repository::SupportRepository,
+    support_repository::SupportRepository, user_repository::UserRepository,
 };
 
 mock! {
@@ -108,5 +109,24 @@ mock! {
             complaint: &Complaint,
         ) -> Result<(), RepositoryError>;
         async fn delete_complaint(&self, id: Uuid) -> Result<u64, RepositoryError>;
+    }
+}
+
+mock! {
+    pub UserRepo{}
+
+    #[async_trait]
+    impl UserRepository for UserRepo{
+        async fn create_user(&self, user: &User) -> Result<(), RepositoryError>;
+    async fn update(&self, user: &User) -> Result<(), RepositoryError>;
+
+    async fn get_by_id(&self, id: Uuid) -> Result<Option<User>, RepositoryError>;
+    async fn get_by_email(&self, email: String) -> Result<Option<User>, RepositoryError>;
+
+    async fn get_by_status(&self, status: &str) -> Result<Vec<User>, RepositoryError>;
+    async fn get_by_role(&self, role: &str) -> Result<Vec<User>, RepositoryError>;
+    async fn get_all(&self) -> Result<Vec<User>, RepositoryError>;
+
+    async fn delete(&self, id: Uuid) -> Result<u64, RepositoryError>;
     }
 }
