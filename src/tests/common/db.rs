@@ -46,18 +46,6 @@ impl TestDb {
         })
         .await;
     }
-
-    pub async fn clean(&self) {
-        sqlx::query(
-            r#"
-            TRUNCATE TABLE support, payments, shipments
-            RESTART IDENTITY CASCADE
-            "#,
-        )
-        .execute(&self.pool)
-        .await
-        .unwrap();
-    }
 }
 
 pub struct TestContainerDb<'a> {
