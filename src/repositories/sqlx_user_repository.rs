@@ -88,7 +88,7 @@ impl UserRepository for SqlxUserRepository {
 
         Ok(row.map(UserRow::from_row))
     }
-    async fn get_by_email(&self, email: String) -> Result<Option<User>, RepositoryError> {
+    async fn get_by_email(&self, email: &str) -> Result<Option<User>, RepositoryError> {
         let row = sqlx::query_as!(UserRow, "SELECT * FROM users WHERE email = $1", email)
             .fetch_optional(&self.pool)
             .await
