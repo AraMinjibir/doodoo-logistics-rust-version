@@ -75,7 +75,7 @@ impl UserRepository for SqlxUserRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(map_sqlx_error);
+        .map_err(map_sqlx_error)?;
 
         Ok(())
     }
@@ -86,15 +86,15 @@ impl UserRepository for SqlxUserRepository {
             .await
             .map_err(map_sqlx_error)?;
 
-        Ok(row.map(UserRow::from_row))
+        Ok(row.map(UserRow::into_domain))
     }
-    async fn get_by_email(&self, email: String) -> Result<Option<User>, RepositoryError> {
+    async fn get_by_email(&self, email: &str) -> Result<Option<User>, RepositoryError> {
         let row = sqlx::query_as!(UserRow, "SELECT * FROM users WHERE email = $1", email)
             .fetch_optional(&self.pool)
             .await
             .map_err(map_sqlx_error)?;
 
-        Ok(row.map(UserRow::from_row))
+        Ok(row.map(UserRow::into_domain))
     }
     async fn get_by_status(&self, status: &str) -> Result<Vec<User>, RepositoryError> {
         let rows = sqlx::query_as!(UserRow, "SELECT * FROM users WHERE status = $1", status)
@@ -102,7 +102,7 @@ impl UserRepository for SqlxUserRepository {
             .await
             .map_err(map_sqlx_error)?;
 
-        let users = rows.into_iter().map(UserRow::from_row).collect();
+        let users = rows.into_iter().map(UserRow::into_domain).collect();
 
         Ok(users)
     }
@@ -111,7 +111,7 @@ impl UserRepository for SqlxUserRepository {
             .fetch_all(&self.pool)
             .await
             .map_err(map_sqlx_error)?;
-        let users_with_role = rows.into_iter().map(UserRow::from_row).collect();
+        let users_with_role = rows.into_iter().map(UserRow::into_domain).collect();
         Ok(users_with_role)
     }
     async fn get_all(&self) -> Result<Vec<User>, RepositoryError> {
@@ -120,7 +120,7 @@ impl UserRepository for SqlxUserRepository {
             .await
             .map_err(map_sqlx_error)?;
 
-        let users = rows.into_iter().map(UserRow::from_row).collect();
+        let users = rows.into_iter().map(UserRow::into_domain).collect();
 
         Ok(users)
     }

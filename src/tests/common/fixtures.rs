@@ -15,7 +15,7 @@ use crate::domain::models::{
     recipient::Recipient,
     shipment::{Shipment, UpdateShipment},
     support::{Comment, Complaint},
-    user::User,
+    user::{User, UserCommand},
     user_status::UserRole,
 };
 use actix_http::Request;
@@ -77,6 +77,15 @@ pub fn test_user() -> User {
         UserRole::Admin,
     )
     .expect("msg")
+}
+pub fn test_user_cmd() -> UserCommand {
+    UserCommand {
+        name: "DooDoo User".to_string(),
+        email: "doodoo@email".to_string(),
+        password: "password1234567".to_string(),
+        phone_number: "phone_number".to_string(),
+        role: UserRole::Admin,
+    }
 }
 pub fn create_shipment_payload() -> Value {
     json!({

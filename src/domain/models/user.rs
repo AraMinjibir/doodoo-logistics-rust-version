@@ -26,6 +26,50 @@ pub struct UserInput {
     pub phone_number: Option<String>,
     pub role: Option<UserRole>,
 }
+
+#[derive(Debug, Clone)]
+pub struct UserCommand {
+    pub name: String,
+    pub email: String,
+    pub password: String,
+    pub phone_number: String,
+    pub role: UserRole,
+}
+impl UserCommand {
+    pub fn new(
+        name: String,
+        email: String,
+        password: String,
+        phone_number: String,
+        role: UserRole,
+    ) -> Self {
+        Self {
+            name,
+            email,
+            password,
+            phone_number,
+            role,
+        }
+    }
+
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+    pub fn email(&self) -> String {
+        self.email.clone()
+    }
+
+    pub fn password(&self) -> String {
+        self.password.clone()
+    }
+    pub fn phone_number(&self) -> String {
+        self.phone_number.clone()
+    }
+    pub fn role(&self) -> UserRole {
+        self.role.clone()
+    }
+}
+#[allow(dead_code)]
 impl User {
     pub fn create_user(
         name: String,
