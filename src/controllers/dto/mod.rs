@@ -4,6 +4,8 @@ mod shipment_creation_dto;
 mod shipment_response_dto;
 mod support_dto;
 mod support_response;
+mod user_dto;
+mod user_response_dto;
 
 pub(super) use payment_generation_dto::GeneratePaymentDto;
 pub(super) use payment_response_dto::GeneratePaymentResponseDto;
@@ -18,3 +20,9 @@ pub(super) use support_dto::CommentDto;
 pub(super) use support_dto::ComplaintDto;
 pub(super) use support_dto::UpdateComplaintStatusDto;
 pub(super) use support_response::ComplaintResponse;
+pub(super) use user_dto::LoginDto;
+pub(super) use user_dto::SignUp;
+pub(super) use user_dto::UpdateUserDto;
+pub(super) use user_dto::UpdateUserStatusDto;
+pub(super) use user_response_dto::LoginResponse;
+pub(super) use user_response_dto::SignUpResponse;
