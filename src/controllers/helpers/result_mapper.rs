@@ -4,6 +4,7 @@ use serde_json::json;
 use crate::domain::errors::domain_error::DomainError;
 use crate::domain::models::shipment_status::ShipmentStatus;
 use crate::domain::models::support_status::SupportStatus;
+use crate::domain::models::user_status::UserStatus;
 
 pub fn map_domain_error(err: DomainError) -> HttpResponse {
     match err {
@@ -35,7 +36,18 @@ pub fn map_domain_error(err: DomainError) -> HttpResponse {
             "error": "RevenueNotFound",
             "message": format!("Revenue for this month: {} not found", month)
         })),
-
+        DomainError::UserNotFound { email } => HttpResponse::NotFound().json(json!({
+            "error": "UserNotFound",
+            "message": format!("User with email: {} not found", email)
+        })),
+        DomainError::UserNotFoundWithId { id } => HttpResponse::NotFound().json(json!({
+            "error": "UserNotFound",
+            "message": format!("User with id: {} not found", id)
+        })),
+        DomainError::UserStatusIsNotActive { status } => HttpResponse::NotFound().json(json!({
+            "error": "UserStatusIsNotActive",
+            "message": format!("User  status: {} is not Active", status)
+        })),
         // VALIDATION / CLIENT ERRORS
         DomainError::ValidationError(errors) => HttpResponse::BadRequest().json(json!({
             "error": "ValidationError",
@@ -45,6 +57,11 @@ pub fn map_domain_error(err: DomainError) -> HttpResponse {
         DomainError::InvalidShipmentStatusTransition { from, to } => HttpResponse::BadRequest()
             .json(json!({
                 "error": "InvalidShipmentStatusTransition",
+                "message": format!("Cannot move from {:?} to {:?}", from, to)
+            })),
+        DomainError::InvalidSupportStatusTransition { from, to } => HttpResponse::BadRequest()
+            .json(json!({
+                "error": "InvalidSupportStatusTransition",
                 "message": format!("Cannot move from {:?} to {:?}", from, to)
             })),
 
@@ -81,7 +98,10 @@ pub fn map_domain_error(err: DomainError) -> HttpResponse {
             "error": "Duplicate",
             "message": format!("Payment with shipment id: {}, already exists", id)
         })),
-
+        DomainError::UserWithEmailAlreadyExist { email } => HttpResponse::Conflict().json(json!({
+            "error": "Duplicate",
+            "message": format!("User with email: {}, already exists", email)
+        })),
         // DATABASE / INFRASTRUCTURE
         DomainError::ForeignKeyViolation
         | DomainError::NullConstraintViolation
@@ -134,6 +154,11 @@ pub fn parse_status(input: String) -> Result<ShipmentStatus, HttpResponse> {
         .map_err(|_| HttpResponse::BadRequest().body("Invalid status"))
 }
 pub fn parse_complaint_status(input: String) -> Result<SupportStatus, HttpResponse> {
+    input
+        .parse()
+        .map_err(|_| HttpResponse::BadRequest().body("Invalid status"))
+}
+pub fn parse_user_status(input: String) -> Result<UserStatus, HttpResponse> {
     input
         .parse()
         .map_err(|_| HttpResponse::BadRequest().body("Invalid status"))
