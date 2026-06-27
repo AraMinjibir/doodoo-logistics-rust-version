@@ -54,8 +54,8 @@ impl ShipmentRow {
         Shipment::reconstitute(
             self.id,
             self.sender_name.clone(),
-            RecipientMapper::from_self(&self),
-            PackageDetailsMapper::from_self(&self),
+            RecipientMapper::from_row(&self),
+            PackageDetailsMapper::from_row(&self),
             self.tracking_number.expect("tracking_number missing in DB"),
             self.status.parse().expect("Invalid shipment status in DB"),
             Self::to_utc(self.created_at),
