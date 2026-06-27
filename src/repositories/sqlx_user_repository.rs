@@ -75,7 +75,7 @@ impl UserRepository for SqlxUserRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(map_sqlx_error);
+        .map_err(map_sqlx_error)?;
 
         Ok(())
     }
