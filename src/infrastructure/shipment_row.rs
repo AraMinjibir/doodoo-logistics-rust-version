@@ -50,18 +50,18 @@ impl ShipmentRow {
         serde_json::from_value(value).unwrap_or_else(|_| vec![])
     }
 
-    pub fn from_row(row: ShipmentRow) -> Shipment {
+    pub fn into_domain(self) -> Shipment {
         Shipment::reconstitute(
-            row.id,
-            row.sender_name.clone(),
-            RecipientMapper::from_row(&row),
-            PackageDetailsMapper::from_row(&row),
-            row.tracking_number.expect("tracking_number missing in DB"),
-            row.status.parse().expect("Invalid shipment status in DB"),
-            Self::to_utc(row.created_at),
-            Self::to_utc(row.updated_at),
-            Self::deserialize_pod(row.proof_of_delivery),
-            row.service_provider_id,
+            self.id,
+            self.sender_name.clone(),
+            RecipientMapper::from_row(&self),
+            PackageDetailsMapper::from_row(&self),
+            self.tracking_number.expect("tracking_number missing in DB"),
+            self.status.parse().expect("Invalid shipment status in DB"),
+            Self::to_utc(self.created_at),
+            Self::to_utc(self.updated_at),
+            Self::deserialize_pod(self.proof_of_delivery),
+            self.service_provider_id,
         )
     }
 

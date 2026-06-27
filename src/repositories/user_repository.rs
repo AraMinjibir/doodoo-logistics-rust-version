@@ -8,7 +8,7 @@ pub trait UserRepository: Send + Sync {
     async fn update(&self, user: &User) -> Result<(), RepositoryError>;
 
     async fn get_by_id(&self, id: Uuid) -> Result<Option<User>, RepositoryError>;
-    async fn get_by_email(&self, email: String) -> Result<Option<User>, RepositoryError>;
+    async fn get_by_email(&self, email: &str) -> Result<Option<User>, RepositoryError>;
 
     async fn get_by_status(&self, status: &str) -> Result<Vec<User>, RepositoryError>;
     async fn get_by_role(&self, role: &str) -> Result<Vec<User>, RepositoryError>;

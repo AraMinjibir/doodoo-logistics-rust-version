@@ -1,5 +1,5 @@
 use crate::controllers::{
-    health_controller, payment_controller, shipment_controller, support_controller,
+    health_controller, payment_controller, shipment_controller, support_controller, user_controller,
 };
 use actix_web::web;
 
@@ -102,5 +102,34 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
                 "/{id}/status",
                 web::patch().to(support_controller::update_complaint_status),
             ),
+    );
+
+    cfg.service(
+        web::scope("/users")
+            // Authentication
+            .route("/signup", web::post().to(user_controller::sign_up))
+            .route("/login", web::post().to(user_controller::login))
+            // Queries
+            .route("", web::get().to(user_controller::get_all_users))
+            .route("/{id}", web::get().to(user_controller::get_user_by_id))
+            .route(
+                "/email/{email}",
+                web::get().to(user_controller::get_user_by_email),
+            )
+            .route(
+                "/status/{status}",
+                web::get().to(user_controller::get_user_by_status),
+            )
+            .route(
+                "/role/{role}",
+                web::get().to(user_controller::get_user_by_role),
+            )
+            // Commands
+            .route("/{id}", web::put().to(user_controller::update_user))
+            .route(
+                "/{id}/status",
+                web::patch().to(user_controller::update_status),
+            )
+            .route("/{id}", web::delete().to(user_controller::delete_user)),
     );
 }

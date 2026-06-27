@@ -7,7 +7,7 @@ use crate::{
     domain::{
         errors::domain_error::DomainError,
         models::{
-            user::{User, UserInput},
+            user::{User, UserCommand, UserInput},
             user_status::UserStatus,
         },
         services::{jwt_service::JwtService, user_service::UserService},
@@ -31,14 +31,14 @@ impl UserServiceImpl {
 
 #[async_trait]
 impl UserService for UserServiceImpl {
-    async fn register_user(&self, user: User) -> Result<User, DomainError> {
+    async fn register_user(&self, user: UserCommand) -> Result<User, DomainError> {
         // Hash the user's password
-        let hash_password = User::hash_password_value(user.hash_password());
+        let hash_password = User::hash_password_value(user.password());
 
         // Prevent duplicate for user creation
         let email = user.email();
 
-        if self.user_repo.get_by_email(email).await?.is_some() {
+        if self.user_repo.get_by_email(&email).await?.is_some() {
             return Err(DomainError::UserWithEmailAlreadyExist {
                 email: user.email(),
             });
@@ -63,7 +63,7 @@ impl UserService for UserServiceImpl {
         // Fetch user from DB
         let user = self
             .user_repo
-            .get_by_email(email.clone())
+            .get_by_email(&email)
             .await?
             .ok_or(DomainError::UserNotFound { email })?;
 
@@ -88,6 +88,17 @@ impl UserService for UserServiceImpl {
             .get_by_id(id)
             .await?
             .ok_or(DomainError::UserNotFoundWithId { id })?;
+
+        Ok(user)
+    }
+    async fn get_by_email(&self, email: &str) -> Result<User, DomainError> {
+        let user = self
+            .user_repo
+            .get_by_email(email)
+            .await?
+            .ok_or(DomainError::UserNotFound {
+                email: email.to_string(),
+            })?;
 
         Ok(user)
     }

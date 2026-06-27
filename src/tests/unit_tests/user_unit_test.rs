@@ -14,13 +14,16 @@ use crate::{
             jwt_service::JwtService, user_service::UserService, user_service_impl::UserServiceImpl,
         },
     },
-    tests::common::{fixtures::test_user, mock_repo::MockUserRepo},
+    tests::common::{
+        fixtures::{test_user, test_user_cmd},
+        mock_repo::MockUserRepo,
+    },
 };
 
 #[tokio::test]
 async fn register_user_success() {
     let mut repo = MockUserRepo::new();
-    let user = test_user();
+    let user = test_user_cmd();
 
     repo.expect_get_by_email().returning(move |_| Ok(None));
 
@@ -41,8 +44,6 @@ async fn register_user_success() {
     assert_eq!(registered_user.email(), user.email());
     assert_eq!(registered_user.name(), user.name());
     assert_eq!(registered_user.role(), user.role());
-
-    assert_ne!(registered_user.id(), user.id());
 }
 
 #[tokio::test]
