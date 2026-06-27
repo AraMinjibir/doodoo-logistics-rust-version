@@ -20,7 +20,7 @@ pub struct JwtService {
     secret: String,
     expiry_minutes: i64,
 }
-
+#[allow(dead_code)]
 impl JwtService {
     pub fn new(secret: String, expiry_minutes: i64) -> Self {
         Self {
