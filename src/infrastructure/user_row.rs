@@ -20,7 +20,7 @@ pub struct UserRow {
 
 impl UserRow {
     // Converting from DB Row into Domain Model
-    pub fn from_row(self) -> User {
+    pub fn into_domain(self) -> User {
         User::reconstitute(
             self.id,
             self.name,

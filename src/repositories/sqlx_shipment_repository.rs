@@ -137,7 +137,7 @@ impl ShipmentRepository for SqlxShipmentRepository {
             .await
             .map_err(map_sqlx_error)?;
 
-        Ok(row.map(ShipmentRow::from_row))
+        Ok(row.map(ShipmentRow::into_domain))
     }
 
     async fn get_by_status(&self, status: &str) -> Result<Vec<Shipment>, RepositoryError> {
@@ -150,7 +150,7 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .await
         .map_err(map_sqlx_error)?;
 
-        let shipments = rows.into_iter().map(ShipmentRow::from_row).collect();
+        let shipments = rows.into_iter().map(ShipmentRow::into_domain).collect();
 
         Ok(shipments)
     }
@@ -167,7 +167,7 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .await
         .map_err(map_sqlx_error)?;
 
-        Ok(row.map(ShipmentRow::from_row))
+        Ok(row.map(ShipmentRow::into_domain))
     }
 
     async fn list_all(&self, offset: i64, limit: i64) -> Result<Vec<Shipment>, RepositoryError> {
@@ -181,7 +181,7 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .await
         .map_err(map_sqlx_error)?;
 
-        let shipments = rows.into_iter().map(ShipmentRow::from_row).collect();
+        let shipments = rows.into_iter().map(ShipmentRow::into_domain).collect();
 
         Ok(shipments)
     }
@@ -238,6 +238,6 @@ impl ShipmentRepository for SqlxShipmentRepository {
         .await
         .map_err(map_sqlx_error)?;
 
-        Ok(rows.into_iter().map(ShipmentRow::from_row).collect())
+        Ok(rows.into_iter().map(ShipmentRow::into_domain).collect())
     }
 }
