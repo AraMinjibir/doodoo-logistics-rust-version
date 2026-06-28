@@ -2,6 +2,7 @@
 
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
+use serde::Deserialize;
 use serde_json::{json, Value};
 use uuid::Uuid;
 
@@ -16,7 +17,7 @@ use crate::domain::models::{
     shipment::{Shipment, UpdateShipment},
     support::{Comment, Complaint},
     user::{User, UserCommand},
-    user_status::UserRole,
+    user_status::{UserRole, UserStatus},
 };
 use actix_http::Request;
 use actix_web::{
@@ -133,6 +134,24 @@ pub fn generate_payment_payload(shipment_id: Uuid) -> Value {
         "amount": 3.0,
         "payment_method": "Card"
     })
+}
+
+pub fn user_signup_payload() -> Value {
+    json!({
+        "name": "DooDoo User",
+        "email": "doodoo@email.com",
+        "password": "paSSword",
+        "phone_number": "07034256947",
+        "role": "Admin"
+    })
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreatedUser {
+    pub id: Uuid,
+    pub email: String,
+    pub status: UserStatus,
+    pub role: UserRole,
 }
 
 pub fn updated_shipment() -> UpdateShipment {
