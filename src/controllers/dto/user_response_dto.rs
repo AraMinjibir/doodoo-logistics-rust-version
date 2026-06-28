@@ -8,7 +8,7 @@ use crate::domain::models::{
 };
 
 #[derive(Debug, Serialize)]
-pub struct SignUpResponse {
+pub struct UserResponse {
     id: Uuid,
     name: String,
     email: String,
@@ -25,7 +25,7 @@ pub struct LoginResponse {
     pub token: String,
 }
 
-impl SignUpResponse {
+impl UserResponse {
     pub fn from_domain(user: User) -> Self {
         Self {
             id: user.id(),
