@@ -5,3 +5,5 @@ pub mod shipment_e2e;
 pub mod payment_e2e;
 #[cfg(test)]
 pub mod support_e2e;
+#[cfg(test)]
+pub mod user_e2e;

@@ -4,3 +4,5 @@ pub mod payment_unit_test;
 pub mod shipment_unit_test;
 #[cfg(test)]
 pub mod support_unit_test;
+#[cfg(test)]
+pub mod user_unit_test;

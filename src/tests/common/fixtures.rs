@@ -2,6 +2,7 @@
 
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
+use serde::Deserialize;
 use serde_json::{json, Value};
 use uuid::Uuid;
 
@@ -15,6 +16,8 @@ use crate::domain::models::{
     recipient::Recipient,
     shipment::{Shipment, UpdateShipment},
     support::{Comment, Complaint},
+    user::{User, UserCommand},
+    user_status::{UserRole, UserStatus},
 };
 use actix_http::Request;
 use actix_web::{
@@ -66,7 +69,25 @@ pub fn test_success_payment(shipment_id: Uuid, amount: Decimal, paid_at: DateTim
 
     payment
 }
-
+pub fn test_user() -> User {
+    User::create_user(
+        "DooDoo User".to_string(),
+        format!("{}@email.com", Uuid::new_v4()),
+        "password1234567".to_string(),
+        "phone_number".to_string(),
+        UserRole::Admin,
+    )
+    .expect("msg")
+}
+pub fn test_user_cmd() -> UserCommand {
+    UserCommand {
+        name: "DooDoo User".to_string(),
+        email: "doodoo@email".to_string(),
+        password: "password1234567".to_string(),
+        phone_number: "phone_number".to_string(),
+        role: UserRole::Admin,
+    }
+}
 pub fn create_shipment_payload() -> Value {
     json!({
         "sender_name": "Ara",
@@ -113,6 +134,24 @@ pub fn generate_payment_payload(shipment_id: Uuid) -> Value {
         "amount": 3.0,
         "payment_method": "Card"
     })
+}
+
+pub fn user_signup_payload() -> Value {
+    json!({
+        "name": "DooDoo User",
+        "email": "doodoo@email.com",
+        "password": "paSSword",
+        "phone_number": "07034256947",
+        "role": "Admin"
+    })
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreatedUser {
+    pub id: Uuid,
+    pub email: String,
+    pub status: UserStatus,
+    pub role: UserRole,
 }
 
 pub fn updated_shipment() -> UpdateShipment {

@@ -11,6 +11,14 @@ pub struct TestContext {
 impl TestContext {
     pub async fn new() -> Self {
         let db = TestDb::new().await;
+
+        TestDb::init(&db.pool).await;
+
+        sqlx::query!("DELETE FROM support")
+            .execute(&db.pool)
+            .await
+            .unwrap();
+
         let repo = SqlxSupportRepository::new(db.pool.clone());
 
         Self { repo }
