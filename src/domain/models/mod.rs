@@ -9,3 +9,5 @@ pub mod shipment;
 pub mod shipment_status;
 pub mod support;
 pub mod support_status;
+pub mod user;
+pub mod user_status;
