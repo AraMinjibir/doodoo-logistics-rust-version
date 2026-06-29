@@ -1,372 +1,239 @@
 # DooDoo Logistics (Rust Version)
 
-**Rust • Actix Web • Tokio • PostgreSQL • REST • WebSockets**
+**Rust • Actix Web • Tokio • PostgreSQL • SQLx • REST**
 
-A production-oriented logistics and delivery backend, rewritten from a Scala/Play Framework system into Rust, demonstrating modern backend engineering with async architecture, strict domain modeling, and event-driven design.
+A production-oriented logistics and delivery backend rewritten from an existing Scala/Play Framework implementation into Rust. The project demonstrates modern backend engineering through asynchronous processing, Domain-Driven Design (DDD), strict domain modeling and event-driven architecture.
 
-Built as a modular monolith, it prioritizes correctness, maintainability, and performance using Rust’s type system and async runtime.
+Designed as a modular monolith, it emphasizes correctness, maintainability, and scalability while showcasing the migration of an enterprise backend from Scala to Rust.
 
 ---
 
-# 1. Problem Statement
-Logistics systems require strict correctness and full traceability.
+# Project Overview
 
-This system solves:
+DooDoo Logistics manages shipment lifecycles, payment processing, complaint resolution, user management, and operational monitoring for logistics platforms.
+
+The system enforces business rules through deterministic state transitions, role-based authorization, audit history, and asynchronous domain events to ensure consistency and traceability throughout the shipment lifecycle.
+
+---
+
+# Business Problem
+
+Logistics systems require strict correctness and operational visibility. This project addresses common challenges such as:
 
 * Invalid shipment state transitions
-* Lack of audit history in delivery systems
-* Poor role separation in logistics workflows
-* Blocking synchronous workflows in tracking/payment systems
+* Weak role separation
+* Missing audit history
+* Blocking notification workflows
+* Inconsistent payment enforcement
 
-### Deterministic Lifecycle Management
-
-Prevents illegal state transitions (e.g., Created → Delivered without InTransit).
-
-### Role-Based Access Control (RBAC)
-
-Enforces Principle of Least Privilege:
-
-* Customers
-* Recipient
-* Service Providers
-* Support Agents
-* Administrators
-
-### Auditability
-
-Maintains a permanent timestamped history of shipment status changes.
-
-### Event-Driven Notifications
-
-Ensures stakeholders receive updates asynchronously without blocking core API operations.
+These challenges are solved through state-machine modeling, RBAC, event-driven notifications, and immutable audit records.
 
 ---
 
-# 2. Core Capabilities by Role
-
-The system enforces the **Principle of Least Privilege (PoLP)** across four distinct roles.
-
-## Customer / Sender
-
-* Create shipments with full validation
-* Receive unique tracking numbers
-* Track lifecycle via strict state machine
-* Full shipment history & audit trail
-* WebSocket-based live tracking updates
-* Lifecycle:
- Created → InTransit → Assigned → OutForDelivery → Delivered
-
-Invalid transitions are rejected at runtime via domain rules.
-
-## Recipient (Consignee)
-
-* Track incoming shipments
-* Confirm delivery
-* Provide Proof of Delivery (PoD)
-* Receive shipment notifications
-
-## Service Provider (Courier)
-
-* Accept shipments
-* Move shipments to In Transit
-* Mark shipments as Delivered
-* Provide delivery metadata
-* Submit delivery notes
-
-## Support Agent
-
-### Shipment Lookup & Inquiry Resolution
-
-* Search shipments by tracking number
-* Filter shipments by status
-* Investigate customer issues
-
-### Complaint Management
-
-* Create complaint linked to shipment
-* Track complaint status
-* Resolve operational issues
-
-### Shipment Attention Monitoring
-
-* Detect stalled shipments
-* Flag shipments requiring manual review
-
----
-
-# 3. Payment Management
-
-* Shipment-linked payment processing
-* Status tracking: Pending | Successful | Failed | Refunded
-* Prevents dispatch before payment confirmation
-* Revenue aggregation (daily, weekly, monthly)
-
-
-### Event-Driven Notifications
-
-* Payment success notification
-* Payment failure alert
-* Support agent alerts
-
-### Supports:
-
-* Async processing (Tokio runtime)
-* Extensible integrations (Email / SMS / Push)
-* Future message broker migration
-
-### Shipment Flow Integration
-
-* Prevent dispatch of unpaid shipments
-* Enforce payment-before-dispatch rule
-
-### Revenue Reporting
-
-* Daily aggregation
-* Weekly aggregation
-* Monthly aggregation
-* Half-open interval filtering [start, end)
-* Database-level aggregation
-* Monetary precision using Decimal types
-
----
-
-# 4. Administrative Functionality
-
-## User Account Management
-
-Administrators can:
-
-* Create user accounts
-* Edit user profiles
-* Assign roles
-* Deactivate accounts
-* Remove accounts
-
-Ensures secure access control and operational integrity.
-
-## Shipment Monitoring
-
-Administrators can:
-
-* Track shipment status
-* View shipment details
-* Monitor logistics flow
-* Maintain operational oversight
-
----
-
-# 5. Notification System (Event-Driven, Asynchronous)
-
-Implemented using in-memory domain events:
-
-* Decoupled business logic from notification handling
-
-* Centralized EventBus abstraction
-
-* Triggered on domain events:
-
-  * Shipment created
-  * Status updated
-  * Payment processed
-  * User updated
-
-* Async processing powered by Tokio runtime (via Actix)
-
-* Extensible to support:
-
-  * Email
-  * Push notifications
-  * SMS
-
-* Designed for future message broker integration
-
-* Dedicated NotificationService layer
-
----
-
-# 6. Architecture & Design
-
-The system follows **Domain-Driven Design (DDD)** principles.
-
-### Persistence Ignorance
-
-Services depend on repository traits allowing database abstraction.
-
-### Type-Safe Domain
-
-Rust enums enforce valid states and roles at compile time.
-
-### Modular Monolith Structure
-
-```
-API Clients (Web / Mobile / Admin)
-                |
-             REST / WS
-                |
-       Actix Web HTTP Layer
-                |
-         Application Services
-                |
-         Domain Logic (Pure Rust)
-                |
-          Repository Traits
-                |
-         PostgreSQL Database
-```
-
----
-
-# 7. Technical Stack
-
-Backend:
-
-* Rust
-* Actix Web (HTTP API framework)
-
-Persistence:
-
-* PostgreSQL
-* SQLx (compile-time checked queries)
-
-Security:
-
-* BCrypt password hashing
-* JWT authentication
-
-Async Processing:
-
-* Tokio runtime (used internally by Actix)
-* In-memory event bus
-
-Real-time:
-
-* WebSockets (tracking updates)
-
----
-
-# 8. Testing Strategy
-
-DooDoo Logistics prioritizes correctness using a testing pyramid.
-
-### Unit Tests
-
-* Business rule validation
-* State transition enforcement
-* RBAC logic
-
-### Integration Tests
-
-* Repository mapping
-* SQL query validation
-* Transaction handling
-
-### End-to-End Tests
-
-* Shipment lifecycle flow
-* Payment integration
-* Notification triggers
-
----
-
-# 9. Roadmap & Operational Readiness
-
-[x] Core Shipment Engine
-[x] RBAC Implementation
-[x] Support Module
-[x] Payment Management
-[ ] Observability (structured logging)
-[ ] Health checks
-[ ] CI/CD pipeline
-[ ] Docker deployment
-
----
-
-# 10. Running the Project Locally
-
-```bash
-# Clone repository
-git clone git@gitlab.com:AraMjb/doodoo-logistics-rust.git
-
-# Start PostgreSQL
-docker-compose up -d
-
-# Run application
-cargo run
-```
-
----
-
-# 11. Design Goals
-
-* Strong domain modeling
-* Strict lifecycle enforcement
-* Async non-blocking architecture
-* High data consistency
-* Modular monolith simplicity
-* Production-ready structure
-* Extensible event-driven design
-
----
-
-# 12. Status Lifecycle
+# Domain Model
+
+The system models the logistics domain using explicit business entities.
+
+| Aggregate    | Responsibility                     |
+| ------------ | ---------------------------------- |
+| Shipment     | Shipment lifecycle and tracking    |
+| User         | Authentication and role management |
+| Payment      | Shipment payment processing        |
+| Complaint    | Customer issue management          |
+| Notification | Asynchronous event notifications   |
+
+Shipment lifecycle:
 
 ```
 Created → Assigned → InTransit → Delivered
 ```
 
-Invalid transitions are rejected at compile-time and runtime.
+Invalid transitions are rejected through domain validation.
 
 ---
 
-# 13. Key Features
+# Core Capabilities
 
-* Shipment tracking
-* Role-based access control
+* Shipment lifecycle management
+* Role-Based Access Control (RBAC)
+* JWT authentication
 * Payment processing
 * Complaint management
 * Audit history
 * Event-driven notifications
 * Revenue reporting
-* Admin monitoring
-* WebSocket tracking updates
+* Administrative monitoring
 
 ---
 
-# 14. Project Purpose
+# Workflow
 
-This project demonstrates:
-
-Real-world Rust backend architecture
-Domain-Driven Design (DDD) in production systems
-State machine modeling for logistics workflows
-Async, non-blocking system design (Tokio + Actix)
-Clean modular monolith architecture
-Migration of enterprise system from Scala → Rust
+```
+Customer
+    │
+    ▼
+Create Shipment
+    │
+    ▼
+Payment Verified
+    │
+    ▼
+Assign Courier
+    │
+    ▼
+In Transit
+    │
+    ▼
+Delivered
+    │
+    ▼
+Publish Domain Event
+    │
+    ▼
+Notification Service
+```
 
 ---
 
-# 15. Live Demo
+# Architecture & Design Decisions
 
-Base URL:
+The project follows Domain-Driven Design (DDD) with a modular monolith architecture.
+
+Key design decisions include:
+
+* Domain-driven architecture
+* Repository pattern with persistence ignorance
+* Type-safe domain modeling using Rust enums
+* Asynchronous processing with Tokio
+* Event-driven notification system
+* Clear separation between domain, application, and infrastructure layers
+
+Architecture overview:
+
+```
+Clients
+    │
+REST API
+    │
+Actix Web
+    │
+Application Services
+    │
+Domain Layer
+    │
+Repository Traits
+    │
+PostgreSQL
+```
+
+---
+
+# Technology Stack
+
+**Backend**
+
+* Rust
+* Actix Web
+* Tokio
+
+**Persistence**
+
+* PostgreSQL
+* SQLx
+
+**Security**
+
+* JWT Authentication
+* BCrypt Password Hashing
+
+**Architecture**
+
+* Domain-Driven Design (DDD)
+* Repository Pattern
+* Modular Monolith
+* Event-Driven Design
+
+---
+
+# Testing Strategy
+
+The project follows a layered testing approach.
+
+* **Unit Tests** — domain rules and business logic
+* **Integration Tests** — repositories, SQL queries, transactions
+* **End-to-End Tests** — shipment lifecycle, payments, authentication
+
+---
+
+# Operational Readiness
+
+### Live Demo
+
 https://doodoo-logistics-rust.onrender.com
 
-Example endpoints:
+### Example Endpoints
 
+```http
 POST /shipments
-GET /shipments
-GET /shipments/{id}
+GET  /shipments
+GET  /shipments/{id}
 
 POST /payments
-GET /payments/reference/{ref}
+GET  /payments/reference/{reference}
+```
 
-# 16. Docker
+### Production Features
 
-Build:
+* JWT authentication
+* Password hashing
+* Database abstraction
+* Async request handling
+* Audit history
+* Docker support
+
+---
+
+# Roadmap
+
+## Completed
+
+* Shipment Management
+* Shipment State Machine
+* RBAC
+* Authentication
+* Payment Processing
+* Complaint Management
+* Revenue Reporting
+* Event Bus
+
+---
+
+# Running the Project
+
+```bash
+# Clone repository
+git clone git@gitlab.com:AraMjb/doodoo-logistics-rust.git
+cd doodoo-logistics-rust
+
+# Configure environment
+cp .env.example .env
+
+# Start PostgreSQL
+docker compose up -d
+
+# Run database migrations
+cargo sqlx migrate run
+
+# Start the application
+cargo run
+```
+
+## Docker
+
+```bash
+# Build image
 docker build -t doodoo-logistics .
 
-Run:
+# Run container
 docker run -p 8080:8080 doodoo-logistics
-
-# 17. License
-
-MIT
+```
