@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM shipments",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "f1e418de433ed5dd2efecdb2d9b0d853aa0a9a8177cdc7f9fa4dc475c0b8fe31"
+}
