@@ -4,9 +4,7 @@ use uuid::Uuid;
 use crate::{
     config::app_state::AppState,
     controllers::{
-        dto::{
-            LoginDto, LoginResponse, SignUp, UserResponse, UpdateUserDto, UpdateUserStatusDto,
-        },
+        dto::{LoginDto, LoginResponse, SignUp, UpdateUserDto, UpdateUserStatusDto, UserResponse},
         helpers::result_mapper::{map_domain_error, parse_user_status},
     },
 };
