@@ -13,6 +13,7 @@ pub trait ShipmentService {
     async fn get_by_tracking_number(&self, tracking: &str) -> Result<Shipment, DomainError>;
 
     async fn get_by_id(&self, id: Uuid) -> Result<Shipment, DomainError>;
+    async fn get_by_provider_id(&self, provider_id: Uuid) -> Result<Vec<Shipment>, DomainError>;
 
     async fn get_by_status(&self, status: ShipmentStatus) -> Result<Vec<Shipment>, DomainError>;
 
@@ -34,5 +35,11 @@ pub trait ShipmentService {
         &self,
         tracking: &str,
         proof: ProofOfDelivery,
+    ) -> Result<Shipment, DomainError>;
+
+    async fn assign_service_provider(
+        &self,
+        shipment_id: Uuid,
+        provider_id: Uuid,
     ) -> Result<Shipment, DomainError>;
 }

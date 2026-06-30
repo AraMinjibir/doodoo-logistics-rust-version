@@ -6,15 +6,22 @@ use crate::domain::errors::domain_error::DomainError;
 use crate::domain::models::proof_of_delivery::ProofOfDelivery;
 use crate::domain::models::shipment::{Shipment, UpdateShipment};
 use crate::domain::models::shipment_status::ShipmentStatus;
+use crate::domain::models::user_status::UserRole;
 use crate::domain::services::shipment_service::ShipmentService;
-use crate::repositories::shipment_repository::ShipmentRepository;
+use crate::repositories::{
+    shipment_repository::ShipmentRepository, user_repository::UserRepository,
+};
 
 pub struct ShipmentServiceImpl {
     repo: Arc<dyn ShipmentRepository + Send + Sync>,
+    user_repo: Arc<dyn UserRepository + Send + Sync>,
 }
 impl ShipmentServiceImpl {
-    pub fn new(repo: Arc<dyn ShipmentRepository + Send + Sync>) -> Self {
-        Self { repo }
+    pub fn new(
+        repo: Arc<dyn ShipmentRepository + Send + Sync>,
+        user_repo: Arc<dyn UserRepository + Send + Sync>,
+    ) -> Self {
+        Self { repo, user_repo }
     }
 }
 
@@ -43,7 +50,11 @@ impl ShipmentService for ShipmentServiceImpl {
             None => Err(DomainError::ShipmentNotFoundById { id }),
         }
     }
+    async fn get_by_provider_id(&self, provider_id: Uuid) -> Result<Vec<Shipment>, DomainError> {
+        let assigned = self.repo.find_by_service_provider(provider_id).await?;
 
+        Ok(assigned)
+    }
     async fn list_shipments(&self, offset: i64, limit: i64) -> Result<Vec<Shipment>, DomainError> {
         let shipments = self.repo.list_all(offset, limit).await?;
 
@@ -150,5 +161,46 @@ impl ShipmentService for ShipmentServiceImpl {
         self.repo.update(&updated).await?;
 
         Ok(updated)
+    }
+
+    async fn assign_service_provider(
+        &self,
+        shipment_id: Uuid,
+        provider_id: Uuid,
+    ) -> Result<Shipment, DomainError> {
+        //1 Check whether the shipment exist
+
+        let shipment = self
+            .repo
+            .get_by_id(shipment_id)
+            .await?
+            .ok_or(DomainError::ShipmentNotFoundById { id: shipment_id })?;
+
+        // 2. Check that the user exists and is a service provider
+
+        let user = self
+            .user_repo
+            .get_by_id(provider_id)
+            .await?
+            .ok_or(DomainError::UserNotFoundWithId { id: provider_id })?;
+        if user.role() != UserRole::ServiceProvider {
+            return Err(DomainError::UserIsNotServiceProvider {
+                 provider_id,
+            });
+        }
+        // 3. Assign provider and update status
+
+        self.repo
+            .assign_service_provider(shipment_id, provider_id)
+            .await
+            .map_err(DomainError::from)?;
+
+        let updated_shipment = shipment.update_status(ShipmentStatus::Assigned)?;
+
+        self.repo
+            .update(&updated_shipment)
+            .await
+            .map_err(DomainError::from)?;
+        Ok(updated_shipment)
     }
 }

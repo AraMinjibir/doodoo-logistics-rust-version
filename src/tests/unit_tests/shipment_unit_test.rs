@@ -8,11 +8,12 @@ use crate::domain::models::shipment_status::ShipmentStatus;
 use crate::domain::services::shipment_service::ShipmentService;
 use crate::domain::services::shipment_service_impl::ShipmentServiceImpl;
 use crate::tests::common::fixtures::{test_proof, test_shipment, updated_shipment};
-use crate::tests::common::mock_repo::MockShipmentRepo;
+use crate::tests::common::mock_repo::{MockShipmentRepo, MockUserRepo};
 
 #[tokio::test]
 async fn create_shipment_success() {
     let mut repo = MockShipmentRepo::new();
+    let user_repository = MockUserRepo::new();
     let shipment = test_shipment();
 
     let expected_id = shipment.id();
@@ -23,8 +24,9 @@ async fn create_shipment_success() {
         .returning(|_| Ok(()));
 
     let repo = Arc::new(repo);
+    let user_repo = Arc::new(user_repository);
 
-    let service = ShipmentServiceImpl::new(repo);
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.create_shipment(shipment.clone()).await;
 
@@ -37,13 +39,15 @@ async fn create_shipment_success() {
 #[tokio::test]
 async fn create_shipment_repo_error() {
     let mut repo = MockShipmentRepo::new();
+    let user_repository = MockUserRepo::new();
 
     repo.expect_create()
         .returning(|_| Err(RepositoryError::DatabaseError("fail".into())));
 
     let repo = Arc::new(repo);
+    let user_repo = Arc::new(user_repository);
 
-    let service = ShipmentServiceImpl::new(repo);
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.create_shipment(test_shipment()).await;
 
@@ -53,14 +57,16 @@ async fn create_shipment_repo_error() {
 #[tokio::test]
 async fn get_by_tracking_success() {
     let mut repo = MockShipmentRepo::new();
+    let user_repository = MockUserRepo::new();
     let shipment = test_shipment();
 
     repo.expect_find_by_tracking_number()
         .returning(move |_| Ok(Some(shipment.clone())));
 
     let repo = Arc::new(repo);
+    let user_repo = Arc::new(user_repository);
 
-    let service = ShipmentServiceImpl::new(repo);
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.get_by_tracking_number("T1").await;
 
@@ -75,8 +81,10 @@ async fn get_by_tracking_not_found() {
         .returning(|_| Ok(None));
 
     let repo = Arc::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
 
-    let service = ShipmentServiceImpl::new(repo);
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.get_by_tracking_number("T1").await;
 
@@ -93,7 +101,10 @@ async fn get_by_id_success() {
         .returning(move |_| Ok(Some(shipment.clone())));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.get_by_id(id).await;
 
@@ -107,7 +118,10 @@ async fn get_by_id_not_found() {
     repo.expect_get_by_id().returning(|_| Ok(None));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.get_by_id(Uuid::new_v4()).await;
 
@@ -122,7 +136,10 @@ async fn get_by_status_success() {
         .returning(|_| Ok(vec![test_shipment()]));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.get_by_status(ShipmentStatus::Created).await;
 
@@ -149,7 +166,10 @@ async fn update_status_success() {
     repo.expect_update().returning(|_| Ok(()));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service
         .update_status(&tracking, ShipmentStatus::Delivered, None)
@@ -169,7 +189,10 @@ async fn update_status_not_found() {
         .returning(|_| Ok(None));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service
         .update_status("T1", ShipmentStatus::InTransit, None)
@@ -195,7 +218,10 @@ async fn update_shipment_success() {
     repo.expect_update().returning(|_| Ok(()));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.update_shipment(shipment_id, updated).await;
 
@@ -210,7 +236,10 @@ async fn list_shipments_success() {
         .returning(|_, _| Ok(vec![test_shipment()]));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.list_shipments(0, 10).await;
 
@@ -225,7 +254,10 @@ async fn delete_success() {
     repo.expect_delete().returning(|_| Ok(1));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.delete_shipment(Uuid::new_v4()).await;
 
@@ -239,7 +271,10 @@ async fn delete_not_found() {
     repo.expect_delete().returning(|_| Ok(0));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.delete_shipment(Uuid::new_v4()).await;
 
@@ -267,7 +302,10 @@ async fn upload_proof_success() {
         .returning(move |_, _| Ok(Some(shipment_upload.clone())));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let proof = test_proof();
 
@@ -284,7 +322,10 @@ async fn upload_proof_not_found() {
         .returning(|_| Ok(None));
 
     let repo = Arc::new(repo);
-    let service = ShipmentServiceImpl::new(repo);
+    let user_repository = MockUserRepo::new();
+    let user_repo = Arc::new(user_repository);
+
+    let service = ShipmentServiceImpl::new(repo, user_repo);
 
     let result = service.upload_proof_of_delivery("T1", test_proof()).await;
 

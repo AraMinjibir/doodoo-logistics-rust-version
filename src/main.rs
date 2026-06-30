@@ -46,7 +46,7 @@ async fn main() -> std::io::Result<()> {
     let jwt = JwtService::new("test-secret".to_string(), 60);
 
     // 3. Services
-    let shipment_service = ShipmentServiceImpl::new(shipment_repo.clone());
+    let shipment_service = ShipmentServiceImpl::new(shipment_repo.clone(), user_repo.clone());
 
     let payment_service = PaymentServiceImpl::new(
         payment_repo.clone(),

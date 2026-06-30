@@ -1,12 +1,13 @@
 use chrono::{DateTime, Utc};
 use serde::Serialize;
+use uuid::Uuid;
 
 use crate::controllers::dto::shipment_creation_dto::{AddressDto, PackageDetailsDto, RecipientDto};
 use crate::domain::models::{proof_of_delivery::ProofOfDelivery, shipment::Shipment};
 
 #[derive(Debug, Serialize)]
 pub struct ShipmentResponseDto {
-    pub id: uuid::Uuid,
+    pub id: Uuid,
     pub tracking_number: String,
 
     pub sender_name: String,
@@ -22,6 +23,7 @@ pub struct ShipmentResponseDto {
     pub estimated_delivery_date: DateTime<Utc>,
 
     pub proof_of_delivery: Vec<ProofOfDeliveryResponseDto>,
+    service_provider_id: Option<Uuid>,
 }
 
 impl From<Shipment> for ShipmentResponseDto {
@@ -61,6 +63,8 @@ impl From<Shipment> for ShipmentResponseDto {
                 .cloned()
                 .map(ProofOfDeliveryResponseDto::from)
                 .collect(),
+
+            service_provider_id: shipment.service_provider_id(),
         }
     }
 }

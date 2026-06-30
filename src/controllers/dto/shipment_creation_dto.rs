@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::controllers::helpers::result_mapper::IntoDomain;
 use crate::domain::errors::domain_error::DomainError;
@@ -24,7 +25,11 @@ pub(crate) struct CreateShipmentDto {
     pub height: f64,
     pub contents: String,
 }
-
+#[derive(Deserialize)]
+pub struct AssignProviderDto {
+    pub shipment_id: Uuid,
+    pub provider_id: Uuid,
+}
 #[allow(dead_code)]
 impl CreateShipmentDto {
     pub fn into_domain(self) -> Result<Shipment, DomainError> {

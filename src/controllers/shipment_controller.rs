@@ -3,8 +3,8 @@ use uuid::Uuid;
 
 use crate::config::app_state::AppState;
 use crate::controllers::dto::{
-    CreateShipmentDto, PaginationQuery, ProofOfDeliveryDto, ShipmentResponseDto, UpdateShipmentDto,
-    UpdateStatusDto,
+    AssignProviderDto, CreateShipmentDto, PaginationQuery, ProofOfDeliveryDto, ShipmentResponseDto,
+    UpdateShipmentDto, UpdateStatusDto,
 };
 use crate::controllers::helpers::result_mapper::{
     extract_or_bad_request, log_and_map, map_domain_error, parse_dto, parse_status,
@@ -21,6 +21,23 @@ pub async fn create_shipment(
 
     match state.shipment_service.create_shipment(domain).await {
         Ok(shipment) => HttpResponse::Created().json(ShipmentResponseDto::from(shipment)),
+        Err(e) => log_and_map(e),
+    }
+}
+pub async fn assign_service_provider(
+    state: web::Data<AppState>,
+    path: web::Path<AssignProviderDto>,
+) -> impl Responder {
+    let path = path.into_inner();
+
+    match state
+        .shipment_service
+        .assign_service_provider(path.shipment_id, path.provider_id)
+        .await
+    {
+        Ok(assigned_shipments) => {
+            HttpResponse::Ok().json(ShipmentResponseDto::from(assigned_shipments))
+        }
         Err(e) => log_and_map(e),
     }
 }
@@ -46,7 +63,23 @@ pub async fn get_by_id(state: web::Data<AppState>, id: web::Path<Uuid>) -> impl 
         Err(e) => log_and_map(e),
     }
 }
+pub async fn get_shipment_by_assinged_provider(
+    state: web::Data<AppState>,
+    provider_id: web::Path<Uuid>,
+) -> impl Responder {
+    let id = provider_id.into_inner();
+    match state.shipment_service.get_by_provider_id(id).await {
+        Ok(assigneds) => {
+            let assign_resp: Vec<ShipmentResponseDto> = assigneds
+                .into_iter()
+                .map(ShipmentResponseDto::from)
+                .collect();
 
+            HttpResponse::Ok().json(assign_resp)
+        }
+        Err(e) => log_and_map(e),
+    }
+}
 pub async fn get_by_status(
     state: web::Data<AppState>,
     status: web::Path<String>,
