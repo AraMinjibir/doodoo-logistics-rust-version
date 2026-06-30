@@ -35,7 +35,7 @@ pub async fn setup_app_with_pool(
     let user_repo = Arc::new(SqlxUserRepository::new(pool.clone()));
     let jwt = JwtService::new("test-secret".to_string(), 60);
 
-    let shipment_service_impl = ShipmentServiceImpl::new(shipment_repo.clone());
+    let shipment_service_impl = ShipmentServiceImpl::new(shipment_repo.clone(), user_repo.clone());
 
     let payment_service_impl =
         PaymentServiceImpl::new(payment_repo, shipment_repo.clone(), gateway);
