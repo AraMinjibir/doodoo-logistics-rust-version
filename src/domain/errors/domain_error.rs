@@ -47,6 +47,9 @@ pub enum DomainError {
     UserNotFoundWithId {
         id: Uuid,
     },
+    UserIsNotServiceProvider {
+        provider_id: Uuid,
+    },
 
     UserStatusIsNotActive {
         status: UserStatus,
@@ -156,6 +159,9 @@ impl fmt::Display for DomainError {
             }
             DomainError::UserNotFoundWithId { id } => {
                 write!(f, "User with id: {} not found", id)
+            }
+            DomainError::UserIsNotServiceProvider { provider_id } => {
+                write!(f, "User with provider_id: {} not found", provider_id)
             }
             DomainError::UserStatusIsNotActive { status } => {
                 write!(f, "User's status: {} is not Active", status)
