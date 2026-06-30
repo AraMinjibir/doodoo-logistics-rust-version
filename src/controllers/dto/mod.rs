@@ -26,3 +26,4 @@ pub(super) use user_dto::UpdateUserDto;
 pub(super) use user_dto::UpdateUserStatusDto;
 pub(super) use user_response_dto::LoginResponse;
 pub(super) use user_response_dto::UserResponse;
+pub(super) use shipment_creation_dto::AssignProviderDto;
