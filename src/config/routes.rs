@@ -9,7 +9,10 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/shipments")
             .route("", web::post().to(shipment_controller::create_shipment))
-            .route("/{shipment_id}/provider/{provider_id}", web::post().to(shipment_controller::assign_service_provider))
+            .route(
+                "/{shipment_id}/provider/{provider_id}",
+                web::post().to(shipment_controller::assign_service_provider),
+            )
             .route("", web::get().to(shipment_controller::list_shipments))
             .route("/{id}", web::get().to(shipment_controller::get_by_id))
             .route("/{id}", web::put().to(shipment_controller::update_shipment))
