@@ -185,7 +185,7 @@ impl ShipmentService for ShipmentServiceImpl {
             .ok_or(DomainError::UserNotFoundWithId { id: provider_id })?;
         if user.role() != UserRole::ServiceProvider {
             return Err(DomainError::UserIsNotServiceProvider {
-                provider_id: provider_id,
+                 provider_id,
             });
         }
         // 3. Assign provider and update status
